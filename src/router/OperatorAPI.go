@@ -1,7 +1,7 @@
 package router
 
 import (
-	"Envoy/src/controller"
+	"Themis/src/controller"
 	"github.com/gin-gonic/gin"
 )
 

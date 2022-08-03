@@ -1,9 +1,9 @@
 package LeaderAlgorithm
 
 import (
-	"Envoy/src/config"
-	"Envoy/src/entity"
-	"Envoy/src/entity/util"
+	"Themis/src/config"
+	"Themis/src/entity"
+	"Themis/src/entity/util"
 )
 
 func CreateLeader(List map[string]*util.LinkList[entity.ServerModel]) entity.ServerModel {

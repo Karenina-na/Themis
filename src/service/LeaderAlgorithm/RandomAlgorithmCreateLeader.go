@@ -1,8 +1,8 @@
 package LeaderAlgorithm
 
 import (
-	"Envoy/src/entity"
-	"Envoy/src/entity/util"
+	"Themis/src/entity"
+	"Themis/src/entity/util"
 	"math/rand"
 	"time"
 )

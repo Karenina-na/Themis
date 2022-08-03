@@ -1,10 +1,10 @@
 package main
 
 import (
-	"Envoy/src/config"
-	"Envoy/src/controller"
-	"Envoy/src/entity/util"
-	"Envoy/src/router"
+	"Themis/src/config"
+	"Themis/src/controller"
+	"Themis/src/entity/util"
+	"Themis/src/router"
 	"github.com/gin-gonic/gin"
 )
 

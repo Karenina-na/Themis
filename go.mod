@@ -1,4 +1,4 @@
-module Envoy
+module Themis
 
 go 1.18
 require (

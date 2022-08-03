@@ -1,7 +1,7 @@
 package service
 
 import (
-	"Envoy/src/entity"
+	"Themis/src/entity"
 	"reflect"
 	"strings"
 )

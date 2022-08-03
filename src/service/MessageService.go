@@ -1,10 +1,10 @@
 package service
 
 import (
-	"Envoy/src/config"
-	"Envoy/src/entity"
-	"Envoy/src/entity/util"
-	"Envoy/src/service/LeaderAlgorithm"
+	"Themis/src/config"
+	"Themis/src/entity"
+	"Themis/src/entity/util"
+	"Themis/src/service/LeaderAlgorithm"
 	"encoding/json"
 	"net"
 )
@@ -33,7 +33,8 @@ func Election(model *entity.ServerModel) bool {
 	List := ServerModelList[leader.Namespace]
 	for _, list := range List {
 		for i := 0; i < list.Length(); i++ {
-			go func(server entity.ServerModel) {
+			server := list.Get(i)
+			RoutinePool.CreateWork(func() {
 				udpAddr, _ := net.ResolveUDPAddr("udp", server.IP+":"+config.UDPPort)
 				conn, err := net.DialUDP("udp", nil, udpAddr)
 				if err != nil {
@@ -43,8 +44,7 @@ func Election(model *entity.ServerModel) bool {
 					data, _ := json.Marshal(leader)
 					_, _ = conn.Write(data)
 				}
-
-			}(list.Get(i))
+			})
 		}
 	}
 	return true

@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"Envoy/src/entity"
-	"Envoy/src/entity/util"
-	"Envoy/src/service"
+	"Themis/src/entity"
+	"Themis/src/entity/util"
+	"Themis/src/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
