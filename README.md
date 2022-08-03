@@ -152,3 +152,22 @@ Themis:.
                 init.go
                 RandomAlgorithmCreateLeader.go
 ```
+
+### 默认配置
+```
+	MaxRoutineNum = 2000    goroutine池最大线程数
+	
+	CoreRoutineNum = 1000   goroutine池核心线程数
+
+	Port = "8088"       Port 注册中心http端口
+
+	UDPPort = "12345"   UDP服务端口
+
+	ServerModelQueueNum = 100   服务注册处理队列容量
+
+	ServerModelBeatQueue = 100  服务心跳处理队列容量
+
+	ServerBeatTime int64 = 30   服务心跳超时时间   单位：s
+
+	CreateLeaderAlgorithm = "RandomAlgorithmCreateLeader"   记账人选举算法
+```

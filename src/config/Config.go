@@ -19,7 +19,7 @@ var (
 	ServerModelBeatQueue = 100
 
 	// ServerBeatTime 服务心跳超时时间   单位：s
-	ServerBeatTime int64 = 5000
+	ServerBeatTime int64 = 30
 
 	// CreateLeaderAlgorithm 记账人选举算法
 	CreateLeaderAlgorithm = "RandomAlgorithmCreateLeader"
