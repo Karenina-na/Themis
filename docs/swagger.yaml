@@ -1,0 +1,307 @@
+definitions:
+  entity.ResultModel:
+    properties:
+      Code:
+        type: integer
+      Data: {}
+      Message:
+        type: string
+    type: object
+info:
+  contact:
+    email: 1539989223@qq.com
+    name: CYCLEWW
+    url: https://www.wzxaugenstern.online/#/
+  description: 分布式记账系统调度中心
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://www.wzxaugenstern.online/#/
+  title: Themis API
+  version: "1.0"
+paths:
+  /api/v1/message/election:
+    put:
+      consumes:
+      - application/json
+      description: 由领导者调用的新一轮选举接口。
+      parameters:
+      - in: query
+        name: Colony
+        type: string
+      - in: query
+        name: IP
+        type: string
+      - in: query
+        name: Name
+        type: string
+      - in: query
+        name: Namespace
+        type: string
+      - in: query
+        name: Port
+        type: string
+      - in: query
+        name: Time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回true或false
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 选举
+      tags:
+      - 服务层
+  /api/v1/message/getLeader:
+    get:
+      consumes:
+      - application/json
+      description: 由其他服务调用的获取当前领导者接口。
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回领导者服务信息
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取领导者
+      tags:
+      - 服务层
+  /api/v1/message/getServers:
+    post:
+      consumes:
+      - application/json
+      description: 由当前领导者调用的获取领导者所领导的服务列表。
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回被领导者的切片数组
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取当前被领导者服务列表
+      tags:
+      - 服务层
+  /api/v1/message/message/beat:
+    put:
+      consumes:
+      - application/json
+      description: 服务心跳重置倒计时
+      parameters:
+      - in: query
+        name: Colony
+        type: string
+      - in: query
+        name: IP
+        type: string
+      - in: query
+        name: Name
+        type: string
+      - in: query
+        name: Namespace
+        type: string
+      - in: query
+        name: Port
+        type: string
+      - in: query
+        name: Time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回true或false
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 服务心跳
+      tags:
+      - 服务层
+  /api/v1/message/register:
+    post:
+      consumes:
+      - application/json
+      description: 服务注册进中心
+      parameters:
+      - in: query
+        name: Colony
+        type: string
+      - in: query
+        name: IP
+        type: string
+      - in: query
+        name: Name
+        type: string
+      - in: query
+        name: Namespace
+        type: string
+      - in: query
+        name: Port
+        type: string
+      - in: query
+        name: Time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回true或false
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 服务注册
+      tags:
+      - 服务层
+  /api/v1/operator/cancelDeleteInstance:
+    delete:
+      consumes:
+      - application/json
+      description: 由管理者调用删除黑名单中的实例信息。
+      parameters:
+      - in: query
+        name: Colony
+        type: string
+      - in: query
+        name: IP
+        type: string
+      - in: query
+        name: Name
+        type: string
+      - in: query
+        name: Namespace
+        type: string
+      - in: query
+        name: Port
+        type: string
+      - in: query
+        name: Time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回true或false
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除黑名单中的实例信息
+      tags:
+      - 管理层
+  /api/v1/operator/deleteColony:
+    delete:
+      consumes:
+      - application/json
+      description: 由管理者调用删除地区集群实例并拉入黑名单。
+      parameters:
+      - in: query
+        name: Colony
+        type: string
+      - in: query
+        name: IP
+        type: string
+      - in: query
+        name: Name
+        type: string
+      - in: query
+        name: Namespace
+        type: string
+      - in: query
+        name: Port
+        type: string
+      - in: query
+        name: Time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回true或false
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除地区集群实例并拉入黑名单
+      tags:
+      - 管理层
+  /api/v1/operator/election:
+    delete:
+      consumes:
+      - application/json
+      description: 由管理者调用删除服务实例并拉入黑名单。
+      parameters:
+      - in: query
+        name: Colony
+        type: string
+      - in: query
+        name: IP
+        type: string
+      - in: query
+        name: Name
+        type: string
+      - in: query
+        name: Namespace
+        type: string
+      - in: query
+        name: Port
+        type: string
+      - in: query
+        name: Time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回true或false
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除服务实例并拉入黑名单
+      tags:
+      - 管理层
+  /api/v1/operator/getDeleteInstance:
+    get:
+      consumes:
+      - application/json
+      description: 由管理者调用的获取当前全部黑名单服务实例
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回黑名单中服务实例切片数组
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取全部黑名单服务实例
+      tags:
+      - 管理层
+  /api/v1/operator/getInstances:
+    get:
+      consumes:
+      - application/json
+      description: 由管理者调用的获取当前所有服务信息。
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回服务实例切片数组
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取全部服务实例
+      tags:
+      - 管理层
+swagger: "2.0"

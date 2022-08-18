@@ -6,7 +6,7 @@ import (
 )
 
 func MessageAPI(r *gin.Engine) {
-	tx := r.Group("/api/message")
+	tx := r.Group("/api/v1/message")
 	{
 		//	/api/message/register		服务注册
 		tx.POST("/register", controller.RegisterController)

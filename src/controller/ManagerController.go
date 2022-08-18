@@ -8,15 +8,30 @@ import (
 	"net/http"
 )
 
+// GetController
+// @Summary 获取全部服务实例
+// @Description 由管理者调用的获取当前所有服务信息。
+// @Tags 管理层
+// @Accept application/json
+// @Produce application/json
+// @Security ApiKeyAuth
+// @Success 200 {object} entity.ResultModel "返回服务实例切片数组"
+// @Router /api/v1/operator/getInstances [get]
 func GetController(c *gin.Context) {
 	servers := service.GetInstances()
 	c.JSON(http.StatusOK, entity.NewSuccessResult(servers))
 }
-func GetDeleteInstanceController(c *gin.Context) {
-	servers := service.GetDeleteInstances()
-	c.JSON(http.StatusOK, entity.NewSuccessResult(servers))
-}
 
+// DeleteInstanceController
+// @Summary 删除服务实例并拉入黑名单
+// @Description 由管理者调用删除服务实例并拉入黑名单。
+// @Tags 管理层
+// @Accept application/json
+// @Produce application/json
+// @Security ApiKeyAuth
+// @Param Model query entity.ServerModel true "被删除的服务实例信息"
+// @Success 200 {object} entity.ResultModel "返回true或false"
+// @Router /api/v1/operator/election [delete]
 func DeleteInstanceController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
@@ -33,6 +48,16 @@ func DeleteInstanceController(c *gin.Context) {
 	}
 }
 
+// DeleteColonyController
+// @Summary 删除地区集群实例并拉入黑名单
+// @Description 由管理者调用删除地区集群实例并拉入黑名单。
+// @Tags 管理层
+// @Accept application/json
+// @Produce application/json
+// @Security ApiKeyAuth
+// @Param Model query entity.ServerModel true "被删除的服务地区信息（用服务实例信息包装）"
+// @Success 200 {object} entity.ResultModel "返回true或false"
+// @Router /api/v1/operator/deleteColony [delete]
 func DeleteColonyController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
@@ -45,6 +70,30 @@ func DeleteColonyController(c *gin.Context) {
 	}
 }
 
+// GetDeleteInstanceController
+// @Summary 获取全部黑名单服务实例
+// @Description 由管理者调用的获取当前全部黑名单服务实例
+// @Tags 管理层
+// @Accept application/json
+// @Produce application/json
+// @Security ApiKeyAuth
+// @Success 200 {object} entity.ResultModel "返回黑名单中服务实例切片数组"
+// @Router /api/v1/operator/getDeleteInstance [get]
+func GetDeleteInstanceController(c *gin.Context) {
+	servers := service.GetDeleteInstances()
+	c.JSON(http.StatusOK, entity.NewSuccessResult(servers))
+}
+
+// CancelDeleteInstanceController
+// @Summary 删除黑名单中的实例信息
+// @Description 由管理者调用删除黑名单中的实例信息。
+// @Tags 管理层
+// @Accept application/json
+// @Produce application/json
+// @Security ApiKeyAuth
+// @Param Model query entity.ServerModel true "从黑名单中清除的实例信息"
+// @Success 200 {object} entity.ResultModel "返回true或false"
+// @Router /api/v1/operator/cancelDeleteInstance [delete]
 func CancelDeleteInstanceController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)

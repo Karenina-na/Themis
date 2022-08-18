@@ -1,10 +1,5 @@
 package config
 
-import (
-	"Themis/src/entity/util"
-	"github.com/spf13/viper"
-)
-
 var (
 	// MaxRoutineNum goroutine池最大线程数
 	MaxRoutineNum int
@@ -29,22 +24,3 @@ var (
 	// CreateLeaderAlgorithm 记账人选举算法
 	CreateLeaderAlgorithm string
 )
-
-func init() {
-	viper.SetConfigName("config")
-	viper.AddConfigPath("./src/config")
-	viper.SetConfigType("yaml")
-	if err := viper.ReadInConfig(); err == nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			util.Loglevel(util.Info, "InitConfig", "配置文件config.yaml不存在")
-		}
-	}
-	MaxRoutineNum = viper.GetInt(`goroutine.MaxRoutineNum`)
-	CoreRoutineNum = viper.GetInt(`goroutine.CoreRoutineNum`)
-	Port = viper.GetString(`Themis.Port`)
-	UDPPort = viper.GetString(`Themis.UDPPort`)
-	ServerModelQueueNum = viper.GetInt(`Themis.server.ServerModelQueueNum`)
-	ServerModelBeatQueue = viper.GetInt(`Themis.server.ServerModelBeatQueue`)
-	ServerBeatTime = int64(viper.GetInt(`Themis.server.ServerBeatTime`))
-	CreateLeaderAlgorithm = viper.GetString(`Themis.CreateLeaderAlgorithm`)
-}

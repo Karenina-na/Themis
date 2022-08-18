@@ -6,7 +6,7 @@ import (
 )
 
 func OperatorAPI(r *gin.Engine) {
-	tx := r.Group("/api/operator")
+	tx := r.Group("/api/v1/operator")
 	{
 		//	/api/operator/getInstances			获取全部服务实例
 		tx.GET("/getInstances", controller.GetController)
