@@ -58,5 +58,6 @@ func init() {
 	ServerModelQueue = make(chan entity.ServerModel, config.ServerModelQueueNum)
 
 	ServerModelBeatQueue = make(chan entity.ServerModel, config.ServerModelBeatQueue)
+
 	RoutinePool.CreateWork(Register)
 }
