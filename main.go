@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Themis/docs"
+	FactoryInit "Themis/src/Init"
 	swaggerFile "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -24,7 +24,7 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	config.SwaggerConfig(docs.SwaggerInfo)
+	FactoryInit.ThemisInitFactory()
 	defer func() {
 		err := recover()
 		util.Loglevel(util.Error, "main", util.Strval(err))

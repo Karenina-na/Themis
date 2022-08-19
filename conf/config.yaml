@@ -1,14 +1,18 @@
 goroutine:
-  MaxRoutineNum: 2000 #goroutine池最大线程数
-  CoreRoutineNum: 1000  #goroutine池核心线程数
+  max-goroutine: 2000 #goroutine池最大线程数
+  core-goroutine: 1000  #goroutine池核心线程数
 
 Themis:
-  Port: 8080  #注册中心http端口
-  UDPPort: 12345 #UDP服务端口
+  port: 8080  #注册中心http端口
+  UDP-port: 12345 #UDP服务端口
 
   server:
-    ServerModelQueueNum: 100  #服务注册处理队列容量
-    ServerModelBeatQueue: 100 #服务心跳处理队列容量
-    ServerBeatTime: 30  #服务心跳超时时间   单位：s
+    model-queue: 100  #服务注册处理队列容量
+    beat-queue: 100 #服务心跳处理队列容量
+    beat-time: 30  #服务心跳超时时间   单位：s
 
-  CreateLeaderAlgorithm:  RandomAlgorithmCreateLeader #记账人选举算法
+  leader-algorithm:  RandomAlgorithmCreateLeader #记账人选举算法
+
+  database:
+    enable: true  #是否开启持久化
+    persistence-time: 10 #持久化间隔

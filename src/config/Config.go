@@ -23,4 +23,10 @@ var (
 
 	// CreateLeaderAlgorithm 记账人选举算法
 	CreateLeaderAlgorithm string
+
+	// DatabaseEnable 是否开启持久化
+	DatabaseEnable bool
+
+	// PersistenceTime 持久化时间
+	PersistenceTime int64
 )

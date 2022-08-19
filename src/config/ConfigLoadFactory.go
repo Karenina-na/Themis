@@ -13,51 +13,10 @@ func init() {
 	viper.SetConfigType("yaml")
 	err := viper.ReadInConfig()
 	if err == nil {
-		MaxRoutineNum = viper.GetInt(`goroutine.MaxRoutineNum`)
-		if MaxRoutineNum < 1 {
-			util.Loglevel(util.Info, "InitConfig", "MaxRoutineNum非法")
-			os.Exit(0)
-		}
-		CoreRoutineNum = viper.GetInt(`goroutine.CoreRoutineNum`)
-		if CoreRoutineNum < 1 {
-			util.Loglevel(util.Info, "InitConfig", "CoreRoutineNum非法")
-			os.Exit(0)
-		}
-		if CoreRoutineNum > MaxRoutineNum {
-			util.Loglevel(util.Info, "InitConfig", "MaxRoutineNum不能比CoreRoutineNum小")
-			os.Exit(0)
-		}
-		port := viper.GetInt(`Themis.Port`)
-		if port < 0 && port > 65535 {
-			util.Loglevel(util.Info, "InitConfig", "Port端口错误")
-			os.Exit(0)
-		}
-		Port = strconv.Itoa(port)
-		udpPort := viper.GetInt(`Themis.UDPPort`)
-		if udpPort < 0 && udpPort > 65535 {
-			util.Loglevel(util.Info, "InitConfig", "UDPPort端口错误")
-			os.Exit(0)
-		} else if udpPort == port {
-			util.Loglevel(util.Info, "InitConfig", "Port与UDPPort端口冲突")
-			os.Exit(0)
-		}
-		UDPPort = strconv.Itoa(udpPort)
-		ServerModelQueueNum = viper.GetInt(`Themis.server.ServerModelQueueNum`)
-		if ServerModelQueueNum <= 0 {
-			util.Loglevel(util.Info, "InitConfig", "ServerModelQueueNum非法")
-			os.Exit(0)
-		}
-		ServerModelBeatQueue = viper.GetInt(`Themis.server.ServerModelBeatQueue`)
-		if ServerModelBeatQueue <= 0 {
-			util.Loglevel(util.Info, "InitConfig", "ServerModelBeatQueue非法")
-			os.Exit(0)
-		}
-		ServerBeatTime = int64(viper.GetInt(`Themis.server.ServerBeatTime`))
-		if ServerModelBeatQueue <= 0 {
-			util.Loglevel(util.Info, "InitConfig", "ServerBeatTime非法")
-			os.Exit(0)
-		}
-		CreateLeaderAlgorithm = viper.GetString(`Themis.CreateLeaderAlgorithm`)
+		LoadRoutineConfig()
+		LoadPortConfig()
+		LoadServerConfig()
+		LoadDatabaseConfig()
 	} else {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			util.Loglevel(util.Info, "InitConfig", "配置文件config.yaml不存在-"+err.Error())
@@ -65,5 +24,72 @@ func init() {
 			util.Loglevel(util.Warn, "InitConfig", "未知错误-"+err.Error())
 		}
 		os.Exit(0)
+	}
+}
+
+func LoadRoutineConfig() {
+	MaxRoutineNum = viper.GetInt(`goroutine.max-goroutine`)
+	if MaxRoutineNum < 1 {
+		util.Loglevel(util.Info, "InitConfig", "max-goroutine")
+		os.Exit(0)
+	}
+	CoreRoutineNum = viper.GetInt(`goroutine.core-goroutine`)
+	if CoreRoutineNum < 1 {
+		util.Loglevel(util.Info, "InitConfig", "core-goroutine")
+		os.Exit(0)
+	}
+	if CoreRoutineNum > MaxRoutineNum {
+		util.Loglevel(util.Info, "InitConfig", "max-goroutine不能比core-goroutine小")
+		os.Exit(0)
+	}
+}
+
+func LoadPortConfig() {
+	port := viper.GetInt(`Themis.port`)
+	if port < 0 && port > 65535 {
+		util.Loglevel(util.Info, "InitConfig", "port端口错误")
+		os.Exit(0)
+	}
+	Port = strconv.Itoa(port)
+	udpPort := viper.GetInt(`Themis.UDP-port`)
+	if udpPort < 0 && udpPort > 65535 {
+		util.Loglevel(util.Info, "InitConfig", "UDP-port端口错误")
+		os.Exit(0)
+	} else if udpPort == port {
+		util.Loglevel(util.Info, "InitConfig", "port与UDP-port端口冲突")
+		os.Exit(0)
+	}
+	UDPPort = strconv.Itoa(udpPort)
+}
+
+func LoadServerConfig() {
+	ServerModelQueueNum = viper.GetInt(`Themis.server.model-queue`)
+	if ServerModelQueueNum <= 0 {
+		util.Loglevel(util.Info, "InitConfig", "model-queue非法")
+		os.Exit(0)
+	}
+	ServerModelBeatQueue = viper.GetInt(`Themis.server.beat-queue`)
+	if ServerModelBeatQueue <= 0 {
+		util.Loglevel(util.Info, "InitConfig", "beat-queue非法")
+		os.Exit(0)
+	}
+	ServerBeatTime = int64(viper.GetInt(`Themis.server.beat-time`))
+	if ServerModelBeatQueue <= 0 {
+		util.Loglevel(util.Info, "InitConfig", "beat-time非法")
+		os.Exit(0)
+	}
+	CreateLeaderAlgorithm = viper.GetString(`Themis.leader-algorithm`)
+}
+
+func LoadDatabaseConfig() {
+	DatabaseEnable = viper.GetBool(`Themis.database.enable`)
+	if DatabaseEnable {
+		PersistenceTime = int64(viper.GetInt(`Themis.database.persistence-time`))
+		if PersistenceTime <= 0 {
+			util.Loglevel(util.Info, "InitConfig", "persistence-time非法")
+			os.Exit(0)
+		}
+	} else {
+		PersistenceTime = 0
 	}
 }

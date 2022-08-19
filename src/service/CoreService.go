@@ -28,14 +28,17 @@ func Register() {
 			wg.Add(1)
 			go ServerBeat(data, namespace, name, &wg)
 			wg.Wait()
-			util.Loglevel(util.Info, util.Strval(data), "break ServerBeat")
+			util.Loglevel(util.Info, "ServerBeat:", "因心跳停止而删除-"+util.Strval(data))
 		})
 		ServerModelListRWLock.Unlock()
 	}
 }
 
 func ServerBeat(model entity.ServerModel, namespace string, name string, wg *sync.WaitGroup) {
-	defer wg.Done()
+	defer func() {
+		wg.Done()
+		DeleteMapper(&model)
+	}()
 	start := time.Now().Unix()
 	for {
 		t := time.Now().Unix() - start

@@ -4,6 +4,7 @@ import (
 	"Themis/src/config"
 	"Themis/src/entity"
 	"Themis/src/entity/util"
+	"os"
 	"sync"
 )
 
@@ -46,7 +47,7 @@ var (
 // RoutinePool goroutine池
 var RoutinePool *util.Pool
 
-func init() {
+func ServerInitFactory() {
 	RoutinePool = util.CreatePool(config.CoreRoutineNum, config.MaxRoutineNum)
 
 	InstanceList = util.NewLinkList[entity.ServerModel]()
@@ -60,4 +61,10 @@ func init() {
 	ServerModelBeatQueue = make(chan entity.ServerModel, config.ServerModelBeatQueue)
 
 	RoutinePool.CreateWork(Register)
+	if config.DatabaseEnable {
+		if _, err := os.Stat("./db/Themis.db"); err == nil {
+			LoadDatabase()
+		}
+		RoutinePool.CreateWork(Persistence)
+	}
 }
