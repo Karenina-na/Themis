@@ -29,6 +29,7 @@ Themis:.
 ├─.idea
 ├─bin   //可执行文件
 ├─conf  //项目配置，需与bin中的exe文件放在同一个目录下
+├─db    //数据库文件
 ├─docs  //swagger文档
 ├─log   //日志
 └─src   //源码
@@ -36,6 +37,8 @@ Themis:.
     ├─controller    //前端控制器
     ├─entity    //数据模型
     │  └─util
+    ├─Init      //初始化操作
+    ├─mapper    //数据持久层
     ├─router    //路由
     └─service   //业务逻辑层
         └─LeaderAlgorithm   //选举算法
@@ -48,4 +51,6 @@ go version : 1.18.3 windows/amd64
 gin : v1.8.1
 viper : v1.12.0
 swagger for go : v0.22.3
+gorm : v1.3.6
+sqllit : v1.3.6
 ```
