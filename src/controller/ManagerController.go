@@ -2,7 +2,7 @@ package controller
 
 import (
 	"Themis/src/entity"
-	"Themis/src/entity/util"
+	"Themis/src/exception"
 	"Themis/src/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -18,7 +18,15 @@ import (
 // @Success 200 {object} entity.ResultModel "返回服务实例切片数组"
 // @Router /api/v1/operator/getInstances [get]
 func GetController(c *gin.Context) {
-	servers := service.GetInstances()
+	handle := func(err any) {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
+		exception.HandleException(err)
+	}
+	servers, err := service.GetInstances()
+	if err != nil {
+		handle(err)
+		return
+	}
 	c.JSON(http.StatusOK, entity.NewSuccessResult(servers))
 }
 
@@ -33,18 +41,33 @@ func GetController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/operator/election [delete]
 func DeleteInstanceController(c *gin.Context) {
+	handle := func(err any) {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
+		exception.HandleException(err)
+	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
+		exception.HandleException(exception.NewControllerPanic("DeleteInstanceController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
-		util.Loglevel(util.Warn, "DeleteInstanceController-Controller", "参数绑定错误-"+err.Error())
-	} else {
-		if service.CheckServer(Server) {
-			Assert := service.DeleteServer(Server)
-			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
-		} else {
-			c.JSON(http.StatusOK, entity.NewFalseResult("false", "实例不存在"))
+		return
+	}
+	Assert1, err1 := service.CheckServer(Server)
+	if err1 != nil {
+		handle(err1)
+		return
+	}
+	if Assert1 {
+		Assert2, err2 := service.DeleteServer(Server)
+		if err2 != nil {
+			handle(err2)
+			return
 		}
+		if Assert2 {
+			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert2))
+		}
+	} else {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "实例不存在"))
 	}
 }
 
@@ -59,15 +82,24 @@ func DeleteInstanceController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/operator/deleteColony [delete]
 func DeleteColonyController(c *gin.Context) {
+	handle := func(err any) {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
+		exception.HandleException(err)
+	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
+		exception.HandleException(exception.NewControllerPanic("DeleteColonyController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
-		util.Loglevel(util.Warn, "DeleteColonyController-Controller", "参数绑定错误-"+err.Error())
-	} else {
-		Assert := service.DeleteColony(Server)
-		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
+		return
 	}
+	Assert, err1 := service.DeleteColony(Server)
+	if err1 != nil {
+		handle(err1)
+		return
+	}
+	c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
+
 }
 
 // GetDeleteInstanceController
@@ -80,7 +112,15 @@ func DeleteColonyController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回黑名单中服务实例切片数组"
 // @Router /api/v1/operator/getDeleteInstance [get]
 func GetDeleteInstanceController(c *gin.Context) {
-	servers := service.GetDeleteInstances()
+	handle := func(err any) {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
+		exception.HandleException(err)
+	}
+	servers, err := service.GetDeleteInstances()
+	if err != nil {
+		handle(err)
+		return
+	}
 	c.JSON(http.StatusOK, entity.NewSuccessResult(servers))
 }
 
@@ -95,17 +135,30 @@ func GetDeleteInstanceController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/operator/cancelDeleteInstance [delete]
 func CancelDeleteInstanceController(c *gin.Context) {
+	handle := func(err any) {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
+		exception.HandleException(err)
+	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
+		exception.HandleException(exception.NewControllerPanic("CancelDeleteInstanceController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
-		util.Loglevel(util.Warn, "CancelDeleteInstanceController-Controller", "参数绑定错误-"+err.Error())
-	} else {
-		if service.CheckDeleteServer(Server) {
-			Assert := service.DeleteDeleteInstance(Server)
-			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
-		} else {
-			c.JSON(http.StatusOK, entity.NewFalseResult("false", "实例不在拒绝队列中"))
+		return
+	}
+	Assert1, err1 := service.CheckDeleteServer(Server)
+	if err1 != nil {
+		handle(err1)
+		return
+	}
+	if Assert1 {
+		Assert2, err2 := service.DeleteDeleteInstance(Server)
+		if err2 != nil {
+			handle(err2)
+			return
 		}
+		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert2))
+	} else {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "实例不在拒绝队列中"))
 	}
 }

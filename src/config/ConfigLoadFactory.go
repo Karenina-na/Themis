@@ -1,95 +1,111 @@
 package config
 
 import (
-	"Themis/src/entity/util"
+	"Themis/src/exception"
 	"github.com/spf13/viper"
-	"os"
 	"strconv"
 )
 
-func init() {
+func InitConfig() (E any) {
+	defer func() {
+		E = recover()
+	}()
 	viper.SetConfigName("config")
 	viper.AddConfigPath("./conf")
 	viper.SetConfigType("yaml")
 	err := viper.ReadInConfig()
 	if err == nil {
-		LoadRoutineConfig()
-		LoadPortConfig()
-		LoadServerConfig()
-		LoadDatabaseConfig()
+		if err := LoadRoutineConfig(); err != nil {
+			exception.HandleException(err)
+		}
+		if err := LoadPortConfig(); err != nil {
+			exception.HandleException(err)
+		}
+		if err := LoadServerConfig(); err != nil {
+			exception.HandleException(err)
+		}
+		if err := LoadDatabaseConfig(); err != nil {
+			exception.HandleException(err)
+		}
 	} else {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			util.Loglevel(util.Info, "InitConfig", "配置文件config.yaml不存在-"+err.Error())
+			panic(exception.NewConfigurationPanic("init", "配置文件不存在"))
 		} else {
-			util.Loglevel(util.Warn, "InitConfig", "未知错误-"+err.Error())
+			panic(exception.NewConfigurationPanic("init", "配置文件读取失败"+err.Error()))
 		}
-		os.Exit(0)
 	}
+	return nil
 }
 
-func LoadRoutineConfig() {
+func LoadRoutineConfig() (E any) {
+	defer func() {
+		E = recover()
+	}()
 	MaxRoutineNum = viper.GetInt(`goroutine.max-goroutine`)
 	if MaxRoutineNum < 1 {
-		util.Loglevel(util.Info, "InitConfig", "max-goroutine")
-		os.Exit(0)
+		panic(exception.NewConfigurationPanic("LoadRoutineConfig", "max-goroutine非法"))
 	}
 	CoreRoutineNum = viper.GetInt(`goroutine.core-goroutine`)
 	if CoreRoutineNum < 1 {
-		util.Loglevel(util.Info, "InitConfig", "core-goroutine")
-		os.Exit(0)
+		panic(exception.NewConfigurationPanic("LoadRoutineConfig", "core-goroutine非法"))
 	}
 	if CoreRoutineNum > MaxRoutineNum {
-		util.Loglevel(util.Info, "InitConfig", "max-goroutine不能比core-goroutine小")
-		os.Exit(0)
+		panic(exception.NewConfigurationPanic("LoadRoutineConfig", "core-goroutine大于max-goroutine"))
 	}
+	return nil
 }
 
-func LoadPortConfig() {
+func LoadPortConfig() (E any) {
+	defer func() {
+		E = recover()
+	}()
 	port := viper.GetInt(`Themis.port`)
-	if port < 0 && port > 65535 {
-		util.Loglevel(util.Info, "InitConfig", "port端口错误")
-		os.Exit(0)
+	if port < 0 || port > 65535 {
+		panic(exception.NewConfigurationPanic("LoadPortConfig", "port端口非法"))
 	}
 	Port = strconv.Itoa(port)
 	udpPort := viper.GetInt(`Themis.UDP-port`)
-	if udpPort < 0 && udpPort > 65535 {
-		util.Loglevel(util.Info, "InitConfig", "UDP-port端口错误")
-		os.Exit(0)
+	if udpPort < 0 || udpPort > 65535 {
+		panic(exception.NewConfigurationPanic("LoadPortConfig", "UDP-port端口非法"))
 	} else if udpPort == port {
-		util.Loglevel(util.Info, "InitConfig", "port与UDP-port端口冲突")
-		os.Exit(0)
+		panic(exception.NewConfigurationPanic("LoadPortConfig", "UDP-port端口不能与port端口相同"))
 	}
 	UDPPort = strconv.Itoa(udpPort)
+	return nil
 }
 
-func LoadServerConfig() {
+func LoadServerConfig() (E any) {
+	defer func() {
+		E = recover()
+	}()
 	ServerModelQueueNum = viper.GetInt(`Themis.server.model-queue`)
 	if ServerModelQueueNum <= 0 {
-		util.Loglevel(util.Info, "InitConfig", "model-queue非法")
-		os.Exit(0)
+		panic(exception.NewConfigurationPanic("LoadServerConfig", "model-queue非法"))
 	}
 	ServerModelBeatQueue = viper.GetInt(`Themis.server.beat-queue`)
 	if ServerModelBeatQueue <= 0 {
-		util.Loglevel(util.Info, "InitConfig", "beat-queue非法")
-		os.Exit(0)
+		panic(exception.NewConfigurationPanic("LoadServerConfig", "beat-queue非法"))
 	}
 	ServerBeatTime = int64(viper.GetInt(`Themis.server.beat-time`))
-	if ServerModelBeatQueue <= 0 {
-		util.Loglevel(util.Info, "InitConfig", "beat-time非法")
-		os.Exit(0)
+	if ServerBeatTime <= 0 {
+		panic(exception.NewConfigurationPanic("LoadServerConfig", "beat-time非法"))
 	}
 	CreateLeaderAlgorithm = viper.GetString(`Themis.leader-algorithm`)
+	return nil
 }
 
-func LoadDatabaseConfig() {
+func LoadDatabaseConfig() (E any) {
+	defer func() {
+		E = recover()
+	}()
 	DatabaseEnable = viper.GetBool(`Themis.database.enable`)
 	if DatabaseEnable {
 		PersistenceTime = int64(viper.GetInt(`Themis.database.persistence-time`))
 		if PersistenceTime <= 0 {
-			util.Loglevel(util.Info, "InitConfig", "persistence-time非法")
-			os.Exit(0)
+			panic(exception.NewConfigurationPanic("LoadDatabaseConfig", "persistence-time非法"))
 		}
 	} else {
 		PersistenceTime = 0
 	}
+	return nil
 }

@@ -37,6 +37,7 @@ Themis:.
     ├─controller    //前端控制器
     ├─entity    //数据模型
     │  └─util
+    ├─exception //异常处理模块
     ├─Init      //初始化操作
     ├─mapper    //数据持久层
     ├─router    //路由

@@ -6,19 +6,31 @@ import (
 	"strings"
 )
 
-func CheckServer(model *entity.ServerModel) bool {
-	return InstanceList.Contain(*model)
+func CheckServer(model *entity.ServerModel) (B bool, E any) {
+	defer func() {
+		E = recover()
+	}()
+	return InstanceList.Contain(*model), nil
 }
 
-func CheckDeleteServer(model *entity.ServerModel) bool {
-	return DeleteInstanceList.Contain(*model)
+func CheckDeleteServer(model *entity.ServerModel) (B bool, E any) {
+	defer func() {
+		E = recover()
+	}()
+	return DeleteInstanceList.Contain(*model), nil
 }
 
-func CheckLeader(model *entity.ServerModel) bool {
-	return reflect.DeepEqual(*model, Leader)
+func CheckLeader(model *entity.ServerModel) (B bool, E any) {
+	defer func() {
+		E = recover()
+	}()
+	return reflect.DeepEqual(*model, Leader), nil
 }
 
-func DeleteServer(model *entity.ServerModel) bool {
+func DeleteServer(model *entity.ServerModel) (B bool, E any) {
+	defer func() {
+		E = recover()
+	}()
 	ServerModelListRWLock.Lock()
 	defer ServerModelListRWLock.Unlock()
 	DeleteInstanceList.Append(*model)
@@ -27,10 +39,13 @@ func DeleteServer(model *entity.ServerModel) bool {
 	if reflect.DeepEqual(*model, Leader) {
 		Election(model)
 	}
-	return Assert
+	return Assert, nil
 }
 
-func DeleteColony(model *entity.ServerModel) bool {
+func DeleteColony(model *entity.ServerModel) (B bool, E any) {
+	defer func() {
+		E = recover()
+	}()
 	flag := false
 	list := make([]string, 0, 100)
 	ServerModelListRWLock.Lock()
@@ -56,23 +71,32 @@ func DeleteColony(model *entity.ServerModel) bool {
 	if flag {
 		Election(model)
 	}
-	return true
+	return true, nil
 }
 
-func GetDeleteInstances() []entity.ServerModel {
+func GetDeleteInstances() (m []entity.ServerModel, E any) {
+	defer func() {
+		E = recover()
+	}()
 	list := make([]entity.ServerModel, 0, 100)
 	for i := 0; i < DeleteInstanceList.Length(); i++ {
 		list = append(list, DeleteInstanceList.Get(i))
 	}
-	return list
+	return list, nil
 }
 
-func DeleteDeleteInstance(model *entity.ServerModel) bool {
+func DeleteDeleteInstance(model *entity.ServerModel) (B bool, E any) {
+	defer func() {
+		E = recover()
+	}()
 	DeleteInstanceList.DeleteByValue(*model)
-	return true
+	return true, nil
 }
 
-func GetInstances() map[string]map[string]map[string][]entity.ServerModel {
+func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E any) {
+	defer func() {
+		E = recover()
+	}()
 	ServerLists := make(map[string]map[string]map[string][]entity.ServerModel)
 	ServerModelListRWLock.RLock()
 	defer ServerModelListRWLock.RUnlock()
@@ -101,5 +125,5 @@ func GetInstances() map[string]map[string]map[string][]entity.ServerModel {
 			}
 		}
 	}
-	return ServerLists
+	return ServerLists, nil
 }

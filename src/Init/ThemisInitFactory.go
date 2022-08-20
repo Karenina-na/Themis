@@ -7,10 +7,20 @@ import (
 	"Themis/src/service"
 )
 
-func ThemisInitFactory() {
-	config.SwaggerConfig(docs.SwaggerInfo)
-	if config.DatabaseEnable {
-		mapper.FactoryInit()
+func ThemisInitFactory() (E any) {
+	if err := config.InitConfig(); err != nil {
+		return err
 	}
-	service.ServerInitFactory()
+	if err := config.SwaggerConfig(docs.SwaggerInfo); err != nil {
+		return err
+	}
+	if config.DatabaseEnable {
+		if err := mapper.FactoryInit(); err != nil {
+			return err
+		}
+	}
+	if err := service.ServerInitFactory(); err != nil {
+		return err
+	}
+	return nil
 }

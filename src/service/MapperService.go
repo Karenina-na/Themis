@@ -7,7 +7,10 @@ import (
 	"time"
 )
 
-func LoadDatabase() {
+func LoadDatabase() (E any) {
+	defer func() {
+		E = recover()
+	}()
 	serverModels, deleteServerModels := mapper.SelectAllServers()
 	for i := 0; i < len(serverModels); i++ {
 		model := &entity.ServerModel{
@@ -31,9 +34,13 @@ func LoadDatabase() {
 		}
 		DeleteServer(model)
 	}
+	return nil
 }
 
-func Persistence() {
+func Persistence() (E any) {
+	defer func() {
+		E = recover()
+	}()
 	for {
 		time.Sleep(time.Duration(config.PersistenceTime) * time.Second)
 		mapper.DeleteAllServer()

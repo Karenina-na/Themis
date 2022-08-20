@@ -2,7 +2,7 @@ package controller
 
 import (
 	"Themis/src/entity"
-	"Themis/src/entity/util"
+	"Themis/src/exception"
 	"Themis/src/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -19,24 +19,44 @@ import (
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/message/register [post]
 func RegisterController(c *gin.Context) {
+	handle := func(err any) {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
+		exception.HandleException(err)
+	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
-		util.Loglevel(util.Warn, "RegisterController-Controller", "参数绑定错误-"+err.Error())
+		exception.HandleException(exception.NewControllerPanic("RegisterController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
-	} else {
-		if !service.CheckServer(Server) && !service.CheckDeleteServer(Server) {
-			Assert := service.RegisterServer(Server)
-			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
-		} else if service.CheckServer(Server) && !service.CheckDeleteServer(Server) {
-			c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已注册"))
-		} else {
-			c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已被删除"))
-		}
+		return
 	}
+	assert1, err1 := service.CheckServer(Server)
+	if err1 != nil {
+		handle(err1)
+		return
+	}
+	assert2, err2 := service.CheckDeleteServer(Server)
+	if err2 != nil {
+		handle(err2)
+		return
+	}
+	if !assert1 && !assert2 {
+		Assert, err3 := service.RegisterServer(Server)
+		if err3 != nil {
+			handle(err3)
+			return
+		} else {
+			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
+		}
+	} else if assert1 && !assert2 {
+		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已注册"))
+	} else {
+		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已被删除"))
+	}
+
 }
 
-// HeartBeat
+// HeartBeatController
 // @Summary 服务心跳
 // @Description 服务心跳重置倒计时
 // @Tags 服务层
@@ -46,26 +66,48 @@ func RegisterController(c *gin.Context) {
 // @Param Model query entity.ServerModel true "服务实例信息"
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/message/message/beat [put]
-func HeartBeat(c *gin.Context) {
+func HeartBeatController(c *gin.Context) {
+	handle := func(err any) {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
+		exception.HandleException(err)
+	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
 	if err != nil {
-		util.Loglevel(util.Warn, "HeartBeat-Controller", "参数绑定错误-"+err.Error())
+		exception.HandleException(exception.NewControllerPanic("HeartBeatController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
-	} else {
-		if service.CheckServer(Server) && !service.CheckDeleteServer(Server) {
-			Assert := service.FlashHeartBeat(Server)
-			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
-		} else if !service.CheckDeleteServer(Server) {
-			Assert := service.RegisterServer(Server)
-			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
-		} else {
-			c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例以被删除"))
+		return
+	}
+	Assert1, err1 := service.CheckServer(Server)
+	if err1 != nil {
+		handle(err1)
+		return
+	}
+	Assert2, err2 := service.CheckDeleteServer(Server)
+	if err2 != nil {
+		handle(err2)
+		return
+	}
+	if Assert1 && !Assert2 {
+		Assert3, err3 := service.FlashHeartBeat(Server)
+		if err3 != nil {
+			handle(err3)
+			return
 		}
+		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert3))
+	} else if !Assert2 {
+		Assert4, err4 := service.RegisterServer(Server)
+		if err4 != nil {
+			handle(err4)
+			return
+		}
+		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert4))
+	} else {
+		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已被删除"))
 	}
 }
 
-// Election
+// ElectionController
 // @Summary 选举
 // @Description 由领导者调用的新一轮选举接口。
 // @Tags 服务层
@@ -75,24 +117,37 @@ func HeartBeat(c *gin.Context) {
 // @Param Model query entity.ServerModel true "领导者服务实例信息"
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/message/election [put]
-func Election(c *gin.Context) {
+func ElectionController(c *gin.Context) {
+	handle := func(err any) {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
+		exception.HandleException(err)
+	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
 	if err != nil {
+		exception.HandleException(exception.NewControllerPanic("ElectionController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
-		util.Loglevel(util.Warn, "Election-Controller", "参数绑定错误-"+err.Error())
-	} else {
-		if service.CheckLeader(Server) {
-			Assert := service.Election(Server)
-			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
-		} else {
-			c.JSON(http.StatusOK, entity.NewFalseResult("false", "错误的Leader"))
-			util.Loglevel(util.Warn, "Election-Controller", "错误的Leader")
+		return
+	}
+	Assert1, err1 := service.CheckServer(Server)
+	if err1 != nil {
+		handle(err1)
+		return
+	}
+	if Assert1 {
+		Assert2, err2 := service.Election(Server)
+		if err2 != nil {
+			handle(err2)
+			return
 		}
+		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert2))
+	} else {
+		exception.HandleException(exception.NewControllerPanic("ElectionController", "错误的Leader"))
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "错误的Leader"))
 	}
 }
 
-// GetLeader
+// GetLeaderController
 // @Summary 获取领导者
 // @Description 由其他服务调用的获取当前领导者接口。
 // @Tags 服务层
@@ -101,11 +156,20 @@ func Election(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Success 200 {object} entity.ResultModel "返回领导者服务信息"
 // @Router /api/v1/message/getLeader [GET]
-func GetLeader(c *gin.Context) {
-	c.JSON(http.StatusOK, entity.NewSuccessResult(service.GetLeader()))
+func GetLeaderController(c *gin.Context) {
+	handle := func(err any) {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
+		exception.HandleException(err)
+	}
+	leader, err := service.GetLeader()
+	if err != nil {
+		handle(err)
+		return
+	}
+	c.JSON(http.StatusOK, entity.NewSuccessResult(leader))
 }
 
-// GetServers
+// GetServersController
 // @Summary 获取当前被领导者服务列表
 // @Description 由当前领导者调用的获取领导者所领导的服务列表。
 // @Tags 服务层
@@ -114,19 +178,32 @@ func GetLeader(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Success 200 {object} entity.ResultModel "返回被领导者的切片数组"
 // @Router /api/v1/message/getServers [POST]
-func GetServers(c *gin.Context) {
+func GetServersController(c *gin.Context) {
+	handle := func(err any) {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
+		exception.HandleException(err)
+	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
 	if err != nil {
+		exception.HandleException(exception.NewControllerPanic("GetServersController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
-		util.Loglevel(util.Warn, "GetLeader-Controller", "参数绑定错误-"+err.Error())
-	} else {
-		if service.CheckLeader(Server) {
-			Assert := service.GetServers(Server)
-			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
-		} else {
-			c.JSON(http.StatusOK, entity.NewFalseResult("false", "错误的Leader"))
-			util.Loglevel(util.Error, "GetLeader-Controller", "错误的Leader")
+		return
+	}
+	Assert1, err1 := service.CheckLeader(Server)
+	if err1 != nil {
+		handle(err1)
+		return
+	}
+	if Assert1 {
+		Assert2, err2 := service.GetServers(Server)
+		if err2 != nil {
+			handle(err2)
+			return
 		}
+		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert2))
+	} else {
+		exception.HandleException(exception.NewControllerPanic("GetServersController", "错误的Leader"))
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "错误的Leader"))
 	}
 }

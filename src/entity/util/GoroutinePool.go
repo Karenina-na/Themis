@@ -32,8 +32,13 @@ func (P *Pool) CheckStatus() (activeNum int, jobNum int) {
 	return P.activeNum, P.jobNum
 }
 
-func (P *Pool) CreateWork(f func()) {
-	P.goChan <- f
+func (P *Pool) CreateWork(f func() (E any), exceptionFunc func(Message any)) {
+	F := func() {
+		if err := f(); err != nil {
+			exceptionFunc(err)
+		}
+	}
+	P.goChan <- F
 	P.lock.Lock()
 	P.jobNum++
 	if P.activeNum < P.maxNum && P.jobNum > P.activeNum {

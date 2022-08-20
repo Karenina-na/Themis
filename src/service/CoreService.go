@@ -4,12 +4,16 @@ import (
 	"Themis/src/config"
 	"Themis/src/entity"
 	"Themis/src/entity/util"
+	"Themis/src/exception"
 	"reflect"
 	"sync"
 	"time"
 )
 
-func Register() {
+func Register() (E any) {
+	defer func() {
+		E = recover()
+	}()
 	for {
 		data := <-ServerModelQueue
 		namespace := data.Namespace
@@ -23,18 +27,27 @@ func Register() {
 		}
 		ServerModelList[namespace][name].Append(data)
 		InstanceList.Append(data)
-		RoutinePool.CreateWork(func() {
+		RoutinePool.CreateWork(func() (E any) {
+			defer func() {
+				E = recover()
+			}()
 			wg := sync.WaitGroup{}
 			wg.Add(1)
 			go ServerBeat(data, namespace, name, &wg)
 			wg.Wait()
 			util.Loglevel(util.Info, "ServerBeat:", "因心跳停止而删除-"+util.Strval(data))
+			return nil
+		}, func(Message any) {
+			panic(exception.NewServicePanic("ServerBeat", "goroutine错误"+Message.(string)))
 		})
 		ServerModelListRWLock.Unlock()
 	}
 }
 
-func ServerBeat(model entity.ServerModel, namespace string, name string, wg *sync.WaitGroup) {
+func ServerBeat(model entity.ServerModel, namespace string, name string, wg *sync.WaitGroup) (E any) {
+	defer func() {
+		E = recover()
+	}()
 	defer func() {
 		wg.Done()
 		DeleteMapper(&model)
@@ -50,7 +63,7 @@ func ServerBeat(model entity.ServerModel, namespace string, name string, wg *syn
 			}
 			InstanceList.DeleteByValue(model)
 			ServerModelListRWLock.Unlock()
-			return
+			return nil
 		}
 		ServerModelBeatQueueLock.Lock()
 		select {
