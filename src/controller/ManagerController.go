@@ -18,13 +18,9 @@ import (
 // @Success 200 {object} entity.ResultModel "返回服务实例切片数组"
 // @Router /api/v1/operator/getInstances [get]
 func GetController(c *gin.Context) {
-	handle := func(err any) {
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
-		exception.HandleException(err)
-	}
 	servers, err := service.GetInstances()
 	if err != nil {
-		handle(err)
+		Handle(err, c)
 		return
 	}
 	c.JSON(http.StatusOK, entity.NewSuccessResult(servers))
@@ -41,10 +37,6 @@ func GetController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/operator/election [delete]
 func DeleteInstanceController(c *gin.Context) {
-	handle := func(err any) {
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
-		exception.HandleException(err)
-	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
@@ -54,13 +46,13 @@ func DeleteInstanceController(c *gin.Context) {
 	}
 	Assert1, err1 := service.CheckServer(Server)
 	if err1 != nil {
-		handle(err1)
+		Handle(err1, c)
 		return
 	}
 	if Assert1 {
 		Assert2, err2 := service.DeleteServer(Server)
 		if err2 != nil {
-			handle(err2)
+			Handle(err2, c)
 			return
 		}
 		if Assert2 {
@@ -82,10 +74,6 @@ func DeleteInstanceController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/operator/deleteColony [delete]
 func DeleteColonyController(c *gin.Context) {
-	handle := func(err any) {
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
-		exception.HandleException(err)
-	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
@@ -95,7 +83,7 @@ func DeleteColonyController(c *gin.Context) {
 	}
 	Assert, err1 := service.DeleteColony(Server)
 	if err1 != nil {
-		handle(err1)
+		Handle(err1, c)
 		return
 	}
 	c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
@@ -112,13 +100,9 @@ func DeleteColonyController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回黑名单中服务实例切片数组"
 // @Router /api/v1/operator/getDeleteInstance [get]
 func GetDeleteInstanceController(c *gin.Context) {
-	handle := func(err any) {
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
-		exception.HandleException(err)
-	}
 	servers, err := service.GetDeleteInstances()
 	if err != nil {
-		handle(err)
+		Handle(err, c)
 		return
 	}
 	c.JSON(http.StatusOK, entity.NewSuccessResult(servers))
@@ -135,10 +119,6 @@ func GetDeleteInstanceController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/operator/cancelDeleteInstance [delete]
 func CancelDeleteInstanceController(c *gin.Context) {
-	handle := func(err any) {
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
-		exception.HandleException(err)
-	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
@@ -148,13 +128,13 @@ func CancelDeleteInstanceController(c *gin.Context) {
 	}
 	Assert1, err1 := service.CheckDeleteServer(Server)
 	if err1 != nil {
-		handle(err1)
+		Handle(err1, c)
 		return
 	}
 	if Assert1 {
 		Assert2, err2 := service.DeleteDeleteInstance(Server)
 		if err2 != nil {
-			handle(err2)
+			Handle(err2, c)
 			return
 		}
 		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert2))

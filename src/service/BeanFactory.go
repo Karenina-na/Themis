@@ -53,6 +53,9 @@ func ServerInitFactory() (E any) {
 		E = recover()
 	}()
 	RoutinePool = util.CreatePool(config.CoreRoutineNum, config.MaxRoutineNum)
+	RoutinePool.SetExceptionFunc(func(r any) {
+		exception.HandleException(exception.NewServicePanic("Pool池", util.Strval(r)))
+	})
 
 	InstanceList = util.NewLinkList[entity.ServerModel]()
 	DeleteInstanceList = util.NewLinkList[entity.ServerModel]()

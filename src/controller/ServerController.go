@@ -19,10 +19,7 @@ import (
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/message/register [post]
 func RegisterController(c *gin.Context) {
-	handle := func(err any) {
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
-		exception.HandleException(err)
-	}
+
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
@@ -32,18 +29,18 @@ func RegisterController(c *gin.Context) {
 	}
 	assert1, err1 := service.CheckServer(Server)
 	if err1 != nil {
-		handle(err1)
+		Handle(err1, c)
 		return
 	}
 	assert2, err2 := service.CheckDeleteServer(Server)
 	if err2 != nil {
-		handle(err2)
+		Handle(err2, c)
 		return
 	}
 	if !assert1 && !assert2 {
 		Assert, err3 := service.RegisterServer(Server)
 		if err3 != nil {
-			handle(err3)
+			Handle(err3, c)
 			return
 		} else {
 			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
@@ -67,10 +64,6 @@ func RegisterController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/message/message/beat [put]
 func HeartBeatController(c *gin.Context) {
-	handle := func(err any) {
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
-		exception.HandleException(err)
-	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
 	if err != nil {
@@ -80,25 +73,25 @@ func HeartBeatController(c *gin.Context) {
 	}
 	Assert1, err1 := service.CheckServer(Server)
 	if err1 != nil {
-		handle(err1)
+		Handle(err1, c)
 		return
 	}
 	Assert2, err2 := service.CheckDeleteServer(Server)
 	if err2 != nil {
-		handle(err2)
+		Handle(err2, c)
 		return
 	}
 	if Assert1 && !Assert2 {
 		Assert3, err3 := service.FlashHeartBeat(Server)
 		if err3 != nil {
-			handle(err3)
+			Handle(err3, c)
 			return
 		}
 		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert3))
 	} else if !Assert2 {
 		Assert4, err4 := service.RegisterServer(Server)
 		if err4 != nil {
-			handle(err4)
+			Handle(err4, c)
 			return
 		}
 		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert4))
@@ -118,10 +111,6 @@ func HeartBeatController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/message/election [put]
 func ElectionController(c *gin.Context) {
-	handle := func(err any) {
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
-		exception.HandleException(err)
-	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
 	if err != nil {
@@ -131,13 +120,13 @@ func ElectionController(c *gin.Context) {
 	}
 	Assert1, err1 := service.CheckServer(Server)
 	if err1 != nil {
-		handle(err1)
+		Handle(err1, c)
 		return
 	}
 	if Assert1 {
 		Assert2, err2 := service.Election(Server)
 		if err2 != nil {
-			handle(err2)
+			Handle(err2, c)
 			return
 		}
 		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert2))
@@ -157,13 +146,9 @@ func ElectionController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回领导者服务信息"
 // @Router /api/v1/message/getLeader [GET]
 func GetLeaderController(c *gin.Context) {
-	handle := func(err any) {
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
-		exception.HandleException(err)
-	}
 	leader, err := service.GetLeader()
 	if err != nil {
-		handle(err)
+		Handle(err, c)
 		return
 	}
 	c.JSON(http.StatusOK, entity.NewSuccessResult(leader))
@@ -179,10 +164,6 @@ func GetLeaderController(c *gin.Context) {
 // @Success 200 {object} entity.ResultModel "返回被领导者的切片数组"
 // @Router /api/v1/message/getServers [POST]
 func GetServersController(c *gin.Context) {
-	handle := func(err any) {
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务端异常"))
-		exception.HandleException(err)
-	}
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
 	if err != nil {
@@ -192,13 +173,13 @@ func GetServersController(c *gin.Context) {
 	}
 	Assert1, err1 := service.CheckLeader(Server)
 	if err1 != nil {
-		handle(err1)
+		Handle(err1, c)
 		return
 	}
 	if Assert1 {
 		Assert2, err2 := service.GetServers(Server)
 		if err2 != nil {
-			handle(err2)
+			Handle(err2, c)
 			return
 		}
 		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert2))

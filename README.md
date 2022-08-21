@@ -54,4 +54,5 @@ viper : v1.12.0
 swagger for go : v0.22.3
 gorm : v1.3.6
 sqllit : v1.3.6
+gowatch : v1.5.2
 ```

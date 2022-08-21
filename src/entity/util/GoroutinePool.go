@@ -5,12 +5,13 @@ import (
 )
 
 type Pool struct {
-	lock      sync.Mutex
-	goChan    chan func()
-	coreNum   int
-	maxNum    int
-	activeNum int
-	jobNum    int
+	lock          sync.Mutex
+	goChan        chan func()
+	coreNum       int
+	maxNum        int
+	activeNum     int
+	jobNum        int
+	exceptionFunc func(r any)
 }
 
 func CreatePool(coreNum int, maxNum int) *Pool {
@@ -48,6 +49,12 @@ func (P *Pool) CreateWork(f func() (E any), exceptionFunc func(Message any)) {
 }
 
 func (P *Pool) work() {
+	defer func() {
+		r := recover()
+		if r != nil {
+			P.exceptionFunc(r)
+		}
+	}()
 	P.lock.Lock()
 	P.activeNum++
 	P.lock.Unlock()
@@ -63,4 +70,8 @@ func (P *Pool) work() {
 		}
 		P.lock.Unlock()
 	}
+}
+
+func (P *Pool) SetExceptionFunc(f func(r any)) {
+	P.exceptionFunc = f
 }

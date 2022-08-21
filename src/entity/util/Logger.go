@@ -14,14 +14,23 @@ const (
 	Error
 )
 
-func init() {
-	if !Exists("./log") {
+var f func(r any)
+
+func LoggerInit(f func(r any)) {
+	setExceptionFunc(f)
+	if !exists("./log") {
 		_ = os.Mkdir("./log", 0644)
 	}
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 }
 
 func Loglevel(level int, name string, message string) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			f(r)
+		}
+	}()
 	log.SetPrefix("[" + name + "] ")
 	switch level {
 	case Debug:
@@ -32,6 +41,10 @@ func Loglevel(level int, name string, message string) {
 	default:
 		log.Panic("无此选项")
 	}
+}
+
+func setExceptionFunc(exceptionFunc func(r any)) {
+	f = exceptionFunc
 }
 
 func printStdio(message string) {
@@ -51,7 +64,7 @@ func recordFile(message string, level int) {
 	year, month, day := time.Now().Date()
 	t := strconv.Itoa(year) + "." + strconv.Itoa(int(month)) + "." + strconv.Itoa(day)
 	filename := "./log/" + t
-	if !Exists(filename) {
+	if !exists(filename) {
 		_ = os.Mkdir(filename, 0644)
 	}
 	f, err := os.OpenFile(filename+"/"+FileLevel+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
@@ -63,7 +76,7 @@ func recordFile(message string, level int) {
 	log.SetOutput(os.Stdout)
 }
 
-func Exists(path string) bool {
+func exists(path string) bool {
 	_, err := os.Stat(path) //os.Stat获取文件信息
 	if err != nil {
 		if os.IsExist(err) {
