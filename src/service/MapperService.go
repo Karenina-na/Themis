@@ -49,6 +49,10 @@ func Persistence() (E any) {
 	}
 }
 
-func DeleteMapper(model *entity.ServerModel) {
+func DeleteMapper(model *entity.ServerModel) (E any) {
+	defer func() {
+		E = recover()
+	}()
 	mapper.DeleteServer(model)
+	return nil
 }

@@ -48,7 +48,7 @@ var (
 // RoutinePool goroutine池
 var RoutinePool *util.Pool
 
-func ServerInitFactory() (E any) {
+func InitServer() (E any) {
 	defer func() {
 		E = recover()
 	}()

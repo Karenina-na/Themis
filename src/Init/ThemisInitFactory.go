@@ -20,11 +20,11 @@ func ThemisInitFactory() (E any) {
 		return err
 	}
 	if config.DatabaseEnable {
-		if err := mapper.FactoryInit(); err != nil {
+		if err := mapper.InitMapper(); err != nil {
 			return err
 		}
 	}
-	if err := service.ServerInitFactory(); err != nil {
+	if err := service.InitServer(); err != nil {
 		return err
 	}
 	return nil

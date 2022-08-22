@@ -2,12 +2,18 @@ package main
 
 import (
 	FactoryInit "Themis/src/Init"
+	"Themis/src/config"
 	swaggerFile "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"net/http"
+	"os"
+	"os/signal"
+	"runtime"
+	"syscall"
+	"time"
 )
 
 import (
-	"Themis/src/config"
 	"Themis/src/controller"
 	"Themis/src/entity/util"
 	"Themis/src/router"
@@ -48,14 +54,23 @@ func main() {
 		util.Loglevel(util.Error, "main", util.Strval(err))
 	}()
 	r := gin.Default()
+	gin.SetMode(gin.DebugMode)
+	r.StaticFS("/static", http.Dir("./static"))
 	r.Use(controller.Interception())
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFile.Handler))
 	router.MessageAPI(r)
 	router.OperatorAPI(r)
-	err := r.Run(":" + config.Port)
-	if err != nil {
-		util.Loglevel(util.Error, "main", util.Strval(err))
-		panic(err.Error())
-		return
-	}
+	go func() {
+		err := r.Run(":" + config.Port)
+		if err != nil {
+			util.Loglevel(util.Error, "main", util.Strval(err))
+			os.Exit(0)
+		}
+	}()
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	util.Loglevel(util.Info, "main", "Themis is exiting...")
+	runtime.GC()
+	time.Sleep(3 * time.Second)
 }

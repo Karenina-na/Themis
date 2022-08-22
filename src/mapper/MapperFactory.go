@@ -10,7 +10,7 @@ import (
 
 var DB *gorm.DB
 
-func FactoryInit() (E any) {
+func InitMapper() (E any) {
 	defer func() {
 		E = recover()
 	}()
