@@ -3,16 +3,19 @@ package service
 import (
 	"Themis/src/config"
 	"Themis/src/entity"
-	"Themis/src/entity/util"
 	"Themis/src/exception"
 	"Themis/src/service/LeaderAlgorithm"
+	"Themis/src/util"
 	"encoding/json"
 	"net"
 )
 
-func RegisterServer(S *entity.ServerModel) (B bool, E any) {
+func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("RegisterServer-service", util.Strval(r))
+		}
 	}()
 	if S.Namespace == "" {
 		S.Namespace = "default"
@@ -24,9 +27,12 @@ func RegisterServer(S *entity.ServerModel) (B bool, E any) {
 	return true, nil
 }
 
-func FlashHeartBeat(model *entity.ServerModel) (B bool, E any) {
+func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("FlashHeartBeat-service", util.Strval(r))
+		}
 	}()
 	ServerModelBeatQueueLock.Lock()
 	ServerModelBeatQueue <- *model
@@ -34,9 +40,12 @@ func FlashHeartBeat(model *entity.ServerModel) (B bool, E any) {
 	return true, nil
 }
 
-func Election(model *entity.ServerModel) (B bool, E any) {
+func Election(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("Election-service", util.Strval(r))
+		}
 	}()
 	leader := LeaderAlgorithm.CreateLeader(ServerModelList[model.Namespace])
 	Leader = leader
@@ -44,37 +53,46 @@ func Election(model *entity.ServerModel) (B bool, E any) {
 	for _, list := range List {
 		for i := 0; i < list.Length(); i++ {
 			server := list.Get(i)
-			RoutinePool.CreateWork(func() (E any) {
+			RoutinePool.CreateWork(func() (E error) {
 				defer func() {
-					E = recover()
+					r := recover()
+					if r != nil {
+						E = exception.NewSystemError("udp-message-goroutine", util.Strval(r))
+					}
 				}()
 				udpAddr, _ := net.ResolveUDPAddr("udp", server.IP+":"+config.UDPPort)
 				conn, err := net.DialUDP("udp", nil, udpAddr)
 				if err != nil {
-					panic(exception.NewServicePanic("Election", "UDP通信错误"+err.Error()+util.Strval(server)))
+					return exception.NewUserError("udp-message", "UDP通信错误"+err.Error()+util.Strval(server))
 				} else {
 					data, _ := json.Marshal(leader)
 					_, _ = conn.Write(data)
 				}
 				return nil
-			}, func(Message any) {
-				panic(exception.NewServicePanic("Election-Service", "goroutine错误"+util.Strval(Message)))
+			}, func(Message error) {
+				exception.HandleException(Message)
 			})
 		}
 	}
 	return true, nil
 }
 
-func GetLeader() (m entity.ServerModel, E any) {
+func GetLeader() (m entity.ServerModel, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetLeader-service", util.Strval(r))
+		}
 	}()
 	return Leader, nil
 }
 
-func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E any) {
+func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetServers-service", util.Strval(r))
+		}
 	}()
 	list := make([]entity.ServerModel, 0, 100)
 	ServerModelListRWLock.RLock()

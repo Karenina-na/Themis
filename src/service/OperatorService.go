@@ -2,34 +2,48 @@ package service
 
 import (
 	"Themis/src/entity"
+	"Themis/src/exception"
+	"Themis/src/util"
 	"reflect"
 	"strings"
 )
 
-func CheckServer(model *entity.ServerModel) (B bool, E any) {
+func CheckServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("CheckServer-service", util.Strval(r))
+		}
 	}()
 	return InstanceList.Contain(*model), nil
 }
 
-func CheckDeleteServer(model *entity.ServerModel) (B bool, E any) {
+func CheckDeleteServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("CheckDeleteServer-service", util.Strval(r))
+		}
 	}()
 	return DeleteInstanceList.Contain(*model), nil
 }
 
-func CheckLeader(model *entity.ServerModel) (B bool, E any) {
+func CheckLeader(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("CheckLeader-service", util.Strval(r))
+		}
 	}()
 	return reflect.DeepEqual(*model, Leader), nil
 }
 
-func DeleteServer(model *entity.ServerModel) (B bool, E any) {
+func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("DeleteServer-service", util.Strval(r))
+		}
 	}()
 	ServerModelListRWLock.Lock()
 	defer ServerModelListRWLock.Unlock()
@@ -37,14 +51,20 @@ func DeleteServer(model *entity.ServerModel) (B bool, E any) {
 	Assert := InstanceList.DeleteByValue(*model) &&
 		ServerModelList[model.Namespace][model.Colony+"::"+model.Name].DeleteByValue(*model)
 	if reflect.DeepEqual(*model, Leader) {
-		Election(model)
+		_, E := Election(model)
+		if E != nil {
+			return false, E
+		}
 	}
 	return Assert, nil
 }
 
-func DeleteColony(model *entity.ServerModel) (B bool, E any) {
+func DeleteColony(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("DeleteColony-service", util.Strval(r))
+		}
 	}()
 	flag := false
 	list := make([]string, 0, 100)
@@ -69,14 +89,20 @@ func DeleteColony(model *entity.ServerModel) (B bool, E any) {
 		delete(ServerModelList[model.Namespace], name)
 	}
 	if flag {
-		Election(model)
+		_, err := Election(model)
+		if err != nil {
+			return false, err
+		}
 	}
 	return true, nil
 }
 
-func GetDeleteInstances() (m []entity.ServerModel, E any) {
+func GetDeleteInstances() (m []entity.ServerModel, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetDeleteInstances-service", util.Strval(r))
+		}
 	}()
 	list := make([]entity.ServerModel, 0, 100)
 	for i := 0; i < DeleteInstanceList.Length(); i++ {
@@ -85,17 +111,23 @@ func GetDeleteInstances() (m []entity.ServerModel, E any) {
 	return list, nil
 }
 
-func DeleteDeleteInstance(model *entity.ServerModel) (B bool, E any) {
+func DeleteDeleteInstance(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("DeleteDeleteInstance-service", util.Strval(r))
+		}
 	}()
 	DeleteInstanceList.DeleteByValue(*model)
 	return true, nil
 }
 
-func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E any) {
+func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetInstances-service", util.Strval(r))
+		}
 	}()
 	ServerLists := make(map[string]map[string]map[string][]entity.ServerModel)
 	ServerModelListRWLock.RLock()
@@ -126,4 +158,15 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 		}
 	}
 	return ServerLists, nil
+}
+
+func GetCenterStatus() (A int, J int, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetCenterStatus-service", util.Strval(r))
+		}
+	}()
+	activeNum, jobNum := RoutinePool.CheckStatus()
+	return activeNum, jobNum, nil
 }

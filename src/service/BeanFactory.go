@@ -3,8 +3,8 @@ package service
 import (
 	"Themis/src/config"
 	"Themis/src/entity"
-	"Themis/src/entity/util"
 	"Themis/src/exception"
+	"Themis/src/util"
 	"os"
 	"sync"
 )
@@ -48,13 +48,16 @@ var (
 // RoutinePool goroutine池
 var RoutinePool *util.Pool
 
-func InitServer() (E any) {
+func InitServer() (E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewSystemError("InitServer-service", util.Strval(r))
+		}
 	}()
 	RoutinePool = util.CreatePool(config.CoreRoutineNum, config.MaxRoutineNum)
 	RoutinePool.SetExceptionFunc(func(r any) {
-		exception.HandleException(exception.NewServicePanic("Pool池", util.Strval(r)))
+		exception.HandleException(exception.NewSystemError("Pool池", util.Strval(r)))
 	})
 
 	InstanceList = util.NewLinkList[entity.ServerModel]()
@@ -67,8 +70,8 @@ func InitServer() (E any) {
 
 	ServerModelBeatQueue = make(chan entity.ServerModel, config.ServerModelBeatQueue)
 
-	RoutinePool.CreateWork(Register, func(message any) {
-		exception.HandleException(exception.NewServicePanic("Register", "goroutine错误"+util.Strval(message)))
+	RoutinePool.CreateWork(Register, func(message error) {
+		exception.HandleException(message)
 	})
 	if config.DatabaseEnable {
 		if _, err := os.Stat("./db/Themis.db"); err == nil {
@@ -76,8 +79,8 @@ func InitServer() (E any) {
 				return err
 			}
 		}
-		RoutinePool.CreateWork(Persistence, func(message any) {
-			exception.HandleException(exception.NewServicePanic("Persistence", "goroutine错误"+util.Strval(message)))
+		RoutinePool.CreateWork(Persistence, func(message error) {
+			exception.HandleException(message)
 		})
 	}
 	return nil

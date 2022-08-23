@@ -1,10 +1,17 @@
 package config
 
-import "github.com/swaggo/swag"
+import (
+	"Themis/src/exception"
+	"Themis/src/util"
+	"github.com/swaggo/swag"
+)
 
-func SwaggerConfig(docs *swag.Spec) (E any) {
+func SwaggerConfig(docs *swag.Spec) (E error) {
 	defer func() {
-		E = recover()
+		r := recover()
+		if r != nil {
+			E = exception.NewSystemError("SwaggerConfig-config", util.Strval(r))
+		}
 	}()
 	docs.Title = "Themis API"
 	docs.Description = "分布式记账系统调度中心"

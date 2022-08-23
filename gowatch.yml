@@ -14,7 +14,7 @@ watch_exts:
 watch_paths:
   - ./
 # 在执行命令时，需要增加的其他参数
-cmd_args:
+cmd_args: ["-mode=debug"]
 
 # 在构建命令时，需要增加的其他参数
 build_args:

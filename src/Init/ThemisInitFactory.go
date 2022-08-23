@@ -3,29 +3,28 @@ package FactoryInit
 import (
 	"Themis/docs"
 	"Themis/src/config"
-	"Themis/src/entity/util"
 	"Themis/src/exception"
 	"Themis/src/mapper"
 	"Themis/src/service"
+	"Themis/src/util"
 )
 
-func ThemisInitFactory() (E any) {
+func ThemisInitFactory() {
 	util.LoggerInit(func(r any) {
-		exception.HandleException(exception.NewServicePanic("日志模块", util.Strval(r)))
-	})
+		exception.HandleException(exception.NewSystemError("日志模块", util.Strval(r)))
+	}, util.Debug)
 	if err := config.InitConfig(); err != nil {
-		return err
+		exception.HandleException(err)
 	}
 	if err := config.SwaggerConfig(docs.SwaggerInfo); err != nil {
-		return err
+		exception.HandleException(err)
 	}
 	if config.DatabaseEnable {
 		if err := mapper.InitMapper(); err != nil {
-			return err
+			exception.HandleException(err)
 		}
 	}
 	if err := service.InitServer(); err != nil {
-		return err
+		exception.HandleException(err)
 	}
-	return nil
 }

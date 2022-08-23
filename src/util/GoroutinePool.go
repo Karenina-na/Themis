@@ -33,10 +33,11 @@ func (P *Pool) CheckStatus() (activeNum int, jobNum int) {
 	return P.activeNum, P.jobNum
 }
 
-func (P *Pool) CreateWork(f func() (E any), exceptionFunc func(Message any)) {
+func (P *Pool) CreateWork(f func() (E error), exceptionFunc func(Message error)) {
 	F := func() {
 		if err := f(); err != nil {
 			exceptionFunc(err)
+			return
 		}
 	}
 	P.goChan <- F

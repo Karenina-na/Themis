@@ -15,8 +15,15 @@ const (
 )
 
 var f func(r any)
+var flag bool
 
-func LoggerInit(f func(r any)) {
+func LoggerInit(f func(r any), F int) {
+	switch F {
+	case Debug:
+		flag = true
+	case Info, Warn, Error:
+		flag = false
+	}
 	setExceptionFunc(f)
 	if !exists("./log") {
 		_ = os.Mkdir("./log", 0644)
@@ -34,7 +41,9 @@ func Loglevel(level int, name string, message string) {
 	log.SetPrefix("[" + name + "] ")
 	switch level {
 	case Debug:
-		printStdio(message)
+		if flag {
+			printStdio(message)
+		}
 	case Info, Warn, Error:
 		printStdio(message)
 		recordFile(message, level)

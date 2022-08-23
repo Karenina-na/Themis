@@ -40,7 +40,7 @@ func DeleteInstanceController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
-		exception.HandleException(exception.NewControllerPanic("DeleteInstanceController", "参数绑定错误-"+err.Error()))
+		exception.HandleException(exception.NewUserError("DeleteInstanceController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
 	}
@@ -77,7 +77,7 @@ func DeleteColonyController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
-		exception.HandleException(exception.NewControllerPanic("DeleteColonyController", "参数绑定错误-"+err.Error()))
+		exception.HandleException(exception.NewUserError("DeleteColonyController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
 	}
@@ -122,7 +122,7 @@ func CancelDeleteInstanceController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
-		exception.HandleException(exception.NewControllerPanic("CancelDeleteInstanceController", "参数绑定错误-"+err.Error()))
+		exception.HandleException(exception.NewUserError("CancelDeleteInstanceController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
 	}
@@ -141,4 +141,25 @@ func CancelDeleteInstanceController(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "实例不在拒绝队列中"))
 	}
+}
+
+// GetStatusController
+// @Summary 获取服务状态
+// @Description 由管理员调用获取当前中心线程数
+// @Tags 管理层
+// @Accept application/json
+// @Produce application/json
+// @Security ApiKeyAuth
+// @Success 200 {object} entity.ResultModel "返回运行线程数与当前任务数"
+// @Router /api/v1/operator/getStatus	[get]
+func GetStatusController(c *gin.Context) {
+	activeNum, jobNum, err := service.GetCenterStatus()
+	if err != nil {
+		Handle(err, c)
+		return
+	}
+	c.JSON(http.StatusOK, entity.NewSuccessResult(map[string]interface{}{
+		"activeNum": activeNum,
+		"jobNum":    jobNum,
+	}))
 }

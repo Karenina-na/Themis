@@ -23,8 +23,8 @@ func RegisterController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
-		exception.HandleException(exception.NewControllerPanic("RegisterController", "参数绑定错误-"+err.Error()))
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
+		exception.HandleException(exception.NewUserError("RegisterController", "参数绑定错误"+err.Error()))
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误"+err.Error()))
 		return
 	}
 	assert1, err1 := service.CheckServer(Server)
@@ -67,7 +67,7 @@ func HeartBeatController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
 	if err != nil {
-		exception.HandleException(exception.NewControllerPanic("HeartBeatController", "参数绑定错误-"+err.Error()))
+		exception.HandleException(exception.NewUserError("HeartBeatController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
 	}
@@ -114,7 +114,7 @@ func ElectionController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
 	if err != nil {
-		exception.HandleException(exception.NewControllerPanic("ElectionController", "参数绑定错误-"+err.Error()))
+		exception.HandleException(exception.NewUserError("ElectionController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
 	}
@@ -131,7 +131,7 @@ func ElectionController(c *gin.Context) {
 		}
 		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert2))
 	} else {
-		exception.HandleException(exception.NewControllerPanic("ElectionController", "错误的Leader"))
+		exception.HandleException(exception.NewUserError("ElectionController", "错误的Leader"))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "错误的Leader"))
 	}
 }
@@ -167,7 +167,7 @@ func GetServersController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
 	if err != nil {
-		exception.HandleException(exception.NewControllerPanic("GetServersController", "参数绑定错误-"+err.Error()))
+		exception.HandleException(exception.NewUserError("GetServersController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
 	}
@@ -184,7 +184,7 @@ func GetServersController(c *gin.Context) {
 		}
 		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert2))
 	} else {
-		exception.HandleException(exception.NewControllerPanic("GetServersController", "错误的Leader"))
+		exception.HandleException(exception.NewUserError("GetServersController", "错误的Leader"))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "错误的Leader"))
 	}
 }
