@@ -18,5 +18,7 @@ func OperatorAPI(r *gin.Engine) {
 		tx.GET("/getDeleteInstance", controller.GetDeleteInstanceController)
 		// /api/v1/operator/cancelDeleteInstance	删除实例的黑名单
 		tx.DELETE("/cancelDeleteInstance", controller.CancelDeleteInstanceController)
+		// /api/v1/operator/getStatus				获取当前中心状态
+		tx.GET("/getStatus", controller.GetStatusController)
 	}
 }

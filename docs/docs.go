@@ -496,6 +496,34 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/operator/getStatus": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "由管理员调用获取当前中心线程数",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取服务状态",
+                "responses": {
+                    "200": {
+                        "description": "返回运行线程数与当前任务数",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ResultModel"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

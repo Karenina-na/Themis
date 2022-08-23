@@ -2,7 +2,7 @@ package LeaderAlgorithm
 
 import (
 	"Themis/src/entity"
-	"Themis/src/entity/util"
+	"Themis/src/util"
 	"math/rand"
 	"time"
 )

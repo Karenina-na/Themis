@@ -3,6 +3,9 @@ package main
 import (
 	FactoryInit "Themis/src/Init"
 	"Themis/src/config"
+	util2 "Themis/src/util"
+	"flag"
+	"fmt"
 	swaggerFile "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
@@ -15,7 +18,6 @@ import (
 
 import (
 	"Themis/src/controller"
-	"Themis/src/entity/util"
 	"Themis/src/router"
 	"github.com/gin-gonic/gin"
 ) // gin-swagger middleware
@@ -48,29 +50,44 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	FactoryInit.ThemisInitFactory()
+	arg := flag.String("mode", "debug", "debug / release /test 环境")
+	flag.Parse()
+	if *arg == "debug" {
+		gin.SetMode(gin.DebugMode)
+		fmt.Println("debug mode")
+	} else if *arg == "release" {
+		gin.SetMode(gin.ReleaseMode)
+		fmt.Println("release mode")
+	} else if *arg == "test" {
+		gin.SetMode(gin.TestMode)
+		fmt.Println("test mode")
+	}
+	FactoryInit.ThemisInitFactory(arg)
 	defer func() {
 		err := recover()
-		util.Loglevel(util.Error, "main", util.Strval(err))
+		util2.Loglevel(util2.Error, "main", util2.Strval(err))
 	}()
-	r := gin.Default()
-	gin.SetMode(gin.DebugMode)
+	r := gin.New()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 	r.StaticFS("/static", http.Dir("./static"))
 	r.Use(controller.Interception())
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFile.Handler))
+	if *arg == "debug" {
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFile.Handler))
+	}
 	router.MessageAPI(r)
 	router.OperatorAPI(r)
 	go func() {
 		err := r.Run(":" + config.Port)
 		if err != nil {
-			util.Loglevel(util.Error, "main", util.Strval(err))
+			util2.Loglevel(util2.Error, "main", util2.Strval(err))
 			os.Exit(0)
 		}
 	}()
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	util.Loglevel(util.Info, "main", "Themis is exiting...")
+	util2.Loglevel(util2.Info, "main", "Themis is exiting...")
 	runtime.GC()
-	time.Sleep(3 * time.Second)
+	time.Sleep(1 * time.Second)
 }

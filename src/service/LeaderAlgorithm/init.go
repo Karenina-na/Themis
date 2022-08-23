@@ -3,7 +3,7 @@ package LeaderAlgorithm
 import (
 	"Themis/src/config"
 	"Themis/src/entity"
-	"Themis/src/entity/util"
+	"Themis/src/util"
 )
 
 func CreateLeader(List map[string]*util.LinkList[entity.ServerModel]) entity.ServerModel {
