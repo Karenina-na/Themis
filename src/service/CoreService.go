@@ -16,6 +16,7 @@ func Register() (E error) {
 			E = exception.NewSystemError("Register-service", util.Strval(r))
 		}
 	}()
+	util.Loglevel(util.Debug, "Register", "创建注册协程")
 	for {
 		data := <-ServerModelQueue
 		namespace := data.Namespace
@@ -56,6 +57,7 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 			E = exception.NewUserError("ServerBeat-service", util.Strval(r))
 		}
 	}()
+	util.Loglevel(util.Debug, "ServerBeat", "创建心跳协程-"+util.Strval(model))
 	defer func() {
 		E = DeleteMapper(&model)
 	}()

@@ -41,8 +41,8 @@ var (
 
 //记账
 var (
-	// Leader 记账人
-	Leader entity.ServerModel
+	// Leaders 记账人
+	Leaders map[string]entity.ServerModel
 )
 
 // RoutinePool goroutine池
@@ -69,6 +69,8 @@ func InitServer() (E error) {
 	ServerModelQueue = make(chan entity.ServerModel, config.ServerModelQueueNum)
 
 	ServerModelBeatQueue = make(chan entity.ServerModel, config.ServerModelBeatQueue)
+
+	Leaders = make(map[string]entity.ServerModel)
 
 	RoutinePool.CreateWork(Register, func(message error) {
 		exception.HandleException(message)

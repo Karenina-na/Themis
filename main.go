@@ -3,7 +3,7 @@ package main
 import (
 	FactoryInit "Themis/src/Init"
 	"Themis/src/config"
-	util2 "Themis/src/util"
+	"Themis/src/util"
 	"flag"
 	"fmt"
 	swaggerFile "github.com/swaggo/files"
@@ -19,8 +19,9 @@ import (
 import (
 	"Themis/src/controller"
 	"Themis/src/router"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-) // gin-swagger middleware
+)
 
 /*
 ~ Licensed to the Apache Software Foundation (ASF) under one or more
@@ -65,11 +66,12 @@ func main() {
 	FactoryInit.ThemisInitFactory(arg)
 	defer func() {
 		err := recover()
-		util2.Loglevel(util2.Error, "main", util2.Strval(err))
+		util.Loglevel(util.Error, "main", util.Strval(err))
 	}()
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(cors.Default())
 	r.StaticFS("/static", http.Dir("./static"))
 	r.Use(controller.Interception())
 	if *arg == "debug" {
@@ -80,14 +82,14 @@ func main() {
 	go func() {
 		err := r.Run(":" + config.Port)
 		if err != nil {
-			util2.Loglevel(util2.Error, "main", util2.Strval(err))
+			util.Loglevel(util.Error, "main", util.Strval(err))
 			os.Exit(0)
 		}
 	}()
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	util2.Loglevel(util2.Info, "main", "Themis is exiting...")
+	util.Loglevel(util.Info, "main", "Themis is exiting...")
 	runtime.GC()
 	time.Sleep(1 * time.Second)
 }

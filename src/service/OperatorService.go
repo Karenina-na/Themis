@@ -35,7 +35,7 @@ func CheckLeader(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("CheckLeader-service", util.Strval(r))
 		}
 	}()
-	return reflect.DeepEqual(*model, Leader), nil
+	return reflect.DeepEqual(*model, Leaders[model.Namespace]), nil
 }
 
 func DeleteServer(model *entity.ServerModel) (B bool, E error) {
@@ -50,12 +50,13 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 	DeleteInstanceList.Append(*model)
 	Assert := InstanceList.DeleteByValue(*model) &&
 		ServerModelList[model.Namespace][model.Colony+"::"+model.Name].DeleteByValue(*model)
-	if reflect.DeepEqual(*model, Leader) {
+	if reflect.DeepEqual(*model, Leaders[model.Namespace]) {
 		_, E := Election(model)
 		if E != nil {
 			return false, E
 		}
 	}
+	util.Loglevel(util.Debug, "DeleteServer", "删除服务-"+util.Strval(*model))
 	return Assert, nil
 }
 
@@ -78,7 +79,7 @@ func DeleteColony(model *entity.ServerModel) (B bool, E error) {
 				server := L.Get(i)
 				DeleteInstanceList.Append(server)
 				InstanceList.DeleteAllByValue(server)
-				if reflect.DeepEqual(Leader, server) {
+				if reflect.DeepEqual(Leaders[server.Namespace], server) {
 					flag = true
 				}
 			}
@@ -94,6 +95,7 @@ func DeleteColony(model *entity.ServerModel) (B bool, E error) {
 			return false, err
 		}
 	}
+	util.Loglevel(util.Debug, "DeleteColony", "批量删除服务-"+util.Strval(model.Colony))
 	return true, nil
 }
 
@@ -119,6 +121,7 @@ func DeleteDeleteInstance(model *entity.ServerModel) (B bool, E error) {
 		}
 	}()
 	DeleteInstanceList.DeleteByValue(*model)
+	util.Loglevel(util.Debug, "DeleteDeleteInstance", "从黑名单恢复-"+util.Strval(*model))
 	return true, nil
 }
 

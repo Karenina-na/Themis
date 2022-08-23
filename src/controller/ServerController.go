@@ -107,7 +107,7 @@ func HeartBeatController(c *gin.Context) {
 // @Accept application/json
 // @Produce application/json
 // @Security ApiKeyAuth
-// @Param Model query entity.ServerModel true "领导者服务实例信息"
+// @Param Model query entity.ServerModel true "领导者或非领导者服务实例信息"
 // @Success 200 {object} entity.ResultModel "返回true或false"
 // @Router /api/v1/message/election [put]
 func ElectionController(c *gin.Context) {
@@ -143,10 +143,18 @@ func ElectionController(c *gin.Context) {
 // @Accept application/json
 // @Produce application/json
 // @Security ApiKeyAuth
+// @Param Model query entity.ServerModel true "非领导者实例信息"
 // @Success 200 {object} entity.ResultModel "返回领导者服务信息"
-// @Router /api/v1/message/getLeader [GET]
+// @Router /api/v1/message/getLeader [POST]
 func GetLeaderController(c *gin.Context) {
-	leader, err := service.GetLeader()
+	Server := entity.NewServerModel()
+	err := c.BindJSON(&Server)
+	if err != nil {
+		exception.HandleException(exception.NewUserError("ElectionController", "参数绑定错误-"+err.Error()))
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
+		return
+	}
+	leader, err := service.GetLeader(Server)
 	if err != nil {
 		Handle(err, c)
 		return
@@ -161,6 +169,7 @@ func GetLeaderController(c *gin.Context) {
 // @Accept application/json
 // @Produce application/json
 // @Security ApiKeyAuth
+// @Param Model query entity.ServerModel true "领导者实例信息"
 // @Success 200 {object} entity.ResultModel "返回被领导者的切片数组"
 // @Router /api/v1/message/getServers [POST]
 func GetServersController(c *gin.Context) {

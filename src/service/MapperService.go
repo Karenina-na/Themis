@@ -17,6 +17,7 @@ func LoadDatabase() (E error) {
 			E = exception.NewSystemError("LoadDatabase-service", util.Strval(r))
 		}
 	}()
+	util.Loglevel(util.Debug, "LoadDatabase", "加载数据库原有文件")
 	serverModels, deleteServerModels, err := mapper.SelectAllServers()
 	if err != nil {
 		return err
@@ -59,6 +60,7 @@ func Persistence() (E error) {
 			E = exception.NewUserError("Persistence-service", util.Strval(r))
 		}
 	}()
+	util.Loglevel(util.Debug, "Persistence", "创建持久化数据协程")
 	for {
 		time.Sleep(time.Duration(config.PersistenceTime) * time.Second)
 		_, e := mapper.Transaction(func(tx *gorm.DB) error {

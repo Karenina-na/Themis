@@ -9,7 +9,7 @@ Themis:
   server:
     model-queue: 100  #服务注册处理队列容量
     beat-queue: 100 #服务心跳处理队列容量
-    beat-time: 30  #服务心跳超时时间   单位：s
+    beat-time: 3000  #服务心跳超时时间   单位：s
 
   leader-algorithm:  RandomAlgorithmCreateLeader #记账人选举算法
 

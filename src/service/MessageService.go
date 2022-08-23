@@ -24,6 +24,7 @@ func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 		S.Colony = "default"
 	}
 	ServerModelQueue <- *S
+	util.Loglevel(util.Debug, "RegisterServer", "注册服务-"+util.Strval(*S))
 	return true, nil
 }
 
@@ -34,6 +35,7 @@ func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("FlashHeartBeat-service", util.Strval(r))
 		}
 	}()
+	util.Loglevel(util.Debug, "FlashHeartBeat", "刷新心跳-"+util.Strval(*model))
 	ServerModelBeatQueueLock.Lock()
 	ServerModelBeatQueue <- *model
 	ServerModelBeatQueueLock.Unlock()
@@ -47,9 +49,11 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("Election-service", util.Strval(r))
 		}
 	}()
+	util.Loglevel(util.Debug, "Election", "选举开始")
 	leader := LeaderAlgorithm.CreateLeader(ServerModelList[model.Namespace])
-	Leader = leader
+	Leaders[model.Namespace] = leader
 	List := ServerModelList[leader.Namespace]
+	util.Loglevel(util.Debug, "Election", "选举完成，发起通信-leader:"+leader.IP)
 	for _, list := range List {
 		for i := 0; i < list.Length(); i++ {
 			server := list.Get(i)
@@ -77,14 +81,14 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
-func GetLeader() (m entity.ServerModel, E error) {
+func GetLeader(model *entity.ServerModel) (m entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
 			E = exception.NewUserError("GetLeader-service", util.Strval(r))
 		}
 	}()
-	return Leader, nil
+	return Leaders[model.Namespace], nil
 }
 
 func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {

@@ -12,10 +12,10 @@ func MessageAPI(r *gin.Engine) {
 		tx.POST("/register", controller.RegisterController)
 		//  /api/v1/message/beat			心跳
 		tx.PUT("/beat", controller.HeartBeatController)
-		//  /api/v1/message/election		Leader调用开启选举
+		//  /api/v1/message/election		服务调用开启选举
 		tx.PUT("/election", controller.ElectionController)
 		// /api/v1/message/getLeader		获取当前Leader
-		tx.GET("/getLeader", controller.GetLeaderController)
+		tx.POST("/getLeader", controller.GetLeaderController)
 		// /api/v1/message/getServers		获取除Leader外其他服务
 		tx.POST("/getServers", controller.GetServersController)
 	}

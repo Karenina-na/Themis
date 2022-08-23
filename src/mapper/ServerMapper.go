@@ -148,7 +148,7 @@ func Transaction(List ...func(tx *gorm.DB) error) (B bool, E error) {
 			E = exception.NewUserError("Transaction-mapper", util.Strval(r))
 		}
 	}()
-	util.Loglevel(util.Debug, "Transaction-mapper", "===================================")
+	util.Loglevel(util.Debug, "Transaction-mapper", "<<===================================")
 	util.Loglevel(util.Debug, "Transaction-mapper", "数据库事务执行"+time.Now().Format("2006-01-02 15:04:05"))
 	err := DB.Transaction(func(tx *gorm.DB) error {
 		for _, f := range List {
@@ -163,6 +163,6 @@ func Transaction(List ...func(tx *gorm.DB) error) (B bool, E error) {
 		return false, exception.NewDataBaseError("数据库事务中执行失败", util.Strval(err.Error()))
 	}
 	util.Loglevel(util.Debug, "Transaction-mapper", "数据库事务执行完成-"+time.Now().Format("2006-01-02 15:04:05"))
-	util.Loglevel(util.Debug, "Transaction-mapper", "===================================")
+	util.Loglevel(util.Debug, "Transaction-mapper", "===================================>>")
 	return true, nil
 }

@@ -28,7 +28,7 @@ func LoggerInit(f func(r any), F int) {
 	if !exists("./log") {
 		_ = os.Mkdir("./log", 0644)
 	}
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	log.SetFlags(log.Ldate | log.Ltime)
 }
 
 func Loglevel(level int, name string, message string) {
@@ -38,7 +38,16 @@ func Loglevel(level int, name string, message string) {
 			f(r)
 		}
 	}()
-	log.SetPrefix("[" + name + "] ")
+	switch level {
+	case Debug:
+		log.SetPrefix(name + " == " + " [" + "debug" + "] ")
+	case Info:
+		log.SetPrefix(name + " == " + name + " [" + "info" + "]")
+	case Warn:
+		log.SetPrefix(name + " == " + name + " [" + "warn" + "]")
+	case Error:
+		log.SetPrefix(name + " == " + name + " [" + "error" + "]")
+	}
 	switch level {
 	case Debug:
 		if flag {
