@@ -38,8 +38,8 @@ func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 	}()
 	util.Loglevel(util.Debug, "FlashHeartBeat", "刷新心跳-"+util.Strval(*model))
 	ServerModelBeatQueueLock.Lock()
+	defer ServerModelBeatQueueLock.Unlock()
 	ServerModelBeatQueue <- *model
-	ServerModelBeatQueueLock.Unlock()
 	return true, nil
 }
 
@@ -51,33 +51,44 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 		}
 	}()
 	util.Loglevel(util.Debug, "Election", "选举开始")
-	leader := LeaderAlgorithm.CreateLeader(ServerModelList[model.Namespace])
-	Leaders[model.Namespace] = leader
-	List := ServerModelList[leader.Namespace]
-	util.Loglevel(util.Debug, "Election", "选举完成，发起通信-leader:"+leader.IP)
-	for _, list := range List {
-		for i := 0; i < list.Length(); i++ {
-			server := list.Get(i)
-			RoutinePool.CreateWork(func() (E error) {
-				defer func() {
-					r := recover()
-					if r != nil {
-						E = exception.NewSystemError("udp-message-goroutine", util.Strval(r))
-					}
-				}()
-				udpAddr, _ := net.ResolveUDPAddr("udp", server.IP+":"+config.UDPPort)
-				conn, err := net.DialUDP("udp", nil, udpAddr)
-				if err != nil {
-					return exception.NewUserError("udp-message", "UDP通信错误"+err.Error()+util.Strval(server))
-				} else {
-					data, _ := json.Marshal(leader)
-					_, _ = conn.Write(data)
-				}
-				return nil
-			}, func(Message error) {
-				exception.HandleException(Message)
-			})
+	ServerModelListRWLock.RLock()
+	defer ServerModelListRWLock.RUnlock()
+	ChoiceList := util.NewLinkList[entity.ServerModel]()
+	for colonyMap, servers := range ServerModelList[model.Namespace] {
+		str := strings.Split(colonyMap, "::")
+		colony := str[0]
+		if colony == model.Colony {
+			for i := 0; i < servers.Length(); i++ {
+				ChoiceList.Append(servers.Get(i))
+			}
 		}
+	}
+	leader := LeaderAlgorithm.CreateLeader(ChoiceList)
+	LeadersRWLock.Lock()
+	Leaders[model.Namespace][model.Colony] = leader
+	LeadersRWLock.Unlock()
+	util.Loglevel(util.Debug, "Election", "选举完成，发起通信-leader:"+leader.IP)
+	for i := 0; i < ChoiceList.Length(); i++ {
+		server := ChoiceList.Get(i)
+		RoutinePool.CreateWork(func() (E error) {
+			defer func() {
+				r := recover()
+				if r != nil {
+					E = exception.NewSystemError("udp-message-goroutine", util.Strval(r))
+				}
+			}()
+			udpAddr, _ := net.ResolveUDPAddr("udp", server.IP+":"+config.UDPPort)
+			conn, err := net.DialUDP("udp", nil, udpAddr)
+			if err != nil {
+				return exception.NewUserError("udp-message", " UDP通信错误 "+err.Error()+util.Strval(server))
+			} else {
+				data, _ := json.Marshal(leader)
+				_, _ = conn.Write(data)
+			}
+			return nil
+		}, func(Message error) {
+			exception.HandleException(Message)
+		})
 	}
 	return true, nil
 }
@@ -89,7 +100,9 @@ func GetLeader(model *entity.ServerModel) (m entity.ServerModel, E error) {
 			E = exception.NewUserError("GetLeader-service", util.Strval(r))
 		}
 	}()
-	return Leaders[model.Namespace], nil
+	LeadersRWLock.RLock()
+	defer LeadersRWLock.RUnlock()
+	return Leaders[model.Namespace][model.Colony], nil
 }
 
 func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {

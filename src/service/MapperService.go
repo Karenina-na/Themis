@@ -54,6 +54,8 @@ func LoadDatabase() (E error) {
 			return e2
 		}
 	}
+	LeadersRWLock.Lock()
+	defer LeadersRWLock.Unlock()
 	for i := 0; i < len(leaderServerModels); i++ {
 		model := entity.ServerModel{
 			IP:        leaderServerModels[i].IP,
@@ -63,7 +65,10 @@ func LoadDatabase() (E error) {
 			Colony:    leaderServerModels[i].Colony,
 			Namespace: leaderServerModels[i].Namespace,
 		}
-		Leaders[model.Namespace] = model
+		if Leaders[model.Namespace] == nil {
+			Leaders[model.Namespace] = make(map[string]entity.ServerModel)
+		}
+		Leaders[model.Namespace][model.Colony] = model
 	}
 	return nil
 }
@@ -98,8 +103,12 @@ func Persistence() (E error) {
 			return nil
 		}, func(tx *gorm.DB) error {
 			list := util.NewLinkList[entity.ServerModel]()
+			LeadersRWLock.RLock()
+			defer LeadersRWLock.RUnlock()
 			for _, v := range Leaders {
-				list.Append(v)
+				for _, s := range v {
+					list.Append(s)
+				}
 			}
 			b, e := mapper.StorageList(list, mapper.LEADER, tx)
 			if e != nil || b != true {

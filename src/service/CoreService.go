@@ -17,10 +17,16 @@ func Register() (E error) {
 		}
 	}()
 	util.Loglevel(util.Debug, "Register", "创建注册协程")
+
 	for {
 		data := <-ServerModelQueue
 		namespace := data.Namespace
 		name := data.Colony + "::" + data.Name
+		LeadersRWLock.Lock()
+		if Leaders[namespace] == nil {
+			Leaders[namespace] = make(map[string]entity.ServerModel)
+		}
+		LeadersRWLock.Unlock()
 		ServerModelListRWLock.Lock()
 		if ServerModelList[namespace] == nil {
 			ServerModelList[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
@@ -66,6 +72,12 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 			ServerModelList[namespace][name].DeleteByValue(model)
 			if ServerModelList[namespace][name].IsEmpty() {
 				delete(ServerModelList[namespace], name)
+			}
+			if len(ServerModelList[namespace]) == 0 && namespace != "default" {
+				delete(ServerModelList, namespace)
+				LeadersRWLock.Lock()
+				delete(Leaders, namespace)
+				LeadersRWLock.Unlock()
 			}
 			InstanceList.DeleteByValue(model)
 			ServerModelListRWLock.Unlock()

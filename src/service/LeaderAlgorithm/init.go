@@ -6,12 +6,12 @@ import (
 	"Themis/src/util"
 )
 
-func CreateLeader(List map[string]*util.LinkList[entity.ServerModel]) entity.ServerModel {
+func CreateLeader(List *util.LinkList[entity.ServerModel]) entity.ServerModel {
 	F := AlgorithmFactory()
 	return F(List)
 }
 
-func AlgorithmFactory() func(List map[string]*util.LinkList[entity.ServerModel]) entity.ServerModel {
+func AlgorithmFactory() func(List *util.LinkList[entity.ServerModel]) entity.ServerModel {
 	switch config.CreateLeaderAlgorithm {
 	case "RandomAlgorithmCreateLeader":
 		return RandomAlgorithmCreateLeader

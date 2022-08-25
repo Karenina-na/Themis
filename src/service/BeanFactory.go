@@ -42,7 +42,9 @@ var (
 //记账
 var (
 	// Leaders 记账人
-	Leaders map[string]entity.ServerModel
+	Leaders map[string]map[string]entity.ServerModel
+	// LeadersRWLock 记账人读写锁
+	LeadersRWLock sync.RWMutex
 )
 
 // RoutinePool goroutine池
@@ -74,7 +76,8 @@ func InitServer() (E error) {
 
 	ServerModelBeatQueue = make(chan entity.ServerModel, config.ServerModelBeatQueue)
 
-	Leaders = make(map[string]entity.ServerModel)
+	Leaders = make(map[string]map[string]entity.ServerModel)
+	Leaders["default"] = make(map[string]entity.ServerModel)
 
 	RoutinePool.CreateWork(Register, func(message error) {
 		exception.HandleException(message)
