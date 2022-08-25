@@ -58,9 +58,6 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 		}
 	}()
 	util.Loglevel(util.Debug, "ServerBeat", "创建心跳协程-"+util.Strval(model))
-	defer func() {
-		E = DeleteMapper(&model)
-	}()
 	start := time.Now().Unix()
 	for {
 		t := time.Now().Unix() - start

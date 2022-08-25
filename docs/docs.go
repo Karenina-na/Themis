@@ -25,7 +25,46 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/message/election": {
+        "/message/beat": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "服务心跳重置倒计时",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "服务层"
+                ],
+                "summary": "服务心跳",
+                "parameters": [
+                    {
+                        "description": "服务实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回true或false",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ResultModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/message/election": {
             "put": {
                 "security": [
                     {
@@ -45,34 +84,13 @@ const docTemplate = `{
                 "summary": "选举",
                 "parameters": [
                     {
-                        "type": "string",
-                        "name": "IP",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "namespace",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "port",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "time",
-                        "in": "query"
+                        "description": "领导者或非领导者服务实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
                     }
                 ],
                 "responses": {
@@ -85,7 +103,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/message/getLeader": {
+        "/message/getLeader": {
             "post": {
                 "security": [
                     {
@@ -105,34 +123,13 @@ const docTemplate = `{
                 "summary": "获取领导者",
                 "parameters": [
                     {
-                        "type": "string",
-                        "name": "IP",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "namespace",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "port",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "time",
-                        "in": "query"
+                        "description": "非领导者实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
                     }
                 ],
                 "responses": {
@@ -157,7 +154,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/message/getServers": {
+        "/message/getServers": {
             "post": {
                 "security": [
                     {
@@ -177,34 +174,13 @@ const docTemplate = `{
                 "summary": "获取当前被领导者服务列表",
                 "parameters": [
                     {
-                        "type": "string",
-                        "name": "IP",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "namespace",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "port",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "time",
-                        "in": "query"
+                        "description": "领导者实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
                     }
                 ],
                 "responses": {
@@ -232,14 +208,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/message/message/beat": {
-            "put": {
+        "/message/getServersNum": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "服务心跳重置倒计时",
+                "description": "由所有服务调用获取当前集群服务数量。",
                 "consumes": [
                     "application/json"
                 ],
@@ -249,42 +225,21 @@ const docTemplate = `{
                 "tags": [
                     "服务层"
                 ],
-                "summary": "服务心跳",
+                "summary": "获取当前集群服务数量",
                 "parameters": [
                     {
-                        "type": "string",
-                        "name": "IP",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "namespace",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "port",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "time",
-                        "in": "query"
+                        "description": "服务实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "返回true或false",
+                        "description": "返回集群服务数量",
                         "schema": {
                             "$ref": "#/definitions/entity.ResultModel"
                         }
@@ -292,7 +247,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/message/register": {
+        "/message/register": {
             "post": {
                 "security": [
                     {
@@ -312,34 +267,13 @@ const docTemplate = `{
                 "summary": "服务注册",
                 "parameters": [
                     {
-                        "type": "string",
-                        "name": "IP",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "namespace",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "port",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "time",
-                        "in": "query"
+                        "description": "服务实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
                     }
                 ],
                 "responses": {
@@ -352,7 +286,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/operator/cancelDeleteInstance": {
+        "/operator/cancelDeleteInstance": {
             "delete": {
                 "security": [
                     {
@@ -372,34 +306,13 @@ const docTemplate = `{
                 "summary": "删除黑名单中的实例信息",
                 "parameters": [
                     {
-                        "type": "string",
-                        "name": "IP",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "namespace",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "port",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "time",
-                        "in": "query"
+                        "description": "从黑名单中清除的实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
                     }
                 ],
                 "responses": {
@@ -412,7 +325,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/operator/deleteColony": {
+        "/operator/deleteColony": {
             "delete": {
                 "security": [
                     {
@@ -432,34 +345,13 @@ const docTemplate = `{
                 "summary": "删除地区集群实例并拉入黑名单",
                 "parameters": [
                     {
-                        "type": "string",
-                        "name": "IP",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "namespace",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "port",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "time",
-                        "in": "query"
+                        "description": "被删除的服务地区信息（用服务实例信息包装）",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
                     }
                 ],
                 "responses": {
@@ -472,7 +364,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/operator/election": {
+        "/operator/deleteInstance": {
             "delete": {
                 "security": [
                     {
@@ -492,34 +384,13 @@ const docTemplate = `{
                 "summary": "删除服务实例并拉入黑名单",
                 "parameters": [
                     {
-                        "type": "string",
-                        "name": "IP",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "namespace",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "port",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "time",
-                        "in": "query"
+                        "description": "被删除的服务实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
                     }
                 ],
                 "responses": {
@@ -532,7 +403,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/operator/getDeleteInstance": {
+        "/operator/getDeleteInstance": {
             "get": {
                 "security": [
                     {
@@ -575,7 +446,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/operator/getInstances": {
+        "/operator/getInstances": {
             "get": {
                 "security": [
                     {
@@ -634,6 +505,17 @@ const docTemplate = `{
                     "管理层"
                 ],
                 "summary": "获取指定条件下的服务实例服务实例",
+                "parameters": [
+                    {
+                        "description": "封装的条件参数",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "返回服务实例切片数组",
@@ -659,7 +541,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/operator/getStatus": {
+        "/operator/getStatus": {
             "get": {
                 "security": [
                     {
@@ -886,7 +768,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Themis API",

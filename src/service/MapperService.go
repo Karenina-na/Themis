@@ -36,7 +36,7 @@ func LoadDatabase() (E error) {
 			return e
 		}
 	}
-	for i := 0; i < len(deleteServerModels)-1; i++ {
+	for i := 0; i < len(deleteServerModels); i++ {
 		model := &entity.ServerModel{
 			IP:        deleteServerModels[i].IP,
 			Port:      deleteServerModels[i].Port,
@@ -45,9 +45,13 @@ func LoadDatabase() (E error) {
 			Colony:    deleteServerModels[i].Colony,
 			Namespace: deleteServerModels[i].Namespace,
 		}
-		_, e := DeleteServer(model)
-		if e != nil {
-			return e
+		_, e1 := RegisterServer(model)
+		if e1 != nil {
+			return e1
+		}
+		_, e2 := DeleteServer(model)
+		if e2 != nil {
+			return e2
 		}
 	}
 	for i := 0; i < len(leaderServerModels); i++ {
@@ -107,24 +111,4 @@ func Persistence() (E error) {
 			return e
 		}
 	}
-}
-
-func DeleteMapper(model *entity.ServerModel) (E error) {
-	defer func() {
-		r := recover()
-		if r != nil {
-			E = exception.NewUserError("DeleteMapper-service", util.Strval(r))
-		}
-	}()
-	_, e := mapper.Transaction(func(tx *gorm.DB) error {
-		b, e := mapper.DeleteServer(model, tx)
-		if e != nil || b != true {
-			return e
-		}
-		return nil
-	})
-	if e != nil {
-		return e
-	}
-	return nil
 }

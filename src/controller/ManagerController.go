@@ -15,8 +15,8 @@ import (
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Success     200 {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
-// @Router      /api/v1/operator/getInstances [get]
+// @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
+// @Router      /operator/getInstances [get]
 func GetController(c *gin.Context) {
 	servers, err := service.GetInstances()
 	if err != nil {
@@ -33,8 +33,9 @@ func GetController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
+// @Param       Model body     entity.ServerModel                            true "封装的条件参数"
 // @Success     200 {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
-// @Router      /api/v1/operator/getInstances [POST]
+// @Router      /operator/getInstances [POST]
 func GetPostController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
@@ -58,9 +59,9 @@ func GetPostController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model query    entity.ServerModel true "被删除的服务实例信息"
+// @Param       Model body     entity.ServerModel true "被删除的服务实例信息"
 // @Success     200   {object} entity.ResultModel "返回true或false"
-// @Router      /api/v1/operator/election [delete]
+// @Router      /operator/deleteInstance [delete]
 func DeleteInstanceController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
@@ -95,9 +96,9 @@ func DeleteInstanceController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model query    entity.ServerModel true "被删除的服务地区信息（用服务实例信息包装）"
+// @Param       Model body     entity.ServerModel true "被删除的服务地区信息（用服务实例信息包装）"
 // @Success     200   {object} entity.ResultModel "返回true或false"
-// @Router      /api/v1/operator/deleteColony [delete]
+// @Router      /operator/deleteColony [delete]
 func DeleteColonyController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
@@ -111,8 +112,11 @@ func DeleteColonyController(c *gin.Context) {
 		Handle(err1, c)
 		return
 	}
-	c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
-
+	if Assert {
+		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
+	} else {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "命名空间或集群不存在"))
+	}
 }
 
 // GetDeleteInstanceController
@@ -123,7 +127,7 @@ func DeleteColonyController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=[]entity.ServerModel} "返回黑名单中服务实例切片数组"
-// @Router      /api/v1/operator/getDeleteInstance [get]
+// @Router      /operator/getDeleteInstance [get]
 func GetDeleteInstanceController(c *gin.Context) {
 	servers, err := service.GetBlacklistServer()
 	if err != nil {
@@ -140,9 +144,9 @@ func GetDeleteInstanceController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model query    entity.ServerModel true "从黑名单中清除的实例信息"
+// @Param       Model body     entity.ServerModel true "从黑名单中清除的实例信息"
 // @Success     200   {object} entity.ResultModel "返回true或false"
-// @Router      /api/v1/operator/cancelDeleteInstance [delete]
+// @Router      /operator/cancelDeleteInstance [delete]
 func CancelDeleteInstanceController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
@@ -176,7 +180,7 @@ func CancelDeleteInstanceController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=entity.ComputerInfoModel} "返回电脑状态"
-// @Router      /api/v1/operator/getStatus [get]
+// @Router      /operator/getStatus [get]
 func GetStatusController(c *gin.Context) {
 	computer, err := service.GetCenterStatus()
 	if err != nil {

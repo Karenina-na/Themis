@@ -15,9 +15,9 @@ import (
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model query    entity.ServerModel true "服务实例信息"
+// @Param       Model body     entity.ServerModel true "服务实例信息"
 // @Success     200   {object} entity.ResultModel "返回true或false"
-// @Router      /api/v1/message/register [post]
+// @Router      /message/register [post]
 func RegisterController(c *gin.Context) {
 
 	Server := entity.NewServerModel()
@@ -42,9 +42,8 @@ func RegisterController(c *gin.Context) {
 		if err3 != nil {
 			Handle(err3, c)
 			return
-		} else {
-			c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
 		}
+		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert))
 	} else if assert1 && !assert2 {
 		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已注册"))
 	} else {
@@ -60,9 +59,9 @@ func RegisterController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model query    entity.ServerModel true "服务实例信息"
+// @Param       Model body     entity.ServerModel true "服务实例信息"
 // @Success     200   {object} entity.ResultModel "返回true或false"
-// @Router      /api/v1/message/message/beat [put]
+// @Router      /message/beat [put]
 func HeartBeatController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
@@ -107,9 +106,9 @@ func HeartBeatController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model query    entity.ServerModel true "领导者或非领导者服务实例信息"
+// @Param       Model body     entity.ServerModel true "领导者或非领导者服务实例信息"
 // @Success     200   {object} entity.ResultModel "返回true或false"
-// @Router      /api/v1/message/election [put]
+// @Router      /message/election [put]
 func ElectionController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
@@ -143,9 +142,9 @@ func ElectionController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model query    entity.ServerModel                          true "非领导者实例信息"
+// @Param       Model body     entity.ServerModel                          true "非领导者实例信息"
 // @Success     200   {object} entity.ResultModel{data=entity.ServerModel} "返回领导者服务信息"
-// @Router      /api/v1/message/getLeader [POST]
+// @Router      /message/getLeader [POST]
 func GetLeaderController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
@@ -169,9 +168,9 @@ func GetLeaderController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model query    entity.ServerModel                            true "领导者实例信息"
+// @Param       Model body     entity.ServerModel                            true "领导者实例信息"
 // @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回被领导者的切片数组"
-// @Router      /api/v1/message/getServers [POST]
+// @Router      /message/getServers [POST]
 func GetServersController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
@@ -195,5 +194,47 @@ func GetServersController(c *gin.Context) {
 	} else {
 		exception.HandleException(exception.NewUserError("GetServersController", "错误的Leader"))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "错误的Leader"))
+	}
+}
+
+// GetServersNumController
+// @Summary     获取当前集群服务数量
+// @Description 由所有服务调用获取当前集群服务数量。
+// @Tags        服务层
+// @Accept      application/json
+// @Produce     application/json
+// @Security    ApiKeyAuth
+// @Param       Model body     entity.ServerModel true "服务实例信息"
+// @Success     200   {object} entity.ResultModel "返回集群服务数量"
+// @Router      /message/getServersNum [POST]
+func GetServersNumController(c *gin.Context) {
+	Server := entity.NewServerModel()
+	err := c.BindJSON(&Server)
+	if err != nil {
+		exception.HandleException(exception.NewUserError("GetServersController", "参数绑定错误-"+err.Error()))
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
+		return
+	}
+	assert1, err1 := service.CheckServer(Server)
+	if err1 != nil {
+		Handle(err1, c)
+		return
+	}
+	assert2, err2 := service.CheckDeleteServer(Server)
+	if err2 != nil {
+		Handle(err2, c)
+		return
+	}
+	if assert1 && !assert2 {
+		num, err := service.GetServersNumber(Server)
+		if err != nil {
+			Handle(err, c)
+			return
+		}
+		c.JSON(http.StatusOK, entity.NewSuccessResult(num))
+	} else if !assert1 && !assert2 {
+		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例未注册"))
+	} else {
+		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已被删除"))
 	}
 }

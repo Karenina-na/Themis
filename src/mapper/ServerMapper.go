@@ -60,19 +60,25 @@ func Storage(model *entity.ServerModel, Type int, tx *gorm.DB) (B bool, E error)
 		}
 	}()
 	var mapperModel *entity.ServerMapperMode
-	if Type == NORMAL {
+	switch Type {
+	case NORMAL:
 		mapperModel = entity.NewServerMapperMode(*model, NORMAL)
-	} else {
+	case DELETE:
 		mapperModel = entity.NewServerMapperMode(*model, DELETE)
+	case LEADER:
+		mapperModel = entity.NewServerMapperMode(*model, LEADER)
 	}
 	if err := tx.Create(mapperModel).Error; err != nil {
 		return false, err
 	}
 	var t string
-	if Type == NORMAL {
+	switch Type {
+	case NORMAL:
 		t = "NORMAL"
-	} else {
+	case DELETE:
 		t = "DELETE"
+	case LEADER:
+		t = "LEADER"
 	}
 	util.Loglevel(util.Debug, "Storage-mapper", "数据存储"+t)
 	return true, nil
@@ -180,7 +186,7 @@ func Transaction(List ...func(tx *gorm.DB) error) (B bool, E error) {
 		return nil
 	})
 	if err != nil {
-		return false, exception.NewDataBaseError("数据库事务中执行失败", util.Strval(err.Error())+t)
+		return false, exception.NewDataBaseError("Transaction-mapper", "数据库事务中执行失败 "+util.Strval(err.Error())+" "+t)
 	}
 	util.Loglevel(util.Debug, "Transaction-mapper", "数据库事务执行完成-"+time.Now().Format("2006-01-02 15:04:05"))
 	util.Loglevel(util.Debug, "Transaction-mapper", "===================================>>")

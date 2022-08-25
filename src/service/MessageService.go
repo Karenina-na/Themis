@@ -8,6 +8,7 @@ import (
 	"Themis/src/util"
 	"encoding/json"
 	"net"
+	"strings"
 )
 
 func RegisterServer(S *entity.ServerModel) (B bool, E error) {
@@ -110,4 +111,23 @@ func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 		}
 	}
 	return list, nil
+}
+
+func GetServersNumber(model *entity.ServerModel) (num int, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetServersNumber-service", util.Strval(r))
+		}
+	}()
+	ServerModelListRWLock.RLock()
+	defer ServerModelListRWLock.RUnlock()
+	for name, List := range ServerModelList[model.Namespace] {
+		str := strings.Split(name, "::")
+		colony := str[0]
+		if colony == model.Colony {
+			return List.Length(), nil
+		}
+	}
+	return 0, nil
 }

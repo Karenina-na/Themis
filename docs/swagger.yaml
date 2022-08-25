@@ -116,7 +116,6 @@ definitions:
       time:
         type: string
     type: object
-host: localhost:8080
 info:
   contact:
     email: 1539989223@qq.com
@@ -130,30 +129,42 @@ info:
   title: Themis API
   version: "1.0"
 paths:
-  /api/v1/message/election:
+  /message/beat:
+    put:
+      consumes:
+      - application/json
+      description: 服务心跳重置倒计时
+      parameters:
+      - description: 服务实例信息
+        in: body
+        name: Model
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ServerModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回true或false
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 服务心跳
+      tags:
+      - 服务层
+  /message/election:
     put:
       consumes:
       - application/json
       description: 由领导者调用的新一轮选举接口。
       parameters:
-      - in: query
-        name: IP
-        type: string
-      - in: query
-        name: colony
-        type: string
-      - in: query
-        name: name
-        type: string
-      - in: query
-        name: namespace
-        type: string
-      - in: query
-        name: port
-        type: string
-      - in: query
-        name: time
-        type: string
+      - description: 领导者或非领导者服务实例信息
+        in: body
+        name: Model
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ServerModel'
       produces:
       - application/json
       responses:
@@ -166,30 +177,18 @@ paths:
       summary: 选举
       tags:
       - 服务层
-  /api/v1/message/getLeader:
+  /message/getLeader:
     post:
       consumes:
       - application/json
       description: 由其他服务调用的获取当前领导者接口。
       parameters:
-      - in: query
-        name: IP
-        type: string
-      - in: query
-        name: colony
-        type: string
-      - in: query
-        name: name
-        type: string
-      - in: query
-        name: namespace
-        type: string
-      - in: query
-        name: port
-        type: string
-      - in: query
-        name: time
-        type: string
+      - description: 非领导者实例信息
+        in: body
+        name: Model
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ServerModel'
       produces:
       - application/json
       responses:
@@ -207,30 +206,18 @@ paths:
       summary: 获取领导者
       tags:
       - 服务层
-  /api/v1/message/getServers:
+  /message/getServers:
     post:
       consumes:
       - application/json
       description: 由当前领导者调用的获取领导者所领导的服务列表。
       parameters:
-      - in: query
-        name: IP
-        type: string
-      - in: query
-        name: colony
-        type: string
-      - in: query
-        name: name
-        type: string
-      - in: query
-        name: namespace
-        type: string
-      - in: query
-        name: port
-        type: string
-      - in: query
-        name: time
-        type: string
+      - description: 领导者实例信息
+        in: body
+        name: Model
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ServerModel'
       produces:
       - application/json
       responses:
@@ -250,66 +237,42 @@ paths:
       summary: 获取当前被领导者服务列表
       tags:
       - 服务层
-  /api/v1/message/message/beat:
-    put:
+  /message/getServersNum:
+    post:
       consumes:
       - application/json
-      description: 服务心跳重置倒计时
+      description: 由所有服务调用获取当前集群服务数量。
       parameters:
-      - in: query
-        name: IP
-        type: string
-      - in: query
-        name: colony
-        type: string
-      - in: query
-        name: name
-        type: string
-      - in: query
-        name: namespace
-        type: string
-      - in: query
-        name: port
-        type: string
-      - in: query
-        name: time
-        type: string
+      - description: 服务实例信息
+        in: body
+        name: Model
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ServerModel'
       produces:
       - application/json
       responses:
         "200":
-          description: 返回true或false
+          description: 返回集群服务数量
           schema:
             $ref: '#/definitions/entity.ResultModel'
       security:
       - ApiKeyAuth: []
-      summary: 服务心跳
+      summary: 获取当前集群服务数量
       tags:
       - 服务层
-  /api/v1/message/register:
+  /message/register:
     post:
       consumes:
       - application/json
       description: 服务注册进中心
       parameters:
-      - in: query
-        name: IP
-        type: string
-      - in: query
-        name: colony
-        type: string
-      - in: query
-        name: name
-        type: string
-      - in: query
-        name: namespace
-        type: string
-      - in: query
-        name: port
-        type: string
-      - in: query
-        name: time
-        type: string
+      - description: 服务实例信息
+        in: body
+        name: Model
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ServerModel'
       produces:
       - application/json
       responses:
@@ -322,30 +285,18 @@ paths:
       summary: 服务注册
       tags:
       - 服务层
-  /api/v1/operator/cancelDeleteInstance:
+  /operator/cancelDeleteInstance:
     delete:
       consumes:
       - application/json
       description: 由管理者调用删除黑名单中的实例信息。
       parameters:
-      - in: query
-        name: IP
-        type: string
-      - in: query
-        name: colony
-        type: string
-      - in: query
-        name: name
-        type: string
-      - in: query
-        name: namespace
-        type: string
-      - in: query
-        name: port
-        type: string
-      - in: query
-        name: time
-        type: string
+      - description: 从黑名单中清除的实例信息
+        in: body
+        name: Model
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ServerModel'
       produces:
       - application/json
       responses:
@@ -358,30 +309,18 @@ paths:
       summary: 删除黑名单中的实例信息
       tags:
       - 管理层
-  /api/v1/operator/deleteColony:
+  /operator/deleteColony:
     delete:
       consumes:
       - application/json
       description: 由管理者调用删除地区集群实例并拉入黑名单。
       parameters:
-      - in: query
-        name: IP
-        type: string
-      - in: query
-        name: colony
-        type: string
-      - in: query
-        name: name
-        type: string
-      - in: query
-        name: namespace
-        type: string
-      - in: query
-        name: port
-        type: string
-      - in: query
-        name: time
-        type: string
+      - description: 被删除的服务地区信息（用服务实例信息包装）
+        in: body
+        name: Model
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ServerModel'
       produces:
       - application/json
       responses:
@@ -394,30 +333,18 @@ paths:
       summary: 删除地区集群实例并拉入黑名单
       tags:
       - 管理层
-  /api/v1/operator/election:
+  /operator/deleteInstance:
     delete:
       consumes:
       - application/json
       description: 由管理者调用删除服务实例并拉入黑名单。
       parameters:
-      - in: query
-        name: IP
-        type: string
-      - in: query
-        name: colony
-        type: string
-      - in: query
-        name: name
-        type: string
-      - in: query
-        name: namespace
-        type: string
-      - in: query
-        name: port
-        type: string
-      - in: query
-        name: time
-        type: string
+      - description: 被删除的服务实例信息
+        in: body
+        name: Model
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ServerModel'
       produces:
       - application/json
       responses:
@@ -430,7 +357,7 @@ paths:
       summary: 删除服务实例并拉入黑名单
       tags:
       - 管理层
-  /api/v1/operator/getDeleteInstance:
+  /operator/getDeleteInstance:
     get:
       consumes:
       - application/json
@@ -454,7 +381,7 @@ paths:
       summary: 获取全部黑名单服务实例
       tags:
       - 管理层
-  /api/v1/operator/getInstances:
+  /operator/getInstances:
     get:
       consumes:
       - application/json
@@ -482,6 +409,13 @@ paths:
       consumes:
       - application/json
       description: 由获取命名空间与集群条件下的服务实例服务实例。
+      parameters:
+      - description: 封装的条件参数
+        in: body
+        name: Model
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ServerModel'
       produces:
       - application/json
       responses:
@@ -501,7 +435,7 @@ paths:
       summary: 获取指定条件下的服务实例服务实例
       tags:
       - 管理层
-  /api/v1/operator/getStatus:
+  /operator/getStatus:
     get:
       consumes:
       - application/json

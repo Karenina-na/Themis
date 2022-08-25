@@ -18,5 +18,7 @@ func MessageAPI(r *gin.Engine) {
 		tx.POST("/getLeader", controller.GetLeaderController)
 		// /api/v1/message/getServers		获取除Leader外其他服务
 		tx.POST("/getServers", controller.GetServersController)
+		// /api/v1/message/getServersNum	获取当前集群服务数量
+		tx.POST("/getServersNum", controller.GetServersNumController)
 	}
 }

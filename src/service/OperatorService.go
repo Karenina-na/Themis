@@ -48,8 +48,14 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 	ServerModelListRWLock.Lock()
 	defer ServerModelListRWLock.Unlock()
 	DeleteInstanceList.Append(*model)
-	Assert := InstanceList.DeleteByValue(*model) &&
-		ServerModelList[model.Namespace][model.Colony+"::"+model.Name].DeleteByValue(*model)
+	InstanceList.DeleteByValue(*model)
+	ServerModelList[model.Namespace][model.Colony+"::"+model.Name].DeleteByValue(*model)
+	if ServerModelList[model.Namespace][model.Colony+"::"+model.Name].IsEmpty() {
+		delete(ServerModelList[model.Namespace], model.Colony+"::"+model.Name)
+	}
+	if ServerModelList[model.Namespace] == nil && model.Name != "default" {
+		delete(ServerModelList, model.Namespace)
+	}
 	if reflect.DeepEqual(*model, Leaders[model.Namespace]) {
 		_, E := Election(model)
 		if E != nil {
@@ -57,7 +63,7 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 		}
 	}
 	util.Loglevel(util.Debug, "DeleteServer", "删除服务-"+util.Strval(*model))
-	return Assert, nil
+	return true, nil
 }
 
 func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
@@ -71,6 +77,9 @@ func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 	list := make([]string, 0, 100)
 	ServerModelListRWLock.Lock()
 	defer ServerModelListRWLock.Unlock()
+	if ServerModelList[model.Namespace] == nil {
+		return false, nil
+	}
 	for name, L := range ServerModelList[model.Namespace] {
 		str := strings.Split(name, "::")
 		colony := str[0]
@@ -78,7 +87,11 @@ func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 			for i := 0; i < L.Length(); i++ {
 				server := L.Get(i)
 				DeleteInstanceList.Append(server)
-				InstanceList.DeleteAllByValue(server)
+				InstanceList.DeleteByValue(server)
+				ServerModelList[server.Namespace][server.Colony+"::"+server.Name].DeleteByValue(server)
+				if ServerModelList[server.Namespace][server.Colony+"::"+server.Name].IsEmpty() {
+					delete(ServerModelList[server.Namespace], server.Colony+"::"+server.Name)
+				}
 				if reflect.DeepEqual(Leaders[server.Namespace], server) {
 					flag = true
 				}
@@ -94,6 +107,9 @@ func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 		if err != nil {
 			return false, err
 		}
+	}
+	if ServerModelList[model.Namespace] == nil && model.Name != "default" {
+		delete(ServerModelList, model.Namespace)
 	}
 	util.Loglevel(util.Debug, "DeleteColonyServer", "批量删除服务-"+util.Strval(model.Colony))
 	return true, nil

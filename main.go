@@ -43,7 +43,6 @@ import (
 // @title          Themis API
 // @version        1.0
 // @description    分布式记账系统调度中心
-// @host           localhost:8080
 // @termsOfService https://www.wzxaugenstern.online/#/
 // @contact.name   CYCLEWW
 // @contact.url    https://www.wzxaugenstern.online/#/
