@@ -38,18 +38,18 @@ import (
 ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ~ See the License for the specific language governing permissions and
 ~ limitations under the License.
-~
 */
 
-// @title Themis API
-// @version 1.0
-// @description 分布式记账系统调度中心
+// @title          Themis API
+// @version        1.0
+// @description    分布式记账系统调度中心
+// @host           localhost:8080
 // @termsOfService https://www.wzxaugenstern.online/#/
-// @contact.name CYCLEWW
-// @contact.url https://www.wzxaugenstern.online/#/
-// @contact.email 1539989223@qq.com
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @contact.name   CYCLEWW
+// @contact.url    https://www.wzxaugenstern.online/#/
+// @contact.email  1539989223@qq.com
+// @license.name   Apache 2.0
+// @license.url    http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 	arg := flag.String("mode", "debug", "debug / release /test 环境")
 	flag.Parse()

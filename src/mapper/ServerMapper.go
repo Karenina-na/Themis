@@ -11,6 +11,7 @@ import (
 const (
 	NORMAL = iota
 	DELETE
+	LEADER
 )
 
 func StorageList(List *util.LinkList[entity.ServerModel], Type int, tx *gorm.DB) (B bool, E error) {
@@ -26,20 +27,26 @@ func StorageList(List *util.LinkList[entity.ServerModel], Type int, tx *gorm.DB)
 	}
 	for i := 0; i < List.Length(); i++ {
 		var mapperModel *entity.ServerMapperMode
-		if Type == NORMAL {
+		switch Type {
+		case NORMAL:
 			mapperModel = entity.NewServerMapperMode(List.Get(i), NORMAL)
-		} else {
+		case DELETE:
 			mapperModel = entity.NewServerMapperMode(List.Get(i), DELETE)
+		case LEADER:
+			mapperModel = entity.NewServerMapperMode(List.Get(i), LEADER)
 		}
 		if err := tx.Create(mapperModel).Error; err != nil {
 			return false, err
 		}
 	}
 	var t string
-	if Type == NORMAL {
+	switch Type {
+	case NORMAL:
 		t = "NORMAL"
-	} else {
+	case DELETE:
 		t = "DELETE"
+	case LEADER:
+		t = "LEADER"
 	}
 	util.Loglevel(util.Debug, "StorageList-mapper", "数据批量存储-"+t)
 	return true, nil
@@ -71,7 +78,7 @@ func Storage(model *entity.ServerModel, Type int, tx *gorm.DB) (B bool, E error)
 	return true, nil
 }
 
-func SelectAllServers() (S1 []entity.ServerModel, S2 []entity.ServerModel, E error) {
+func SelectAllServers() (S1 []entity.ServerModel, S2 []entity.ServerModel, S3 []entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
@@ -81,15 +88,18 @@ func SelectAllServers() (S1 []entity.ServerModel, S2 []entity.ServerModel, E err
 	var modelList []entity.ServerMapperMode
 	result := DB.Find(&modelList)
 	if err := result.Error; err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	var List []entity.ServerModel
 	var DeleteList []entity.ServerModel
+	var LeaderList []entity.ServerModel
 	List = make([]entity.ServerModel, 0, 100)
 	DeleteList = make([]entity.ServerModel, 0, 100)
+	LeaderList = make([]entity.ServerModel, 0, 100)
 	var index int64
 	for index = 0; index < result.RowsAffected; index++ {
-		if modelList[index].Type == NORMAL {
+		switch modelList[index].Type {
+		case NORMAL:
 			model := entity.NewServerModel()
 			model.IP = modelList[index].IP
 			model.Name = modelList[index].Name
@@ -98,7 +108,7 @@ func SelectAllServers() (S1 []entity.ServerModel, S2 []entity.ServerModel, E err
 			model.Namespace = modelList[index].Namespace
 			model.Time = modelList[index].Time
 			List = append(List, *model)
-		} else {
+		case DELETE:
 			model := entity.NewServerModel()
 			model.IP = modelList[index].IP
 			model.Name = modelList[index].Name
@@ -106,11 +116,20 @@ func SelectAllServers() (S1 []entity.ServerModel, S2 []entity.ServerModel, E err
 			model.Colony = modelList[index].Colony
 			model.Namespace = modelList[index].Namespace
 			model.Time = modelList[index].Time
-			DeleteList = append(List, *model)
+			DeleteList = append(DeleteList, *model)
+		case LEADER:
+			model := entity.NewServerModel()
+			model.IP = modelList[index].IP
+			model.Name = modelList[index].Name
+			model.Port = modelList[index].Port
+			model.Colony = modelList[index].Colony
+			model.Namespace = modelList[index].Namespace
+			model.Time = modelList[index].Time
+			LeaderList = append(LeaderList, *model)
 		}
 	}
 	util.Loglevel(util.Debug, "SelectAllServers-mapper", "数据查询")
-	return List, DeleteList, nil
+	return List, DeleteList, LeaderList, nil
 }
 
 func DeleteServer(model *entity.ServerModel, tx *gorm.DB) (B bool, E error) {
@@ -148,8 +167,9 @@ func Transaction(List ...func(tx *gorm.DB) error) (B bool, E error) {
 			E = exception.NewUserError("Transaction-mapper", util.Strval(r))
 		}
 	}()
+	t := time.Now().Format("2006-01-02 15:04:05")
 	util.Loglevel(util.Debug, "Transaction-mapper", "<<===================================")
-	util.Loglevel(util.Debug, "Transaction-mapper", "数据库事务执行"+time.Now().Format("2006-01-02 15:04:05"))
+	util.Loglevel(util.Debug, "Transaction-mapper", "数据库事务执行"+t)
 	err := DB.Transaction(func(tx *gorm.DB) error {
 		for _, f := range List {
 			err := f(tx)
@@ -160,7 +180,7 @@ func Transaction(List ...func(tx *gorm.DB) error) (B bool, E error) {
 		return nil
 	})
 	if err != nil {
-		return false, exception.NewDataBaseError("数据库事务中执行失败", util.Strval(err.Error()))
+		return false, exception.NewDataBaseError("数据库事务中执行失败", util.Strval(err.Error())+t)
 	}
 	util.Loglevel(util.Debug, "Transaction-mapper", "数据库事务执行完成-"+time.Now().Format("2006-01-02 15:04:05"))
 	util.Loglevel(util.Debug, "Transaction-mapper", "===================================>>")

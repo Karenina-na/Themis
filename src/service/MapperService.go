@@ -18,7 +18,7 @@ func LoadDatabase() (E error) {
 		}
 	}()
 	util.Loglevel(util.Debug, "LoadDatabase", "加载数据库原有文件")
-	serverModels, deleteServerModels, err := mapper.SelectAllServers()
+	serverModels, deleteServerModels, leaderServerModels, err := mapper.SelectAllServers()
 	if err != nil {
 		return err
 	}
@@ -38,17 +38,28 @@ func LoadDatabase() (E error) {
 	}
 	for i := 0; i < len(deleteServerModels)-1; i++ {
 		model := &entity.ServerModel{
-			IP:        serverModels[i].IP,
-			Port:      serverModels[i].Port,
-			Name:      serverModels[i].Name,
-			Time:      serverModels[i].Time,
-			Colony:    serverModels[i].Colony,
-			Namespace: serverModels[i].Namespace,
+			IP:        deleteServerModels[i].IP,
+			Port:      deleteServerModels[i].Port,
+			Name:      deleteServerModels[i].Name,
+			Time:      deleteServerModels[i].Time,
+			Colony:    deleteServerModels[i].Colony,
+			Namespace: deleteServerModels[i].Namespace,
 		}
 		_, e := DeleteServer(model)
 		if e != nil {
 			return e
 		}
+	}
+	for i := 0; i < len(leaderServerModels); i++ {
+		model := entity.ServerModel{
+			IP:        leaderServerModels[i].IP,
+			Port:      leaderServerModels[i].Port,
+			Name:      leaderServerModels[i].Name,
+			Time:      leaderServerModels[i].Time,
+			Colony:    leaderServerModels[i].Colony,
+			Namespace: leaderServerModels[i].Namespace,
+		}
+		Leaders[model.Namespace] = model
 	}
 	return nil
 }
@@ -77,6 +88,16 @@ func Persistence() (E error) {
 			return nil
 		}, func(tx *gorm.DB) error {
 			b, e := mapper.StorageList(DeleteInstanceList, mapper.DELETE, tx)
+			if e != nil || b != true {
+				return e
+			}
+			return nil
+		}, func(tx *gorm.DB) error {
+			list := util.NewLinkList[entity.ServerModel]()
+			for _, v := range Leaders {
+				list.Append(v)
+			}
+			b, e := mapper.StorageList(list, mapper.LEADER, tx)
 			if e != nil || b != true {
 				return e
 			}

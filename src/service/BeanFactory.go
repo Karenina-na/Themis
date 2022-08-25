@@ -60,6 +60,10 @@ func InitServer() (E error) {
 		exception.HandleException(exception.NewSystemError("Pool池", util.Strval(r)))
 	})
 
+	util.SetStatusErrorHandle(func(err error) {
+		exception.HandleException(exception.NewSystemError("ComputerStatusManager", util.Strval(err)))
+	})
+
 	InstanceList = util.NewLinkList[entity.ServerModel]()
 	DeleteInstanceList = util.NewLinkList[entity.ServerModel]()
 

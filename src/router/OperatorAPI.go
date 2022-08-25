@@ -10,6 +10,8 @@ func OperatorAPI(r *gin.Engine) {
 	{
 		//	/api/v1/operator/getInstances			获取全部服务实例
 		tx.GET("/getInstances", controller.GetController)
+		//  /api/v1/operator/getInstances			获取指定条件下的服务信息
+		tx.POST("/getInstances", controller.GetPostController)
 		// /api/v1/operator/deleteInstance			删除服务实例并拉入黑名单
 		tx.DELETE("/deleteInstance", controller.DeleteInstanceController)
 		// /api/v1/operator/deleteColony			删除地区集群实例并拉入黑名单

@@ -46,32 +46,32 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "name": "Colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "name": "IP",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Name",
+                        "name": "colony",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Namespace",
+                        "name": "name",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Port",
+                        "name": "namespace",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Time",
+                        "name": "port",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "time",
                         "in": "query"
                     }
                 ],
@@ -86,7 +86,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/message/getLeader": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -103,11 +103,55 @@ const docTemplate = `{
                     "服务层"
                 ],
                 "summary": "获取领导者",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "IP",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "colony",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "namespace",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "port",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "time",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "返回领导者服务信息",
                         "schema": {
-                            "$ref": "#/definitions/entity.ResultModel"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entity.ServerModel"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -131,11 +175,58 @@ const docTemplate = `{
                     "服务层"
                 ],
                 "summary": "获取当前被领导者服务列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "IP",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "colony",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "namespace",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "port",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "time",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "返回被领导者的切片数组",
                         "schema": {
-                            "$ref": "#/definitions/entity.ResultModel"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/entity.ServerModel"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -162,32 +253,32 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "name": "Colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "name": "IP",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Name",
+                        "name": "colony",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Namespace",
+                        "name": "name",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Port",
+                        "name": "namespace",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Time",
+                        "name": "port",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "time",
                         "in": "query"
                     }
                 ],
@@ -222,32 +313,32 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "name": "Colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "name": "IP",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Name",
+                        "name": "colony",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Namespace",
+                        "name": "name",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Port",
+                        "name": "namespace",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Time",
+                        "name": "port",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "time",
                         "in": "query"
                     }
                 ],
@@ -282,32 +373,32 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "name": "Colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "name": "IP",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Name",
+                        "name": "colony",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Namespace",
+                        "name": "name",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Port",
+                        "name": "namespace",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Time",
+                        "name": "port",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "time",
                         "in": "query"
                     }
                 ],
@@ -342,32 +433,32 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "name": "Colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "name": "IP",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Name",
+                        "name": "colony",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Namespace",
+                        "name": "name",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Port",
+                        "name": "namespace",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Time",
+                        "name": "port",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "time",
                         "in": "query"
                     }
                 ],
@@ -402,32 +493,32 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "name": "Colony",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "name": "IP",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Name",
+                        "name": "colony",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Namespace",
+                        "name": "name",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Port",
+                        "name": "namespace",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "Time",
+                        "name": "port",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "time",
                         "in": "query"
                     }
                 ],
@@ -463,7 +554,22 @@ const docTemplate = `{
                     "200": {
                         "description": "返回黑名单中服务实例切片数组",
                         "schema": {
-                            "$ref": "#/definitions/entity.ResultModel"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/entity.ServerModel"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -491,7 +597,63 @@ const docTemplate = `{
                     "200": {
                         "description": "返回服务实例切片数组",
                         "schema": {
-                            "$ref": "#/definitions/entity.ResultModel"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/entity.ServerModel"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "由获取命名空间与集群条件下的服务实例服务实例。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取指定条件下的服务实例服务实例",
+                "responses": {
+                    "200": {
+                        "description": "返回服务实例切片数组",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/entity.ServerModel"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -517,9 +679,21 @@ const docTemplate = `{
                 "summary": "获取服务状态",
                 "responses": {
                     "200": {
-                        "description": "返回运行线程数与当前任务数",
+                        "description": "返回电脑状态",
                         "schema": {
-                            "$ref": "#/definitions/entity.ResultModel"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entity.ComputerInfoModel"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -527,14 +701,181 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "entity.ComputerInfoModel": {
+            "type": "object",
+            "properties": {
+                "cpu_info": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.CpuInfoModel"
+                    }
+                },
+                "disk_info": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DiskInfoModel"
+                    }
+                },
+                "host_info": {
+                    "$ref": "#/definitions/entity.HostInfoModel"
+                },
+                "mem_info": {
+                    "$ref": "#/definitions/entity.MemInfoModel"
+                },
+                "net_info": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.NetInfoModel"
+                    }
+                },
+                "pool_activate_num": {
+                    "type": "integer"
+                },
+                "pool_job_num": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.CpuInfoModel": {
+            "type": "object",
+            "properties": {
+                "cpu_core_num": {
+                    "type": "string"
+                },
+                "cpu_frequency": {
+                    "type": "string"
+                },
+                "cpu_name": {
+                    "type": "string"
+                },
+                "cpu_physical_id": {
+                    "type": "string"
+                },
+                "cpu_usage": {
+                    "type": "string"
+                },
+                "cpu_vendor_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.DiskInfoModel": {
+            "type": "object",
+            "properties": {
+                "disk_avi": {
+                    "type": "string"
+                },
+                "disk_name": {
+                    "type": "string"
+                },
+                "disk_size": {
+                    "type": "string"
+                },
+                "disk_usage": {
+                    "type": "string"
+                },
+                "disk_used": {
+                    "type": "string"
+                },
+                "fs_type": {
+                    "type": "string"
+                },
+                "opts": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.HostInfoModel": {
+            "type": "object",
+            "properties": {
+                "host_id": {
+                    "type": "string"
+                },
+                "host_kernel_arch": {
+                    "type": "string"
+                },
+                "host_kernel_version": {
+                    "type": "string"
+                },
+                "host_name": {
+                    "type": "string"
+                },
+                "host_os": {
+                    "type": "string"
+                },
+                "host_os_version": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.MemInfoModel": {
+            "type": "object",
+            "properties": {
+                "mem_avi": {
+                    "type": "string"
+                },
+                "mem_total": {
+                    "type": "string"
+                },
+                "mem_usage": {
+                    "type": "string"
+                },
+                "mem_used": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.NetInfoModel": {
+            "type": "object",
+            "properties": {
+                "bytes_received": {
+                    "type": "string"
+                },
+                "bytes_sent": {
+                    "type": "string"
+                },
+                "net_name": {
+                    "type": "string"
+                },
+                "packets_received": {
+                    "type": "string"
+                },
+                "packets_sent": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.ResultModel": {
             "type": "object",
             "properties": {
-                "Code": {
+                "code": {
                     "type": "integer"
                 },
-                "Data": {},
-                "Message": {
+                "data": {},
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.ServerModel": {
+            "type": "object",
+            "properties": {
+                "IP": {
+                    "type": "string"
+                },
+                "colony": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "time": {
                     "type": "string"
                 }
             }
@@ -545,7 +886,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "",
+	Host:             "localhost:8080",
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Themis API",

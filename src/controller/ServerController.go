@@ -9,15 +9,15 @@ import (
 )
 
 // RegisterController
-// @Summary 服务注册
+// @Summary     服务注册
 // @Description 服务注册进中心
-// @Tags 服务层
-// @Accept application/json
-// @Produce application/json
-// @Security ApiKeyAuth
-// @Param Model query entity.ServerModel true "服务实例信息"
-// @Success 200 {object} entity.ResultModel "返回true或false"
-// @Router /api/v1/message/register [post]
+// @Tags        服务层
+// @Accept      application/json
+// @Produce     application/json
+// @Security    ApiKeyAuth
+// @Param       Model query    entity.ServerModel true "服务实例信息"
+// @Success     200   {object} entity.ResultModel "返回true或false"
+// @Router      /api/v1/message/register [post]
 func RegisterController(c *gin.Context) {
 
 	Server := entity.NewServerModel()
@@ -54,15 +54,15 @@ func RegisterController(c *gin.Context) {
 }
 
 // HeartBeatController
-// @Summary 服务心跳
+// @Summary     服务心跳
 // @Description 服务心跳重置倒计时
-// @Tags 服务层
-// @Accept application/json
-// @Produce application/json
-// @Security ApiKeyAuth
-// @Param Model query entity.ServerModel true "服务实例信息"
-// @Success 200 {object} entity.ResultModel "返回true或false"
-// @Router /api/v1/message/message/beat [put]
+// @Tags        服务层
+// @Accept      application/json
+// @Produce     application/json
+// @Security    ApiKeyAuth
+// @Param       Model query    entity.ServerModel true "服务实例信息"
+// @Success     200   {object} entity.ResultModel "返回true或false"
+// @Router      /api/v1/message/message/beat [put]
 func HeartBeatController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
@@ -101,15 +101,15 @@ func HeartBeatController(c *gin.Context) {
 }
 
 // ElectionController
-// @Summary 选举
+// @Summary     选举
 // @Description 由领导者调用的新一轮选举接口。
-// @Tags 服务层
-// @Accept application/json
-// @Produce application/json
-// @Security ApiKeyAuth
-// @Param Model query entity.ServerModel true "领导者或非领导者服务实例信息"
-// @Success 200 {object} entity.ResultModel "返回true或false"
-// @Router /api/v1/message/election [put]
+// @Tags        服务层
+// @Accept      application/json
+// @Produce     application/json
+// @Security    ApiKeyAuth
+// @Param       Model query    entity.ServerModel true "领导者或非领导者服务实例信息"
+// @Success     200   {object} entity.ResultModel "返回true或false"
+// @Router      /api/v1/message/election [put]
 func ElectionController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
@@ -137,15 +137,15 @@ func ElectionController(c *gin.Context) {
 }
 
 // GetLeaderController
-// @Summary 获取领导者
+// @Summary     获取领导者
 // @Description 由其他服务调用的获取当前领导者接口。
-// @Tags 服务层
-// @Accept application/json
-// @Produce application/json
-// @Security ApiKeyAuth
-// @Param Model query entity.ServerModel true "非领导者实例信息"
-// @Success 200 {object} entity.ResultModel "返回领导者服务信息"
-// @Router /api/v1/message/getLeader [POST]
+// @Tags        服务层
+// @Accept      application/json
+// @Produce     application/json
+// @Security    ApiKeyAuth
+// @Param       Model query    entity.ServerModel                          true "非领导者实例信息"
+// @Success     200   {object} entity.ResultModel{data=entity.ServerModel} "返回领导者服务信息"
+// @Router      /api/v1/message/getLeader [POST]
 func GetLeaderController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
@@ -163,15 +163,15 @@ func GetLeaderController(c *gin.Context) {
 }
 
 // GetServersController
-// @Summary 获取当前被领导者服务列表
+// @Summary     获取当前被领导者服务列表
 // @Description 由当前领导者调用的获取领导者所领导的服务列表。
-// @Tags 服务层
-// @Accept application/json
-// @Produce application/json
-// @Security ApiKeyAuth
-// @Param Model query entity.ServerModel true "领导者实例信息"
-// @Success 200 {object} entity.ResultModel "返回被领导者的切片数组"
-// @Router /api/v1/message/getServers [POST]
+// @Tags        服务层
+// @Accept      application/json
+// @Produce     application/json
+// @Security    ApiKeyAuth
+// @Param       Model query    entity.ServerModel                            true "领导者实例信息"
+// @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回被领导者的切片数组"
+// @Router      /api/v1/message/getServers [POST]
 func GetServersController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)

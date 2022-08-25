@@ -11,11 +11,12 @@
 * POST /api/v1/message/register  服务注册
 * PUT /api/v1/message/beat  服务心跳
 * PUT /api/v1/message/election  新一轮选举发起，以Leader身份发起
-* GET /api/v1/message/getLeader  获取当前Leader，以非Leader身份发起
+* POST /api/v1/message/getLeader  获取当前Leader，以非Leader身份发起
 * POST /api/v1/message/getServers  获取Leader领导的服务集群，以Leader身份发起
 
 ### OperatorAPI  操作api
 * GET /api/v1/operator/getInstances 获取全部服务实例
+* POST /api/v1/operator/getInstances 获取指定命名空间和区域的服务实例
 * DELETE /api/v1/operator/deleteInstance 将指定服务拉入黑名单
 * DELETE /api/v1/operator/deleteColony 将指定集群内所有服务拉入黑名单
 * GET /api/v1/operator/getDeleteInstances 获取黑名单内的实例

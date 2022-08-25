@@ -60,11 +60,11 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 	return Assert, nil
 }
 
-func DeleteColony(model *entity.ServerModel) (B bool, E error) {
+func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			E = exception.NewUserError("DeleteColony-service", util.Strval(r))
+			E = exception.NewUserError("DeleteColonyServer-service", util.Strval(r))
 		}
 	}()
 	flag := false
@@ -95,15 +95,15 @@ func DeleteColony(model *entity.ServerModel) (B bool, E error) {
 			return false, err
 		}
 	}
-	util.Loglevel(util.Debug, "DeleteColony", "批量删除服务-"+util.Strval(model.Colony))
+	util.Loglevel(util.Debug, "DeleteColonyServer", "批量删除服务-"+util.Strval(model.Colony))
 	return true, nil
 }
 
-func GetDeleteInstances() (m []entity.ServerModel, E error) {
+func GetBlacklistServer() (m []entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			E = exception.NewUserError("GetDeleteInstances-service", util.Strval(r))
+			E = exception.NewUserError("GetBlacklistServer-service", util.Strval(r))
 		}
 	}()
 	list := make([]entity.ServerModel, 0, 100)
@@ -113,15 +113,15 @@ func GetDeleteInstances() (m []entity.ServerModel, E error) {
 	return list, nil
 }
 
-func DeleteDeleteInstance(model *entity.ServerModel) (B bool, E error) {
+func DeleteInstanceFromBlacklist(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			E = exception.NewUserError("DeleteDeleteInstance-service", util.Strval(r))
+			E = exception.NewUserError("DeleteInstanceFromBlacklist-service", util.Strval(r))
 		}
 	}()
 	DeleteInstanceList.DeleteByValue(*model)
-	util.Loglevel(util.Debug, "DeleteDeleteInstance", "从黑名单恢复-"+util.Strval(*model))
+	util.Loglevel(util.Debug, "DeleteInstanceFromBlacklist", "从黑名单恢复-"+util.Strval(*model))
 	return true, nil
 }
 
@@ -153,6 +153,7 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 				ServerLists[namespace][colony][serverName] = append(ServerLists[namespace][colony][serverName], entity.ServerModel{
 					IP:        L.Get(i).IP,
 					Name:      L.Get(i).Name,
+					Port:      L.Get(i).Port,
 					Time:      L.Get(i).Time,
 					Colony:    L.Get(i).Colony,
 					Namespace: L.Get(i).Namespace,
@@ -163,7 +164,78 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 	return ServerLists, nil
 }
 
-func GetCenterStatus() (A int, J int, E error) {
+func GetInstancesByNamespaceAndColony(model *entity.ServerModel) (m []entity.ServerModel, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetInstancesByNamespaceAndColony-service", util.Strval(r))
+		}
+	}()
+	ServerModelListRWLock.RLock()
+	defer ServerModelListRWLock.RUnlock()
+	if model.Namespace == "" {
+		var list []entity.ServerModel
+		for _, colonyMap := range ServerModelList {
+			for _, L := range colonyMap {
+				for i := 0; i < L.Length(); i++ {
+					list = append(list, entity.ServerModel{
+						IP:        L.Get(i).IP,
+						Name:      L.Get(i).Name,
+						Port:      L.Get(i).Port,
+						Time:      L.Get(i).Time,
+						Colony:    L.Get(i).Colony,
+						Namespace: L.Get(i).Namespace,
+					})
+				}
+			}
+		}
+		return list, nil
+	}
+	if model.Colony == "" {
+		var list []entity.ServerModel
+		for namespace, colonyMap := range ServerModelList {
+			if namespace == model.Namespace {
+				for _, L := range colonyMap {
+					for i := 0; i < L.Length(); i++ {
+						list = append(list, entity.ServerModel{
+							IP:        L.Get(i).IP,
+							Name:      L.Get(i).Name,
+							Port:      L.Get(i).Port,
+							Time:      L.Get(i).Time,
+							Colony:    L.Get(i).Colony,
+							Namespace: L.Get(i).Namespace,
+						})
+					}
+				}
+			}
+		}
+		return list, nil
+	}
+	var list []entity.ServerModel
+	for namespace, colonyMap := range ServerModelList {
+		if namespace == model.Namespace {
+			for name, L := range colonyMap {
+				str := strings.Split(name, "::")
+				colony := str[0]
+				if colony == model.Colony {
+					for i := 0; i < L.Length(); i++ {
+						list = append(list, entity.ServerModel{
+							IP:        L.Get(i).IP,
+							Name:      L.Get(i).Name,
+							Port:      L.Get(i).Port,
+							Time:      L.Get(i).Time,
+							Colony:    L.Get(i).Colony,
+							Namespace: L.Get(i).Namespace,
+						})
+					}
+				}
+			}
+		}
+	}
+	return list, nil
+}
+
+func GetCenterStatus() (C *entity.ComputerInfoModel, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
@@ -171,5 +243,7 @@ func GetCenterStatus() (A int, J int, E error) {
 		}
 	}()
 	activeNum, jobNum := RoutinePool.CheckStatus()
-	return activeNum, jobNum, nil
+	computerStatus := entity.NewComputerInfoModel(
+		util.GetCpuInfo(), *util.GetMemInfo(), *util.GetHostInfo(), util.GetDiskInfo(), util.GetNetInfo(), activeNum, jobNum)
+	return computerStatus, nil
 }
