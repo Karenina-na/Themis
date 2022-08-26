@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// RegisterServer 注册服务器
 func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -29,6 +30,7 @@ func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
+// FlashHeartBeat 心跳
 func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -38,11 +40,12 @@ func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 	}()
 	util.Loglevel(util.Debug, "FlashHeartBeat", "刷新心跳-"+util.Strval(*model))
 	ServerModelBeatQueueLock.Lock()
-	defer ServerModelBeatQueueLock.Unlock()
 	ServerModelBeatQueue <- *model
+	ServerModelBeatQueueLock.Unlock()
 	return true, nil
 }
 
+// Election 发起选举
 func Election(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -52,7 +55,6 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 	}()
 	util.Loglevel(util.Debug, "Election", "选举开始")
 	ServerModelListRWLock.RLock()
-	defer ServerModelListRWLock.RUnlock()
 	ChoiceList := util.NewLinkList[entity.ServerModel]()
 	for colonyMap, servers := range ServerModelList[model.Namespace] {
 		str := strings.Split(colonyMap, "::")
@@ -63,6 +65,7 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 			}
 		}
 	}
+	ServerModelListRWLock.RUnlock()
 	leader := LeaderAlgorithm.CreateLeader(ChoiceList)
 	LeadersRWLock.Lock()
 	Leaders[model.Namespace][model.Colony] = leader
@@ -93,6 +96,7 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
+// GetLeader 获取leader
 func GetLeader(model *entity.ServerModel) (m entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -101,10 +105,12 @@ func GetLeader(model *entity.ServerModel) (m entity.ServerModel, E error) {
 		}
 	}()
 	LeadersRWLock.RLock()
-	defer LeadersRWLock.RUnlock()
-	return Leaders[model.Namespace][model.Colony], nil
+	leader := Leaders[model.Namespace][model.Colony]
+	LeadersRWLock.RUnlock()
+	return leader, nil
 }
 
+// GetServers 获取leader领导的服务器列表
 func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -114,7 +120,6 @@ func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 	}()
 	list := make([]entity.ServerModel, 0, 100)
 	ServerModelListRWLock.RLock()
-	defer ServerModelListRWLock.RUnlock()
 	for _, L := range ServerModelList[model.Namespace] {
 		for i := 0; i < L.Length(); i++ {
 			server := L.Get(i)
@@ -123,9 +128,11 @@ func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 			}
 		}
 	}
+	ServerModelListRWLock.RUnlock()
 	return list, nil
 }
 
+// GetServersNumber 获取leader领导的服务器列表数量
 func GetServersNumber(model *entity.ServerModel) (num int, E error) {
 	defer func() {
 		r := recover()
@@ -134,7 +141,6 @@ func GetServersNumber(model *entity.ServerModel) (num int, E error) {
 		}
 	}()
 	ServerModelListRWLock.RLock()
-	defer ServerModelListRWLock.RUnlock()
 	for name, List := range ServerModelList[model.Namespace] {
 		str := strings.Split(name, "::")
 		colony := str[0]
@@ -142,5 +148,6 @@ func GetServersNumber(model *entity.ServerModel) (num int, E error) {
 			return List.Length(), nil
 		}
 	}
+	ServerModelListRWLock.RUnlock()
 	return 0, nil
 }

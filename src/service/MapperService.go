@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// LoadDatabase 加载数据库
 func LoadDatabase() (E error) {
 	defer func() {
 		r := recover()
@@ -45,17 +46,9 @@ func LoadDatabase() (E error) {
 			Colony:    deleteServerModels[i].Colony,
 			Namespace: deleteServerModels[i].Namespace,
 		}
-		_, e1 := RegisterServer(model)
-		if e1 != nil {
-			return e1
-		}
-		_, e2 := DeleteServer(model)
-		if e2 != nil {
-			return e2
-		}
+		DeleteInstanceList.Append(*model)
 	}
 	LeadersRWLock.Lock()
-	defer LeadersRWLock.Unlock()
 	for i := 0; i < len(leaderServerModels); i++ {
 		model := entity.ServerModel{
 			IP:        leaderServerModels[i].IP,
@@ -70,9 +63,11 @@ func LoadDatabase() (E error) {
 		}
 		Leaders[model.Namespace][model.Colony] = model
 	}
+	LeadersRWLock.Unlock()
 	return nil
 }
 
+// Persistence 持久化数据
 func Persistence() (E error) {
 	defer func() {
 		r := recover()
@@ -104,7 +99,6 @@ func Persistence() (E error) {
 		}, func(tx *gorm.DB) error {
 			list := util.NewLinkList[entity.ServerModel]()
 			LeadersRWLock.RLock()
-			defer LeadersRWLock.RUnlock()
 			for _, v := range Leaders {
 				for _, s := range v {
 					list.Append(s)
@@ -114,6 +108,7 @@ func Persistence() (E error) {
 			if e != nil || b != true {
 				return e
 			}
+			LeadersRWLock.RUnlock()
 			return nil
 		})
 		if e != nil {

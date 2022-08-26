@@ -50,6 +50,7 @@ var (
 // RoutinePool goroutine池
 var RoutinePool *util.Pool
 
+// InitServer 初始化服务
 func InitServer() (E error) {
 	defer func() {
 		r := recover()

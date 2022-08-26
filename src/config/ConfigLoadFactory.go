@@ -33,9 +33,9 @@ func InitConfig() (E error) {
 		}
 	} else {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			return exception.NewConfigurationError("init", "配置文件不存在")
+			return exception.NewConfigurationError("InitConfig-config", "配置文件不存在")
 		} else {
-			return exception.NewConfigurationError("init", "配置文件读取失败"+err.Error())
+			return exception.NewConfigurationError("InitConfig-config", "配置文件读取失败"+err.Error())
 		}
 	}
 	return nil

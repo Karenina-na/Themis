@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// CheckServer 检查服务是否存在
 func CheckServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -18,6 +19,7 @@ func CheckServer(model *entity.ServerModel) (B bool, E error) {
 	return InstanceList.Contain(*model), nil
 }
 
+// CheckDeleteServer 检查服务是否存在黑名单
 func CheckDeleteServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -28,6 +30,7 @@ func CheckDeleteServer(model *entity.ServerModel) (B bool, E error) {
 	return DeleteInstanceList.Contain(*model), nil
 }
 
+// CheckLeader 检查是否是领导
 func CheckLeader(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -36,15 +39,14 @@ func CheckLeader(model *entity.ServerModel) (B bool, E error) {
 		}
 	}()
 	LeadersRWLock.RLock()
-	defer LeadersRWLock.RUnlock()
-	return reflect.DeepEqual(*model, Leaders[model.Namespace][model.Colony]), nil
+	Assert := reflect.DeepEqual(*model, Leaders[model.Namespace][model.Colony])
+	LeadersRWLock.RUnlock()
+	return Assert, nil
 }
 
+// DeleteServer 删除服务
 func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
-		ServerModelListRWLock.Unlock()
-		LeadersRWLock.Unlock()
-		LeadersRWLock.RUnlock()
 		r := recover()
 		if r != nil {
 			E = exception.NewUserError("DeleteServer-service", util.Strval(r))
@@ -63,32 +65,34 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 		delete(Leaders, model.Namespace)
 		LeadersRWLock.Unlock()
 	}
-	ServerModelListRWLock.Unlock()
 	LeadersRWLock.RLock()
 	if reflect.DeepEqual(*model, Leaders[model.Namespace][model.Colony]) {
+		LeadersRWLock.RUnlock()
+		ServerModelListRWLock.Unlock()
 		_, E := Election(model)
 		if E != nil {
 			return false, E
 		}
+	} else {
+		LeadersRWLock.RUnlock()
+		ServerModelListRWLock.Unlock()
 	}
-	LeadersRWLock.RUnlock()
 	util.Loglevel(util.Debug, "DeleteServer", "删除服务-"+util.Strval(*model))
 	return true, nil
 }
 
+// DeleteColonyServer 删除集群服务
 func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
 			E = exception.NewUserError("DeleteColonyServer-service", util.Strval(r))
 		}
-		LeadersRWLock.RUnlock()
 	}()
-	flag := false
 	list := make([]string, 0, 100)
 	ServerModelListRWLock.Lock()
-	defer ServerModelListRWLock.Unlock()
 	if ServerModelList[model.Namespace] == nil {
+		ServerModelListRWLock.Unlock()
 		return false, nil
 	}
 	for name, L := range ServerModelList[model.Namespace] {
@@ -103,11 +107,6 @@ func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 				if ServerModelList[server.Namespace][server.Colony+"::"+server.Name].IsEmpty() {
 					delete(ServerModelList[server.Namespace], server.Colony+"::"+server.Name)
 				}
-				LeadersRWLock.RLock()
-				if reflect.DeepEqual(Leaders[server.Namespace][server.Colony], server) {
-					flag = true
-				}
-				LeadersRWLock.RUnlock()
 			}
 			list = append(list, name)
 		}
@@ -115,19 +114,18 @@ func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 	for _, name := range list {
 		delete(ServerModelList[model.Namespace], name)
 	}
-	if flag {
-		_, err := Election(model)
-		if err != nil {
-			return false, err
-		}
-	}
 	if len(ServerModelList[model.Namespace]) == 0 && model.Name != "default" {
 		delete(ServerModelList, model.Namespace)
 	}
+	ServerModelListRWLock.Unlock()
+	LeadersRWLock.Lock()
+	delete(Leaders, model.Namespace)
+	LeadersRWLock.Unlock()
 	util.Loglevel(util.Debug, "DeleteColonyServer", "批量删除服务-"+util.Strval(model.Colony))
 	return true, nil
 }
 
+// GetBlacklistServer 获取黑名单服务
 func GetBlacklistServer() (m []entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -142,6 +140,7 @@ func GetBlacklistServer() (m []entity.ServerModel, E error) {
 	return list, nil
 }
 
+// DeleteInstanceFromBlacklist 删除黑名单中的服务
 func DeleteInstanceFromBlacklist(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -154,6 +153,7 @@ func DeleteInstanceFromBlacklist(model *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
+// GetInstances 获取所有服务
 func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -162,8 +162,7 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 		}
 	}()
 	ServerLists := make(map[string]map[string]map[string][]entity.ServerModel)
-	ServerModelListRWLock.RLock()
-	defer ServerModelListRWLock.RUnlock()
+	ServerModelListRWLock.Lock()
 	for namespace, colonyMap := range ServerModelList {
 		if ServerLists[namespace] == nil {
 			ServerLists[namespace] = make(map[string]map[string][]entity.ServerModel)
@@ -190,9 +189,11 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 			}
 		}
 	}
+	ServerModelListRWLock.Unlock()
 	return ServerLists, nil
 }
 
+// GetInstancesByNamespaceAndColony 获取指定命名空间下指定集群的所有服务
 func GetInstancesByNamespaceAndColony(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -201,7 +202,6 @@ func GetInstancesByNamespaceAndColony(model *entity.ServerModel) (m []entity.Ser
 		}
 	}()
 	ServerModelListRWLock.RLock()
-	defer ServerModelListRWLock.RUnlock()
 	if model.Namespace == "" {
 		var list []entity.ServerModel
 		for _, colonyMap := range ServerModelList {
@@ -261,9 +261,11 @@ func GetInstancesByNamespaceAndColony(model *entity.ServerModel) (m []entity.Ser
 			}
 		}
 	}
+	ServerModelListRWLock.RUnlock()
 	return list, nil
 }
 
+// GetCenterStatus 获取中心状态
 func GetCenterStatus() (C *entity.ComputerInfoModel, E error) {
 	defer func() {
 		r := recover()

@@ -13,6 +13,7 @@
 * PUT /api/v1/message/election  新一轮选举发起，以Leader身份发起
 * POST /api/v1/message/getLeader  获取当前Leader，以非Leader身份发起
 * POST /api/v1/message/getServers  获取Leader领导的服务集群，以Leader身份发起
+* POST /api/v1/message/getServersNum	获取当前集群服务数量
 
 ### OperatorAPI  操作api
 * GET /api/v1/operator/getInstances 获取全部服务实例
@@ -26,25 +27,27 @@
 ### 具体API请运行项目并访问http://localhost:8080/swagger/index.html   查看swagger文档
 
 ## 项目结构
-```
+```     
 Themis:.
-├─.idea
 ├─bin   //可执行文件
 ├─conf  //项目配置，需与bin中的exe文件放在同一个目录下
 ├─db    //数据库文件
 ├─docs  //swagger文档
 ├─log   //日志
-└─src   //源码
-    ├─config    //配置加载器
-    ├─controller    //前端控制器
-    ├─entity    //数据模型
-    ├─exception //异常处理模块
-    ├─Init      //初始化操作
-    ├─mapper    //数据持久层
-    ├─router    //路由
-    └─service   //业务逻辑层
-        └─LeaderAlgorithm   //选举算法
-    │─util    //工具类
+├─src   //源码
+│  ├─config         //配置加载器
+│  ├─controller     //前端控制器
+│  ├─entity         //数据模型
+│  ├─exception      //异常处理模块
+│  ├─Init           //初始化操作
+│  ├─mapper         //数据持久层
+│  ├─router         //路由
+│  ├─service        //业务逻辑层
+│  │  └─LeaderAlgorithm  //选举算法
+│  └─util           //工具类
+└─test              //测试
+    ├─Base          //初始化测试
+    └─ServerTest    //服务测试用例
 ```
 
 ### 运行

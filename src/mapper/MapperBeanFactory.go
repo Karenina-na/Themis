@@ -11,6 +11,7 @@ import (
 
 var DB *gorm.DB
 
+// InitMapper 初始化数据库
 func InitMapper() (E error) {
 	defer func() {
 		r := recover()

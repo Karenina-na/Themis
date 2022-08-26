@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// Register 注册服务
 func Register() (E error) {
 	defer func() {
 		r := recover()
@@ -56,6 +57,7 @@ func Register() (E error) {
 	}
 }
 
+// ServerBeat 心跳服务
 func ServerBeat(model entity.ServerModel, namespace string, name string) (E error) {
 	defer func() {
 		r := recover()

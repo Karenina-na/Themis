@@ -42,11 +42,11 @@ func Loglevel(level int, name string, message string) {
 	case Debug:
 		log.SetPrefix(name + " == " + " [" + "debug" + "] ")
 	case Info:
-		log.SetPrefix(name + " == " + name + " [" + "info" + "]")
+		log.SetPrefix(name + " == " + name + " [" + "info" + "] ")
 	case Warn:
-		log.SetPrefix(name + " == " + name + " [" + "warn" + "]")
+		log.SetPrefix(name + " == " + name + " [" + "warn" + "] ")
 	case Error:
-		log.SetPrefix(name + " == " + name + " [" + "error" + "]")
+		log.SetPrefix(name + " == " + name + " [" + "error" + "] ")
 	}
 	switch level {
 	case Debug:

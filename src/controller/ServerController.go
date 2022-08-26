@@ -47,9 +47,8 @@ func RegisterController(c *gin.Context) {
 	} else if assert1 && !assert2 {
 		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已注册"))
 	} else {
-		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已被删除"))
+		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例在黑名单中"))
 	}
-
 }
 
 // HeartBeatController
@@ -130,8 +129,8 @@ func ElectionController(c *gin.Context) {
 		}
 		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert2))
 	} else {
-		exception.HandleException(exception.NewUserError("ElectionController", "错误的Leader"))
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "错误的Leader"))
+		exception.HandleException(exception.NewUserError("ElectionController", "服务未注册"))
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "服务未注册"))
 	}
 }
 

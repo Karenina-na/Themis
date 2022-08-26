@@ -16,7 +16,7 @@ func OperatorAPI(r *gin.Engine) {
 		tx.DELETE("/deleteInstance", controller.DeleteInstanceController)
 		// /api/v1/operator/deleteColony			删除地区集群实例并拉入黑名单
 		tx.DELETE("/deleteColony", controller.DeleteColonyController)
-		// /api/v1/operator/getDeleteInstances		获取被拉入黑名单的实例
+		// /api/v1/operator/getDeleteInstance		获取被拉入黑名单的实例
 		tx.GET("/getDeleteInstance", controller.GetDeleteInstanceController)
 		// /api/v1/operator/cancelDeleteInstance	删除实例的黑名单
 		tx.DELETE("/cancelDeleteInstance", controller.CancelDeleteInstanceController)

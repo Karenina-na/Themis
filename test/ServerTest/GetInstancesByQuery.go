@@ -1,0 +1,15 @@
+package ServerTest
+
+import (
+	"Themis/test/Base"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"net/http/httptest"
+)
+
+func GetInstancesByQuery(router *gin.Engine) {
+	var w *httptest.ResponseRecorder
+	w = Base.Post("/api/v1/operator/getInstances", model1, router)
+	fmt.Println("GetInstancesByQuery:==============================================================")
+	fmt.Println(w.Body.String())
+}
