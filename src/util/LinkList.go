@@ -35,7 +35,6 @@ func NewLinkList[T any]() *LinkList[T] {
 
 func (L *LinkList[T]) Append(data T) {
 	L.rwLock.Lock()
-	defer L.rwLock.Unlock()
 	L.len++
 	L.tail.object = data
 	Node := &linkListNode[T]{
@@ -44,11 +43,11 @@ func (L *LinkList[T]) Append(data T) {
 	}
 	L.tail.next = Node
 	L.tail = Node
+	L.rwLock.Unlock()
 }
 
 func (L LinkList[T]) ToString() string {
 	L.rwLock.RLock()
-	defer L.rwLock.RUnlock()
 	var S string
 	S += "[ "
 	next := L.head
@@ -57,12 +56,12 @@ func (L LinkList[T]) ToString() string {
 		next = next.next
 	}
 	S += "]"
+	L.rwLock.RUnlock()
 	return S
 }
 
 func (L LinkList[T]) ToStringBack() string {
 	L.rwLock.RLock()
-	defer L.rwLock.RUnlock()
 	var S string
 	S += "[ "
 	prev := L.tail.prev
@@ -71,6 +70,7 @@ func (L LinkList[T]) ToStringBack() string {
 		prev = prev.prev
 	}
 	S += "]"
+	L.rwLock.RUnlock()
 	return S
 }
 
@@ -108,7 +108,6 @@ func (L LinkList[T]) Get(num int) T {
 
 func (L *LinkList[T]) Clear() bool {
 	L.rwLock.Lock()
-	defer L.rwLock.Unlock()
 	Node := &linkListNode[T]{
 		next: nil,
 		prev: nil,
@@ -116,6 +115,7 @@ func (L *LinkList[T]) Clear() bool {
 	L.head = Node
 	L.tail = Node
 	L.len = 0
+	L.rwLock.Unlock()
 	return true
 }
 

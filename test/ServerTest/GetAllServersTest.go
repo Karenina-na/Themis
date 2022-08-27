@@ -9,7 +9,7 @@ import (
 
 func GetAllServersTest(router *gin.Engine) {
 	var w *httptest.ResponseRecorder
-	w = Base.Get("/api/v1/operator/getInstances", router)
 	fmt.Println("GetAllServersTest:==============================================================")
+	w = Base.Get("/api/v1/operator/getInstances", router)
 	fmt.Println(w.Body.String())
 }

@@ -29,4 +29,7 @@ var (
 
 	// PersistenceTime 持久化时间
 	PersistenceTime int64
+
+	// ListenTime 监听时间
+	ListenTime int64
 )

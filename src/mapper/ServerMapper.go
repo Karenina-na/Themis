@@ -21,6 +21,10 @@ func StorageList(List *util.LinkList[entity.ServerModel], Type int, tx *gorm.DB)
 			E = exception.NewUserError("StorageList-mapper", util.Strval(r))
 		}
 	}()
+	err := tx.AutoMigrate(&entity.ServerMapperMode{})
+	if err != nil {
+		return false, exception.NewUserError("StorageList-mapper", "数据库挂载索引结构失败-"+err.Error())
+	}
 	if List.Length() == 0 {
 		util.Loglevel(util.Debug, "StorageList-mapper", "数据为空")
 		return true, nil
@@ -59,6 +63,10 @@ func Storage(model *entity.ServerModel, Type int, tx *gorm.DB) (B bool, E error)
 			E = exception.NewUserError("Storage-mapper", util.Strval(r))
 		}
 	}()
+	err := tx.AutoMigrate(&entity.ServerMapperMode{})
+	if err != nil {
+		return false, exception.NewUserError("Storage-mapper", "数据库挂载索引结构失败-"+err.Error())
+	}
 	var mapperModel *entity.ServerMapperMode
 	switch Type {
 	case NORMAL:
@@ -91,6 +99,10 @@ func SelectAllServers() (S1 []entity.ServerModel, S2 []entity.ServerModel, S3 []
 			E = exception.NewUserError("SelectAllServers-mapper", util.Strval(r))
 		}
 	}()
+	err := DB.AutoMigrate(&entity.ServerMapperMode{})
+	if err != nil {
+		return nil, nil, nil, exception.NewDataBaseError("Storage-mapper", "数据库挂载索引结构失败-"+err.Error())
+	}
 	var modelList []entity.ServerMapperMode
 	result := DB.Find(&modelList)
 	if err := result.Error; err != nil {
@@ -145,6 +157,10 @@ func DeleteServer(model *entity.ServerModel, tx *gorm.DB) (B bool, E error) {
 			E = exception.NewUserError("DeleteServer-mapper", util.Strval(r))
 		}
 	}()
+	err := tx.AutoMigrate(&entity.ServerMapperMode{})
+	if err != nil {
+		return false, exception.NewUserError("DeleteServer-mapper", "数据库挂载索引结构失败-"+err.Error())
+	}
 	if err := tx.Delete(&entity.ServerMapperMode{}, "IP = ?", model.IP).Error; err != nil {
 		return false, err
 	}
@@ -159,7 +175,11 @@ func DeleteAllServer(tx *gorm.DB) (B bool, E error) {
 			E = exception.NewUserError("DeleteAllServer-mapper", util.Strval(r))
 		}
 	}()
-	if err := tx.Where("1 = 1").Delete(&entity.ServerMapperMode{}).Error; err != nil {
+	err := tx.AutoMigrate(&entity.ServerMapperMode{})
+	if err != nil {
+		return false, exception.NewUserError("DeleteAllServer-mapper", "数据库挂载索引结构失败-"+err.Error())
+	}
+	if err = tx.Where("1 = 1").Delete(&entity.ServerMapperMode{}).Error; err != nil {
 		return false, err
 	}
 	util.Loglevel(util.Debug, "DeleteAllServer-mapper", "数据全部删除")

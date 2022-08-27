@@ -9,7 +9,7 @@ import (
 
 func GetDeleteInstances(router *gin.Engine) {
 	var w *httptest.ResponseRecorder
-	w = Base.Get("/api/v1/operator/getDeleteInstance", router)
 	fmt.Println("GetDeleteInstance:==============================================================")
+	w = Base.Get("/api/v1/operator/getDeleteInstance", router)
 	fmt.Println(w.Body.String())
 }

@@ -7,6 +7,7 @@ import (
 	"Themis/src/util"
 	"os"
 	"sync"
+	"time"
 )
 
 // InstanceList 实例列表
@@ -34,9 +35,6 @@ var (
 var (
 	// ServerModelBeatQueue 服务心跳通道
 	ServerModelBeatQueue chan entity.ServerModel
-
-	// ServerModelBeatQueueLock 服务心跳通道读写锁
-	ServerModelBeatQueueLock sync.RWMutex
 )
 
 //记账
@@ -49,6 +47,13 @@ var (
 
 // RoutinePool goroutine池
 var RoutinePool *util.Pool
+
+var (
+	// CenterStatus 服务器状态
+	CenterStatus *entity.ComputerInfoModel
+	// CenterStatusLock  服务器状态读写锁
+	CenterStatusLock sync.RWMutex
+)
 
 // InitServer 初始化服务
 func InitServer() (E error) {
@@ -72,6 +77,7 @@ func InitServer() (E error) {
 
 	ServerModelList = make(map[string]map[string]*util.LinkList[entity.ServerModel])
 	ServerModelList["default"] = make(map[string]*util.LinkList[entity.ServerModel])
+	ServerModelListRWLock = sync.RWMutex{}
 
 	ServerModelQueue = make(chan entity.ServerModel, config.ServerModelQueueNum)
 
@@ -79,6 +85,7 @@ func InitServer() (E error) {
 
 	Leaders = make(map[string]map[string]entity.ServerModel)
 	Leaders["default"] = make(map[string]entity.ServerModel)
+	LeadersRWLock = sync.RWMutex{}
 
 	RoutinePool.CreateWork(Register, func(message error) {
 		exception.HandleException(message)
@@ -93,5 +100,26 @@ func InitServer() (E error) {
 			exception.HandleException(message)
 		})
 	}
+	RoutinePool.CreateWork(GetCenterStatusRoutine, func(message error) {
+		exception.HandleException(message)
+	})
 	return nil
+}
+
+func GetCenterStatusRoutine() (E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewSystemError("Register-service", util.Strval(r))
+		}
+	}()
+	for {
+		CenterStatusLock.Lock()
+		activeNum, jobNum := RoutinePool.CheckStatus()
+		computerStatus := entity.NewComputerInfoModel(
+			util.GetCpuInfo(), *util.GetMemInfo(), *util.GetHostInfo(), util.GetDiskInfo(), util.GetNetInfo(), activeNum, jobNum)
+		CenterStatus = computerStatus
+		CenterStatusLock.Unlock()
+		time.Sleep(time.Second * time.Duration(config.ListenTime))
+	}
 }

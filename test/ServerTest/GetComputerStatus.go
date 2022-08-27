@@ -9,7 +9,7 @@ import (
 
 func GetComputerStatus(router *gin.Engine) {
 	var w *httptest.ResponseRecorder
-	w = Base.Get("/api/v1/operator/getStatus", router)
 	fmt.Println("GetComputerStatus:==============================================================")
+	w = Base.Get("/api/v1/operator/getStatus", router)
 	fmt.Println(w.Body.String())
 }

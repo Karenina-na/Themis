@@ -10,7 +10,6 @@ func Strval(value interface{}) string {
 	if value == nil {
 		return key
 	}
-
 	switch value.(type) {
 	case float64:
 		ft := value.(float64)
@@ -56,6 +55,5 @@ func Strval(value interface{}) string {
 		newValue, _ := json.Marshal(value)
 		key = string(newValue)
 	}
-
 	return key
 }

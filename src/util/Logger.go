@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -16,8 +17,10 @@ const (
 
 var f func(r any)
 var flag bool
+var lock sync.Mutex
 
 func LoggerInit(f func(r any), F int) {
+	lock = sync.Mutex{}
 	switch F {
 	case Debug:
 		flag = true
@@ -32,6 +35,8 @@ func LoggerInit(f func(r any), F int) {
 }
 
 func Loglevel(level int, name string, message string) {
+	lock.Lock()
+	defer lock.Unlock()
 	defer func() {
 		r := recover()
 		if r != nil {

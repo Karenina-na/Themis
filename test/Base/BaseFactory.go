@@ -9,7 +9,7 @@ import (
 )
 
 func FactoryBaseInit() *gin.Engine {
-	arg := "release"
+	arg := "debug"
 	FactoryInit.ThemisInitFactory(&arg)
 	r := gin.New()
 	gin.SetMode(arg)

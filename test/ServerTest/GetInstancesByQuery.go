@@ -9,7 +9,7 @@ import (
 
 func GetInstancesByQuery(router *gin.Engine) {
 	var w *httptest.ResponseRecorder
-	w = Base.Post("/api/v1/operator/getInstances", model1, router)
 	fmt.Println("GetInstancesByQuery:==============================================================")
+	w = Base.Post("/api/v1/operator/getInstances", model1, router)
 	fmt.Println(w.Body.String())
 }

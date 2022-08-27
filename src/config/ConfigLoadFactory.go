@@ -31,6 +31,9 @@ func InitConfig() (E error) {
 		if err := LoadDatabaseConfig(); err != nil {
 			return err
 		}
+		if err := LoadListenConfig(); err != nil {
+			return err
+		}
 	} else {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			return exception.NewConfigurationError("InitConfig-config", "配置文件不存在")
@@ -122,6 +125,20 @@ func LoadDatabaseConfig() (E error) {
 		}
 	} else {
 		PersistenceTime = 0
+	}
+	return nil
+}
+
+func LoadListenConfig() (E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewSystemError("LoadListenConfig-config", util.Strval(r))
+		}
+	}()
+	ListenTime = int64(viper.GetInt(`Themis.listen.space-time`))
+	if ListenTime <= 0 {
+		return exception.NewConfigurationError("LoadDatabaseConfig-config", "space-time非法")
 	}
 	return nil
 }

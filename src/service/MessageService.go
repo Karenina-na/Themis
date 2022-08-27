@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"net"
 	"strings"
+	"time"
 )
 
 // RegisterServer 注册服务器
@@ -39,9 +40,16 @@ func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 		}
 	}()
 	util.Loglevel(util.Debug, "FlashHeartBeat", "刷新心跳-"+util.Strval(*model))
-	ServerModelBeatQueueLock.Lock()
-	ServerModelBeatQueue <- *model
-	ServerModelBeatQueueLock.Unlock()
+	flag := false
+	for flag == false {
+		select {
+		case ServerModelBeatQueue <- *model:
+			flag = true
+			break
+		default:
+			time.Sleep(time.Millisecond)
+		}
+	}
 	return true, nil
 }
 

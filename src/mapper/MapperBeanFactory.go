@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"Themis/src/entity"
 	"Themis/src/exception"
 	"Themis/src/util"
 	"gorm.io/driver/sqlite"
@@ -29,11 +28,6 @@ func InitMapper() (E error) {
 	}
 	util.Loglevel(util.Debug, "InitMapper", "连接数据库")
 	DB, err = gorm.Open(sqlite.Open("./db/Themis.db"), &gorm.Config{})
-	if err != nil {
-		return exception.NewDataBaseError("DatabaseInit-mapper", "数据库初始化失败-"+err.Error())
-	}
-	err = DB.AutoMigrate(&entity.ServerMapperMode{})
-	util.Loglevel(util.Debug, "InitMapper", "挂载数据库索引结构")
 	if err != nil {
 		return exception.NewDataBaseError("DatabaseInit-mapper", "数据库初始化失败-"+err.Error())
 	}

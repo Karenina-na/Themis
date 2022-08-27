@@ -85,7 +85,6 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 			ServerModelListRWLock.Unlock()
 			return nil
 		}
-		ServerModelBeatQueueLock.Lock()
 		select {
 		case data := <-ServerModelBeatQueue:
 			if reflect.DeepEqual(model, data) {
@@ -95,7 +94,6 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 			}
 		default:
 		}
-		ServerModelBeatQueueLock.Unlock()
 		time.Sleep(time.Millisecond)
 	}
 }

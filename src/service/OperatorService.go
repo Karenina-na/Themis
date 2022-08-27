@@ -8,42 +8,6 @@ import (
 	"strings"
 )
 
-// CheckServer 检查服务是否存在
-func CheckServer(model *entity.ServerModel) (B bool, E error) {
-	defer func() {
-		r := recover()
-		if r != nil {
-			E = exception.NewUserError("CheckServer-service", util.Strval(r))
-		}
-	}()
-	return InstanceList.Contain(*model), nil
-}
-
-// CheckDeleteServer 检查服务是否存在黑名单
-func CheckDeleteServer(model *entity.ServerModel) (B bool, E error) {
-	defer func() {
-		r := recover()
-		if r != nil {
-			E = exception.NewUserError("CheckDeleteServer-service", util.Strval(r))
-		}
-	}()
-	return DeleteInstanceList.Contain(*model), nil
-}
-
-// CheckLeader 检查是否是领导
-func CheckLeader(model *entity.ServerModel) (B bool, E error) {
-	defer func() {
-		r := recover()
-		if r != nil {
-			E = exception.NewUserError("CheckLeader-service", util.Strval(r))
-		}
-	}()
-	LeadersRWLock.RLock()
-	Assert := reflect.DeepEqual(*model, Leaders[model.Namespace][model.Colony])
-	LeadersRWLock.RUnlock()
-	return Assert, nil
-}
-
 // DeleteServer 删除服务
 func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
@@ -273,8 +237,7 @@ func GetCenterStatus() (C *entity.ComputerInfoModel, E error) {
 			E = exception.NewUserError("GetCenterStatus-service", util.Strval(r))
 		}
 	}()
-	activeNum, jobNum := RoutinePool.CheckStatus()
-	computerStatus := entity.NewComputerInfoModel(
-		util.GetCpuInfo(), *util.GetMemInfo(), *util.GetHostInfo(), util.GetDiskInfo(), util.GetNetInfo(), activeNum, jobNum)
-	return computerStatus, nil
+	CenterStatusLock.RLock()
+	defer CenterStatusLock.RUnlock()
+	return CenterStatus, nil
 }
