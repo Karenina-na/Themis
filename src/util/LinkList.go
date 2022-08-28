@@ -7,10 +7,11 @@ import (
 )
 
 type LinkList[T any] struct {
-	head   *linkListNode[T]
-	tail   *linkListNode[T]
-	len    int
-	rwLock *sync.RWMutex
+	head      *linkListNode[T]
+	tail      *linkListNode[T]
+	len       int
+	rwLock    *sync.RWMutex
+	iteRWLock *sync.Mutex
 }
 
 type linkListNode[T any] struct {
@@ -21,15 +22,17 @@ type linkListNode[T any] struct {
 
 func NewLinkList[T any]() *LinkList[T] {
 	lock := &sync.RWMutex{}
+	iteLock := &sync.Mutex{}
 	Node := &linkListNode[T]{
 		next: nil,
 		prev: nil,
 	}
 	return &LinkList[T]{
-		head:   Node,
-		tail:   Node,
-		len:    0,
-		rwLock: lock,
+		head:      Node,
+		tail:      Node,
+		len:       0,
+		rwLock:    lock,
+		iteRWLock: iteLock,
 	}
 }
 
@@ -295,4 +298,16 @@ func (L LinkList[T]) IsEmpty() bool {
 		return true
 	}
 	return false
+}
+
+func (L LinkList[T]) Iterator(f func(index int, value T)) {
+	L.iteRWLock.Lock()
+	next := L.head
+	index := 0
+	for next.next != nil {
+		f(index, next.object)
+		index++
+		next = next.next
+	}
+	L.iteRWLock.Unlock()
 }

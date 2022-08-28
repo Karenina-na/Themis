@@ -3,6 +3,7 @@ package service
 import (
 	"Themis/src/entity"
 	"Themis/src/exception"
+	"Themis/src/service/Bean"
 	"Themis/src/util"
 	"reflect"
 	"strings"
@@ -16,30 +17,30 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("DeleteServer-service", util.Strval(r))
 		}
 	}()
-	ServerModelListRWLock.Lock()
-	DeleteInstanceList.Append(*model)
-	InstanceList.DeleteByValue(*model)
-	ServerModelList[model.Namespace][model.Colony+"::"+model.Name].DeleteByValue(*model)
-	if ServerModelList[model.Namespace][model.Colony+"::"+model.Name].IsEmpty() {
-		delete(ServerModelList[model.Namespace], model.Colony+"::"+model.Name)
+	Bean.ServerModelListRWLock.Lock()
+	Bean.DeleteInstanceList.Append(*model)
+	Bean.InstanceList.DeleteByValue(*model)
+	Bean.ServerModelList[model.Namespace][model.Colony+"::"+model.Name].DeleteByValue(*model)
+	if Bean.ServerModelList[model.Namespace][model.Colony+"::"+model.Name].IsEmpty() {
+		delete(Bean.ServerModelList[model.Namespace], model.Colony+"::"+model.Name)
 	}
-	if len(ServerModelList[model.Namespace]) == 0 && model.Name != "default" {
-		delete(ServerModelList, model.Namespace)
-		LeadersRWLock.Lock()
-		delete(Leaders, model.Namespace)
-		LeadersRWLock.Unlock()
+	if len(Bean.ServerModelList[model.Namespace]) == 0 && model.Name != "default" {
+		delete(Bean.ServerModelList, model.Namespace)
+		Bean.LeadersRWLock.Lock()
+		delete(Bean.Leaders, model.Namespace)
+		Bean.LeadersRWLock.Unlock()
 	}
-	LeadersRWLock.RLock()
-	if reflect.DeepEqual(*model, Leaders[model.Namespace][model.Colony]) {
-		LeadersRWLock.RUnlock()
-		ServerModelListRWLock.Unlock()
+	Bean.LeadersRWLock.RLock()
+	if reflect.DeepEqual(*model, Bean.Leaders[model.Namespace][model.Colony]) {
+		Bean.LeadersRWLock.RUnlock()
+		Bean.ServerModelListRWLock.Unlock()
 		_, E := Election(model)
 		if E != nil {
 			return false, E
 		}
 	} else {
-		LeadersRWLock.RUnlock()
-		ServerModelListRWLock.Unlock()
+		Bean.LeadersRWLock.RUnlock()
+		Bean.ServerModelListRWLock.Unlock()
 	}
 	util.Loglevel(util.Debug, "DeleteServer", "删除服务-"+util.Strval(*model))
 	return true, nil
@@ -54,37 +55,36 @@ func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 		}
 	}()
 	list := make([]string, 0, 100)
-	ServerModelListRWLock.Lock()
-	if ServerModelList[model.Namespace] == nil {
-		ServerModelListRWLock.Unlock()
+	Bean.ServerModelListRWLock.Lock()
+	if Bean.ServerModelList[model.Namespace] == nil {
+		Bean.ServerModelListRWLock.Unlock()
 		return false, nil
 	}
-	for name, L := range ServerModelList[model.Namespace] {
+	for name, L := range Bean.ServerModelList[model.Namespace] {
 		str := strings.Split(name, "::")
 		colony := str[0]
 		if colony == model.Colony {
-			for i := 0; i < L.Length(); i++ {
-				server := L.Get(i)
-				DeleteInstanceList.Append(server)
-				InstanceList.DeleteByValue(server)
-				ServerModelList[server.Namespace][server.Colony+"::"+server.Name].DeleteByValue(server)
-				if ServerModelList[server.Namespace][server.Colony+"::"+server.Name].IsEmpty() {
-					delete(ServerModelList[server.Namespace], server.Colony+"::"+server.Name)
+			L.Iterator(func(index int, server entity.ServerModel) {
+				Bean.DeleteInstanceList.Append(server)
+				Bean.InstanceList.DeleteByValue(server)
+				Bean.ServerModelList[server.Namespace][server.Colony+"::"+server.Name].DeleteByValue(server)
+				if Bean.ServerModelList[server.Namespace][server.Colony+"::"+server.Name].IsEmpty() {
+					delete(Bean.ServerModelList[server.Namespace], server.Colony+"::"+server.Name)
 				}
-			}
+			})
 			list = append(list, name)
 		}
 	}
 	for _, name := range list {
-		delete(ServerModelList[model.Namespace], name)
+		delete(Bean.ServerModelList[model.Namespace], name)
 	}
-	if len(ServerModelList[model.Namespace]) == 0 && model.Name != "default" {
-		delete(ServerModelList, model.Namespace)
+	if len(Bean.ServerModelList[model.Namespace]) == 0 && model.Name != "default" {
+		delete(Bean.ServerModelList, model.Namespace)
 	}
-	ServerModelListRWLock.Unlock()
-	LeadersRWLock.Lock()
-	delete(Leaders, model.Namespace)
-	LeadersRWLock.Unlock()
+	Bean.ServerModelListRWLock.Unlock()
+	Bean.LeadersRWLock.Lock()
+	delete(Bean.Leaders, model.Namespace)
+	Bean.LeadersRWLock.Unlock()
 	util.Loglevel(util.Debug, "DeleteColonyServer", "批量删除服务-"+util.Strval(model.Colony))
 	return true, nil
 }
@@ -98,8 +98,8 @@ func GetBlacklistServer() (m []entity.ServerModel, E error) {
 		}
 	}()
 	list := make([]entity.ServerModel, 0, 100)
-	for i := 0; i < DeleteInstanceList.Length(); i++ {
-		list = append(list, DeleteInstanceList.Get(i))
+	for i := 0; i < Bean.DeleteInstanceList.Length(); i++ {
+		list = append(list, Bean.DeleteInstanceList.Get(i))
 	}
 	return list, nil
 }
@@ -112,7 +112,7 @@ func DeleteInstanceFromBlacklist(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("DeleteInstanceFromBlacklist-service", util.Strval(r))
 		}
 	}()
-	DeleteInstanceList.DeleteByValue(*model)
+	Bean.DeleteInstanceList.DeleteByValue(*model)
 	util.Loglevel(util.Debug, "DeleteInstanceFromBlacklist", "从黑名单恢复-"+util.Strval(*model))
 	return true, nil
 }
@@ -126,8 +126,8 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 		}
 	}()
 	ServerLists := make(map[string]map[string]map[string][]entity.ServerModel)
-	ServerModelListRWLock.Lock()
-	for namespace, colonyMap := range ServerModelList {
+	Bean.ServerModelListRWLock.RLock()
+	for namespace, colonyMap := range Bean.ServerModelList {
 		if ServerLists[namespace] == nil {
 			ServerLists[namespace] = make(map[string]map[string][]entity.ServerModel)
 		}
@@ -141,19 +141,12 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 			if ServerLists[namespace][colony][serverName] == nil {
 				ServerLists[namespace][colony][serverName] = make([]entity.ServerModel, 0, 100)
 			}
-			for i := 0; i < L.Length(); i++ {
-				ServerLists[namespace][colony][serverName] = append(ServerLists[namespace][colony][serverName], entity.ServerModel{
-					IP:        L.Get(i).IP,
-					Name:      L.Get(i).Name,
-					Port:      L.Get(i).Port,
-					Time:      L.Get(i).Time,
-					Colony:    L.Get(i).Colony,
-					Namespace: L.Get(i).Namespace,
-				})
-			}
+			L.Iterator(func(index int, server entity.ServerModel) {
+				ServerLists[namespace][colony][serverName] = append(ServerLists[namespace][colony][serverName], server)
+			})
 		}
 	}
-	ServerModelListRWLock.Unlock()
+	Bean.ServerModelListRWLock.RUnlock()
 	return ServerLists, nil
 }
 
@@ -165,67 +158,46 @@ func GetInstancesByNamespaceAndColony(model *entity.ServerModel) (m []entity.Ser
 			E = exception.NewUserError("GetInstancesByNamespaceAndColony-service", util.Strval(r))
 		}
 	}()
-	ServerModelListRWLock.RLock()
+	Bean.ServerModelListRWLock.RLock()
 	if model.Namespace == "" {
 		var list []entity.ServerModel
-		for _, colonyMap := range ServerModelList {
+		for _, colonyMap := range Bean.ServerModelList {
 			for _, L := range colonyMap {
-				for i := 0; i < L.Length(); i++ {
-					list = append(list, entity.ServerModel{
-						IP:        L.Get(i).IP,
-						Name:      L.Get(i).Name,
-						Port:      L.Get(i).Port,
-						Time:      L.Get(i).Time,
-						Colony:    L.Get(i).Colony,
-						Namespace: L.Get(i).Namespace,
-					})
-				}
+				L.Iterator(func(index int, server entity.ServerModel) {
+					list = append(list, server)
+				})
 			}
 		}
 		return list, nil
 	}
 	if model.Colony == "" {
 		var list []entity.ServerModel
-		for namespace, colonyMap := range ServerModelList {
+		for namespace, colonyMap := range Bean.ServerModelList {
 			if namespace == model.Namespace {
 				for _, L := range colonyMap {
-					for i := 0; i < L.Length(); i++ {
-						list = append(list, entity.ServerModel{
-							IP:        L.Get(i).IP,
-							Name:      L.Get(i).Name,
-							Port:      L.Get(i).Port,
-							Time:      L.Get(i).Time,
-							Colony:    L.Get(i).Colony,
-							Namespace: L.Get(i).Namespace,
-						})
-					}
+					L.Iterator(func(index int, server entity.ServerModel) {
+						list = append(list, server)
+					})
 				}
 			}
 		}
 		return list, nil
 	}
 	var list []entity.ServerModel
-	for namespace, colonyMap := range ServerModelList {
+	for namespace, colonyMap := range Bean.ServerModelList {
 		if namespace == model.Namespace {
 			for name, L := range colonyMap {
 				str := strings.Split(name, "::")
 				colony := str[0]
 				if colony == model.Colony {
-					for i := 0; i < L.Length(); i++ {
-						list = append(list, entity.ServerModel{
-							IP:        L.Get(i).IP,
-							Name:      L.Get(i).Name,
-							Port:      L.Get(i).Port,
-							Time:      L.Get(i).Time,
-							Colony:    L.Get(i).Colony,
-							Namespace: L.Get(i).Namespace,
-						})
-					}
+					L.Iterator(func(index int, server entity.ServerModel) {
+						list = append(list, server)
+					})
 				}
 			}
 		}
 	}
-	ServerModelListRWLock.RUnlock()
+	Bean.ServerModelListRWLock.RUnlock()
 	return list, nil
 }
 
@@ -237,7 +209,7 @@ func GetCenterStatus() (C *entity.ComputerInfoModel, E error) {
 			E = exception.NewUserError("GetCenterStatus-service", util.Strval(r))
 		}
 	}()
-	CenterStatusLock.RLock()
-	defer CenterStatusLock.RUnlock()
-	return CenterStatus, nil
+	Bean.CenterStatusLock.RLock()
+	defer Bean.CenterStatusLock.RUnlock()
+	return Bean.CenterStatus, nil
 }

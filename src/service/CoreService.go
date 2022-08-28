@@ -4,6 +4,7 @@ import (
 	"Themis/src/config"
 	"Themis/src/entity"
 	"Themis/src/exception"
+	"Themis/src/service/Bean"
 	"Themis/src/util"
 	"reflect"
 	"time"
@@ -20,40 +21,42 @@ func Register() (E error) {
 	util.Loglevel(util.Debug, "Register", "创建注册协程")
 
 	for {
-		data := <-ServerModelQueue
+		data := <-Bean.ServerModelQueue
 		namespace := data.Namespace
 		name := data.Colony + "::" + data.Name
-		LeadersRWLock.Lock()
-		if Leaders[namespace] == nil {
-			Leaders[namespace] = make(map[string]entity.ServerModel)
+		Bean.LeadersRWLock.Lock()
+		if Bean.Leaders[namespace] == nil {
+			Bean.Leaders[namespace] = make(map[string]entity.ServerModel)
 		}
-		LeadersRWLock.Unlock()
-		ServerModelListRWLock.Lock()
-		if ServerModelList[namespace] == nil {
-			ServerModelList[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
+		Bean.LeadersRWLock.Unlock()
+		Bean.ServerModelListRWLock.Lock()
+		if Bean.ServerModelList[namespace] == nil {
+			Bean.ServerModelList[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
 		}
-		if ServerModelList[namespace][name] == nil {
-			ServerModelList[namespace][name] = util.NewLinkList[entity.ServerModel]()
+		if Bean.ServerModelList[namespace][name] == nil {
+			Bean.ServerModelList[namespace][name] = util.NewLinkList[entity.ServerModel]()
 		}
-		ServerModelList[namespace][name].Append(data)
-		InstanceList.Append(data)
-		RoutinePool.CreateWork(func() (E error) {
-			defer func() {
-				r := recover()
-				if r != nil {
-					E = exception.NewUserError("BeatServer-goroutine-service", util.Strval(r))
+		Bean.ServerModelList[namespace][name].Append(data)
+		Bean.InstanceList.Append(data)
+		if config.ServerModelBeatEnable {
+			Bean.RoutinePool.CreateWork(func() (E error) {
+				defer func() {
+					r := recover()
+					if r != nil {
+						E = exception.NewUserError("BeatServer-goroutine-service", util.Strval(r))
+					}
+				}()
+				E = ServerBeat(data, namespace, name)
+				if E != nil {
+					return E
 				}
-			}()
-			E = ServerBeat(data, namespace, name)
-			if E != nil {
-				return E
-			}
-			util.Loglevel(util.Info, "ServerBeat", "因心跳停止而删除-"+util.Strval(data))
-			return nil
-		}, func(Message error) {
-			exception.HandleException(Message)
-		})
-		ServerModelListRWLock.Unlock()
+				util.Loglevel(util.Info, "ServerBeat", "因心跳停止而删除-"+util.Strval(data))
+				return nil
+			}, func(Message error) {
+				exception.HandleException(Message)
+			})
+		}
+		Bean.ServerModelListRWLock.Unlock()
 	}
 }
 
@@ -70,27 +73,27 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 	for {
 		t := time.Now().Unix() - start
 		if t == config.ServerBeatTime {
-			ServerModelListRWLock.Lock()
-			ServerModelList[namespace][name].DeleteByValue(model)
-			if ServerModelList[namespace][name].IsEmpty() {
-				delete(ServerModelList[namespace], name)
+			Bean.ServerModelListRWLock.Lock()
+			Bean.ServerModelList[namespace][name].DeleteByValue(model)
+			if Bean.ServerModelList[namespace][name].IsEmpty() {
+				delete(Bean.ServerModelList[namespace], name)
 			}
-			if len(ServerModelList[namespace]) == 0 && namespace != "default" {
-				delete(ServerModelList, namespace)
-				LeadersRWLock.Lock()
-				delete(Leaders, namespace)
-				LeadersRWLock.Unlock()
+			if len(Bean.ServerModelList[namespace]) == 0 && namespace != "default" {
+				delete(Bean.ServerModelList, namespace)
+				Bean.LeadersRWLock.Lock()
+				delete(Bean.Leaders, namespace)
+				Bean.LeadersRWLock.Unlock()
 			}
-			InstanceList.DeleteByValue(model)
-			ServerModelListRWLock.Unlock()
+			Bean.InstanceList.DeleteByValue(model)
+			Bean.ServerModelListRWLock.Unlock()
 			return nil
 		}
 		select {
-		case data := <-ServerModelBeatQueue:
+		case data := <-Bean.ServerModelBeatQueue:
 			if reflect.DeepEqual(model, data) {
 				start = time.Now().Unix()
 			} else {
-				ServerModelBeatQueue <- data
+				Bean.ServerModelBeatQueue <- data
 			}
 		default:
 		}
@@ -98,7 +101,7 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 	}
 }
 
-// GetCenterStatusRoutine 获取中心状态
+// GetCenterStatusRoutine 获取中心状态服务
 func GetCenterStatusRoutine() (E error) {
 	defer func() {
 		r := recover()
@@ -108,12 +111,12 @@ func GetCenterStatusRoutine() (E error) {
 	}()
 	util.Loglevel(util.Debug, "GetCenterStatusRoutine", "创建监控中心协程")
 	for {
-		CenterStatusLock.Lock()
-		activeNum, jobNum := RoutinePool.CheckStatus()
+		Bean.CenterStatusLock.Lock()
+		activeNum, jobNum := Bean.RoutinePool.CheckStatus()
 		computerStatus := entity.NewComputerInfoModel(
 			util.GetCpuInfo(), *util.GetMemInfo(), *util.GetHostInfo(), util.GetDiskInfo(), util.GetNetInfo(), activeNum, jobNum)
-		CenterStatus = computerStatus
-		CenterStatusLock.Unlock()
+		Bean.CenterStatus = computerStatus
+		Bean.CenterStatusLock.Unlock()
 		time.Sleep(time.Second * time.Duration(config.ListenTime))
 	}
 }

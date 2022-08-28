@@ -37,16 +37,17 @@ Themis:.
 ├─src   //源码
 │  ├─config         //配置加载器
 │  ├─controller     //前端控制器
+│  │  └─encryption  //加密算法
 │  ├─entity         //数据模型
-│  ├─exception      //异常处理模块
-│  ├─Init           //初始化操作
+│  ├─exception      //异常处理
+│  ├─Init           //初始化加载器
 │  ├─mapper         //数据持久层
-│  ├─router         //路由
+│  ├─router         //后端路由
 │  ├─service        //业务逻辑层
 │  │  └─LeaderAlgorithm  //选举算法
 │  └─util           //工具类
 └─test              //测试
-    ├─Base          //初始化测试
+    ├─Base          //测试初始化加载器
     └─ServerTest    //服务测试用例
 ```
 

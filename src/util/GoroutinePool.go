@@ -1,25 +1,29 @@
 package util
 
 import (
+	"errors"
 	"sync"
+	"time"
 )
 
 type Pool struct {
-	lock          sync.Mutex
+	lock          sync.RWMutex
 	goChan        chan func()
 	coreNum       int
 	maxNum        int
 	activeNum     int
 	jobNum        int
+	timeout       int
 	exceptionFunc func(r any)
 }
 
-func CreatePool(coreNum int, maxNum int) *Pool {
+func CreatePool(coreNum int, maxNum int, timeout int) *Pool {
 	P := &Pool{
-		lock:    sync.Mutex{},
+		lock:    sync.RWMutex{},
 		goChan:  make(chan func(), 5*maxNum),
 		coreNum: coreNum,
 		maxNum:  maxNum,
+		timeout: timeout,
 	}
 	for i := 0; i < coreNum; i++ {
 		go P.work()
@@ -28,8 +32,8 @@ func CreatePool(coreNum int, maxNum int) *Pool {
 }
 
 func (P *Pool) CheckStatus() (activeNum int, jobNum int) {
-	P.lock.Lock()
-	defer P.lock.Unlock()
+	P.lock.RLock()
+	defer P.lock.RUnlock()
 	return P.activeNum, P.jobNum
 }
 
@@ -40,7 +44,12 @@ func (P *Pool) CreateWork(f func() (E error), exceptionFunc func(Message error))
 			return
 		}
 	}
-	P.goChan <- F
+	select {
+	case P.goChan <- F:
+	case <-time.After(time.Duration(P.timeout) * time.Second):
+		P.exceptionFunc(errors.New("goroutine超时"))
+		return
+	}
 	P.lock.Lock()
 	P.jobNum++
 	if P.activeNum < P.maxNum && P.jobNum > P.activeNum {

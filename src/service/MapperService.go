@@ -5,6 +5,7 @@ import (
 	"Themis/src/entity"
 	"Themis/src/exception"
 	"Themis/src/mapper"
+	"Themis/src/service/Bean"
 	"Themis/src/util"
 	"gorm.io/gorm"
 	"time"
@@ -46,9 +47,9 @@ func LoadDatabase() (E error) {
 			Colony:    deleteServerModels[i].Colony,
 			Namespace: deleteServerModels[i].Namespace,
 		}
-		DeleteInstanceList.Append(*model)
+		Bean.DeleteInstanceList.Append(*model)
 	}
-	LeadersRWLock.Lock()
+	Bean.LeadersRWLock.Lock()
 	for i := 0; i < len(leaderServerModels); i++ {
 		model := entity.ServerModel{
 			IP:        leaderServerModels[i].IP,
@@ -58,12 +59,12 @@ func LoadDatabase() (E error) {
 			Colony:    leaderServerModels[i].Colony,
 			Namespace: leaderServerModels[i].Namespace,
 		}
-		if Leaders[model.Namespace] == nil {
-			Leaders[model.Namespace] = make(map[string]entity.ServerModel)
+		if Bean.Leaders[model.Namespace] == nil {
+			Bean.Leaders[model.Namespace] = make(map[string]entity.ServerModel)
 		}
-		Leaders[model.Namespace][model.Colony] = model
+		Bean.Leaders[model.Namespace][model.Colony] = model
 	}
-	LeadersRWLock.Unlock()
+	Bean.LeadersRWLock.Unlock()
 	return nil
 }
 
@@ -85,21 +86,21 @@ func Persistence() (E error) {
 			}
 			return nil
 		}, func(tx *gorm.DB) error {
-			b, e := mapper.StorageList(InstanceList, mapper.NORMAL, tx)
+			b, e := mapper.StorageList(Bean.InstanceList, mapper.NORMAL, tx)
 			if e != nil || b != true {
 				return e
 			}
 			return nil
 		}, func(tx *gorm.DB) error {
-			b, e := mapper.StorageList(DeleteInstanceList, mapper.DELETE, tx)
+			b, e := mapper.StorageList(Bean.DeleteInstanceList, mapper.DELETE, tx)
 			if e != nil || b != true {
 				return e
 			}
 			return nil
 		}, func(tx *gorm.DB) error {
 			list := util.NewLinkList[entity.ServerModel]()
-			LeadersRWLock.RLock()
-			for _, v := range Leaders {
+			Bean.LeadersRWLock.RLock()
+			for _, v := range Bean.Leaders {
 				for _, s := range v {
 					list.Append(s)
 				}
@@ -108,7 +109,7 @@ func Persistence() (E error) {
 			if e != nil || b != true {
 				return e
 			}
-			LeadersRWLock.RUnlock()
+			Bean.LeadersRWLock.RUnlock()
 			return nil
 		})
 		if e != nil {

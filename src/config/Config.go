@@ -5,15 +5,25 @@ var (
 	MaxRoutineNum int
 	// CoreRoutineNum goroutine池核心线程数
 	CoreRoutineNum int
+	// RoutineTimeOut goroutine池线程超时时间
+	RoutineTimeOut int
 
 	// Port 注册中心http端口
 	Port string
 
 	// UDPPort UDP服务端口
 	UDPPort string
+	// UDPTimeOut UDP超时时间
+	UDPTimeOut int
 
 	// ServerModelQueueNum 服务注册处理队列容量
 	ServerModelQueueNum int
+
+	// ServerModelHandleNum 服务注册处理器数量
+	ServerModelHandleNum int
+
+	// ServerModelBeatEnable 服务注册心跳开关
+	ServerModelBeatEnable bool
 
 	// ServerModelBeatQueue 服务心跳处理队列容量
 	ServerModelBeatQueue int

@@ -3,6 +3,7 @@ package service
 import (
 	"Themis/src/entity"
 	"Themis/src/exception"
+	"Themis/src/service/Bean"
 	"Themis/src/util"
 	"reflect"
 )
@@ -15,7 +16,7 @@ func CheckServer(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("CheckServer-service", util.Strval(r))
 		}
 	}()
-	return InstanceList.Contain(*model), nil
+	return Bean.InstanceList.Contain(*model), nil
 }
 
 // CheckDeleteServer 检查服务是否存在黑名单
@@ -26,7 +27,7 @@ func CheckDeleteServer(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("CheckDeleteServer-service", util.Strval(r))
 		}
 	}()
-	return DeleteInstanceList.Contain(*model), nil
+	return Bean.DeleteInstanceList.Contain(*model), nil
 }
 
 // CheckLeader 检查是否是领导
@@ -37,8 +38,8 @@ func CheckLeader(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("CheckLeader-service", util.Strval(r))
 		}
 	}()
-	LeadersRWLock.RLock()
-	Assert := reflect.DeepEqual(*model, Leaders[model.Namespace][model.Colony])
-	LeadersRWLock.RUnlock()
+	Bean.LeadersRWLock.RLock()
+	Assert := reflect.DeepEqual(*model, Bean.Leaders[model.Namespace][model.Colony])
+	Bean.LeadersRWLock.RUnlock()
 	return Assert, nil
 }

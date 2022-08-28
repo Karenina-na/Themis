@@ -8,16 +8,18 @@ import (
 )
 
 const (
-	Debug = iota
+	Debug LogLevel = iota
 	Info
 	Warn
 	Error
 )
 
+type LogLevel int
+
 var f func(r any)
 var flag bool
 
-func LoggerInit(f func(r any), F int) {
+func LoggerInit(f func(r any), F LogLevel) {
 	switch F {
 	case Debug:
 		flag = true
@@ -30,7 +32,7 @@ func LoggerInit(f func(r any), F int) {
 	}
 }
 
-func Loglevel(level int, name string, message string) {
+func Loglevel(level LogLevel, name string, message string) {
 	var logger *log.Logger
 	defer func() {
 		r := recover()
@@ -52,7 +54,7 @@ func Loglevel(level int, name string, message string) {
 	case Debug:
 		if flag {
 			logger.Println(message)
-			//recordFile(message, level, logger)
+			recordFile(message, level, logger)
 		}
 	case Info, Warn, Error:
 		logger.Println(message)
@@ -66,7 +68,7 @@ func setExceptionFunc(exceptionFunc func(r any)) {
 	f = exceptionFunc
 }
 
-func recordFile(message string, level int, logger *log.Logger) {
+func recordFile(message string, level LogLevel, logger *log.Logger) {
 	var FileLevel string
 	switch level {
 	case Debug:

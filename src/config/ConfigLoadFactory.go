@@ -4,6 +4,7 @@ import (
 	"Themis/src/exception"
 	"Themis/src/util"
 	"github.com/spf13/viper"
+	"math"
 	"strconv"
 )
 
@@ -62,6 +63,10 @@ func LoadRoutineConfig() (E error) {
 	if CoreRoutineNum > MaxRoutineNum {
 		return exception.NewConfigurationError("LoadRoutineConfig-config", "core-goroutine大于max-goroutine")
 	}
+	RoutineTimeOut = viper.GetInt(`goroutine.timeout`)
+	if CoreRoutineNum < 1 {
+		return exception.NewConfigurationError("LoadRoutineConfig-config", "timeout非法")
+	}
 	return nil
 }
 
@@ -84,6 +89,10 @@ func LoadPortConfig() (E error) {
 		return exception.NewConfigurationError("LoadPortConfig-config", "UDP-port端口不能与port端口相同")
 	}
 	UDPPort = strconv.Itoa(udpPort)
+	UDPTimeOut = viper.GetInt(`Themis.UDP-timeout`)
+	if UDPTimeOut < 1 {
+		return exception.NewConfigurationError("LoadPortConfig-config", "UDP-timeout非法")
+	}
 	return nil
 }
 
@@ -98,13 +107,23 @@ func LoadServerConfig() (E error) {
 	if ServerModelQueueNum <= 0 {
 		return exception.NewConfigurationError("LoadServerConfig-config", "model-queue非法")
 	}
-	ServerModelBeatQueue = viper.GetInt(`Themis.server.beat-queue`)
-	if ServerModelBeatQueue <= 0 {
-		return exception.NewConfigurationError("LoadServerConfig-config", "beat-queue非法")
+	ServerModelHandleNum = viper.GetInt(`Themis.server.model-handle-number`)
+	if ServerModelHandleNum <= 0 {
+		return exception.NewConfigurationError("LoadServerConfig-config", "model-handle-number非法")
 	}
-	ServerBeatTime = int64(viper.GetInt(`Themis.server.beat-time`))
-	if ServerBeatTime <= 0 {
-		return exception.NewConfigurationError("LoadServerConfig-config", "beat-time非法")
+	ServerModelBeatEnable = viper.GetBool(`Themis.server.beat-enable`)
+	if ServerModelBeatEnable {
+		ServerModelBeatQueue = viper.GetInt(`Themis.server.beat-queue`)
+		if ServerModelBeatQueue <= 0 {
+			return exception.NewConfigurationError("LoadServerConfig-config", "beat-queue非法")
+		}
+		ServerBeatTime = int64(viper.GetInt(`Themis.server.beat-time`))
+		if ServerBeatTime <= 0 {
+			return exception.NewConfigurationError("LoadServerConfig-config", "beat-time非法")
+		}
+	} else {
+		ServerModelBeatQueue = 0
+		ServerBeatTime = math.MaxInt
 	}
 	CreateLeaderAlgorithm = viper.GetString(`Themis.leader-algorithm`)
 	return nil

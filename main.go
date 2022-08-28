@@ -3,6 +3,7 @@ package main
 import (
 	FactoryInit "Themis/src/Init"
 	"Themis/src/config"
+	"Themis/src/service"
 	"Themis/src/util"
 	"flag"
 	"fmt"
@@ -82,6 +83,13 @@ func main() {
 		err := r.Run(":" + config.Port)
 		if err != nil {
 			util.Loglevel(util.Error, "main", util.Strval(err))
+			util.Loglevel(util.Error, "main", "server start error")
+			data, err := service.GetCenterStatus()
+			if err != nil {
+				util.Loglevel(util.Error, "main", fmt.Sprintf("%v", data))
+			} else {
+				util.Loglevel(util.Error, "main", fmt.Sprintf("%v", err))
+			}
 			os.Exit(0)
 		}
 	}()

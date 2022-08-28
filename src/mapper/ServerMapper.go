@@ -29,19 +29,24 @@ func StorageList(List *util.LinkList[entity.ServerModel], Type int, tx *gorm.DB)
 		util.Loglevel(util.Debug, "StorageList-mapper", "数据为空")
 		return true, nil
 	}
-	for i := 0; i < List.Length(); i++ {
+	var ERR error
+	List.Iterator(func(index int, model entity.ServerModel) {
 		var mapperModel *entity.ServerMapperMode
 		switch Type {
 		case NORMAL:
-			mapperModel = entity.NewServerMapperMode(List.Get(i), NORMAL)
+			mapperModel = entity.NewServerMapperMode(model, NORMAL)
 		case DELETE:
-			mapperModel = entity.NewServerMapperMode(List.Get(i), DELETE)
+			mapperModel = entity.NewServerMapperMode(model, DELETE)
 		case LEADER:
-			mapperModel = entity.NewServerMapperMode(List.Get(i), LEADER)
+			mapperModel = entity.NewServerMapperMode(model, LEADER)
 		}
 		if err := tx.Create(mapperModel).Error; err != nil {
-			return false, err
+			ERR = err
+			return
 		}
+	})
+	if ERR != nil {
+		return false, ERR
 	}
 	var t string
 	switch Type {
