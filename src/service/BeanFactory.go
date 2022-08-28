@@ -7,7 +7,6 @@ import (
 	"Themis/src/util"
 	"os"
 	"sync"
-	"time"
 )
 
 // InstanceList 实例列表
@@ -104,22 +103,4 @@ func InitServer() (E error) {
 		exception.HandleException(message)
 	})
 	return nil
-}
-
-func GetCenterStatusRoutine() (E error) {
-	defer func() {
-		r := recover()
-		if r != nil {
-			E = exception.NewSystemError("Register-service", util.Strval(r))
-		}
-	}()
-	for {
-		CenterStatusLock.Lock()
-		activeNum, jobNum := RoutinePool.CheckStatus()
-		computerStatus := entity.NewComputerInfoModel(
-			util.GetCpuInfo(), *util.GetMemInfo(), *util.GetHostInfo(), util.GetDiskInfo(), util.GetNetInfo(), activeNum, jobNum)
-		CenterStatus = computerStatus
-		CenterStatusLock.Unlock()
-		time.Sleep(time.Second * time.Duration(config.ListenTime))
-	}
 }

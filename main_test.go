@@ -31,7 +31,7 @@ func Test(t *testing.T) {
 	time.Sleep(time.Second * 2)
 
 	/*获取电脑状态*/
-	//ServerTest.GetComputerStatus(router) // 获取电脑状态
+	ServerTest.GetComputerStatus(router) // 获取电脑状态
 
 	/*注册-选举-拉入黑名单-拉出黑名单*/
 	test1(router)

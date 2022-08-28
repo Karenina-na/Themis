@@ -97,3 +97,23 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 		time.Sleep(time.Millisecond)
 	}
 }
+
+// GetCenterStatusRoutine 获取中心状态
+func GetCenterStatusRoutine() (E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewSystemError("Register-service", util.Strval(r))
+		}
+	}()
+	util.Loglevel(util.Debug, "GetCenterStatusRoutine", "创建监控中心协程")
+	for {
+		CenterStatusLock.Lock()
+		activeNum, jobNum := RoutinePool.CheckStatus()
+		computerStatus := entity.NewComputerInfoModel(
+			util.GetCpuInfo(), *util.GetMemInfo(), *util.GetHostInfo(), util.GetDiskInfo(), util.GetNetInfo(), activeNum, jobNum)
+		CenterStatus = computerStatus
+		CenterStatusLock.Unlock()
+		time.Sleep(time.Second * time.Duration(config.ListenTime))
+	}
+}

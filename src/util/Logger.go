@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -17,10 +16,8 @@ const (
 
 var f func(r any)
 var flag bool
-var lock sync.Mutex
 
 func LoggerInit(f func(r any), F int) {
-	lock = sync.Mutex{}
 	switch F {
 	case Debug:
 		flag = true
@@ -31,12 +28,10 @@ func LoggerInit(f func(r any), F int) {
 	if !exists("./log") {
 		_ = os.Mkdir("./log", 0644)
 	}
-	log.SetFlags(log.Ldate | log.Ltime)
 }
 
 func Loglevel(level int, name string, message string) {
-	lock.Lock()
-	defer lock.Unlock()
+	var logger *log.Logger
 	defer func() {
 		r := recover()
 		if r != nil {
@@ -45,22 +40,23 @@ func Loglevel(level int, name string, message string) {
 	}()
 	switch level {
 	case Debug:
-		log.SetPrefix(name + " == " + " [" + "debug" + "] ")
+		logger = log.New(os.Stdout, name+" == "+" ["+"debug"+"] ", log.Ldate|log.Ltime)
 	case Info:
-		log.SetPrefix(name + " == " + name + " [" + "info" + "] ")
+		logger = log.New(os.Stdout, name+" == "+" ["+"info"+"] ", log.Ldate|log.Ltime)
 	case Warn:
-		log.SetPrefix(name + " == " + name + " [" + "warn" + "] ")
+		logger = log.New(os.Stdout, name+" == "+" ["+"warn"+"] ", log.Ldate|log.Ltime)
 	case Error:
-		log.SetPrefix(name + " == " + name + " [" + "error" + "] ")
+		logger = log.New(os.Stdout, name+" == "+" ["+"error"+"] ", log.Ldate|log.Ltime)
 	}
 	switch level {
 	case Debug:
 		if flag {
-			printStdio(message)
+			logger.Println(message)
+			//recordFile(message, level, logger)
 		}
 	case Info, Warn, Error:
-		printStdio(message)
-		recordFile(message, level)
+		logger.Println(message)
+		recordFile(message, level, logger)
 	default:
 		log.Panic("无此选项")
 	}
@@ -70,13 +66,11 @@ func setExceptionFunc(exceptionFunc func(r any)) {
 	f = exceptionFunc
 }
 
-func printStdio(message string) {
-	log.Println(message)
-}
-
-func recordFile(message string, level int) {
+func recordFile(message string, level int, logger *log.Logger) {
 	var FileLevel string
 	switch level {
+	case Debug:
+		FileLevel = "debug"
 	case Info:
 		FileLevel = "Info"
 	case Warn:
@@ -90,13 +84,12 @@ func recordFile(message string, level int) {
 	if !exists(filename) {
 		_ = os.Mkdir(filename, 0644)
 	}
-	f, err := os.OpenFile(filename+"/"+FileLevel+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	file, err := os.OpenFile(filename+"/"+FileLevel+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
-		log.Panic("打开日志文件异常")
+		f("打开日志文件异常")
 	}
-	log.SetOutput(f)
-	log.Println(message)
-	log.SetOutput(os.Stdout)
+	logger.SetOutput(file)
+	logger.Println(message)
 }
 
 func exists(path string) bool {
