@@ -1,8 +1,10 @@
 package main
 
 import (
+	"Themis/src/controller/encryption"
 	"Themis/test/Base"
 	"Themis/test/ServerTest"
+	"crypto"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"testing"
@@ -27,6 +29,7 @@ func Test(t *testing.T) {
 	//ServerTest.GetInstancesByQuery(router)	// 根据条件获取实例
 	//ServerTest.DeleteServerByColony(router)	// 根据条件删除实例
 	//ServerTest.ServerBeatTest(router)	// 服务心跳
+
 	router := Base.FactoryBaseInit()
 	time.Sleep(time.Second * 2)
 
@@ -44,6 +47,9 @@ func Test(t *testing.T) {
 
 	/*注册-心跳-拉入黑名单-拉出黑名单*/
 	test4(router)
+
+	/*哈希算法*/
+	test5()
 }
 
 /**
@@ -101,4 +107,37 @@ func test4(router *gin.Engine) {
 	ServerTest.GetAllServersTest(router)
 	ServerTest.DeleteServerTest(router)
 	ServerTest.CancelDeleteInstance(router)
+}
+
+/*哈希算法*/
+func test5() {
+	//sha1
+	sha1 := encryption.Sha1("123456")
+	fmt.Println(sha1)
+	//sha256
+	sha256 := encryption.Sha256("123456")
+	fmt.Println(sha256)
+	//sha512
+	sha512 := encryption.Sha512("123456")
+	fmt.Println(sha512)
+	//bcrypt
+	bcrypt := encryption.Bcrypt("123456")
+	fmt.Println(bcrypt)
+	//base64
+	base64 := encryption.Base64("base64")
+	fmt.Println(base64)
+	base64Decode := encryption.Base64Decode(base64)
+	fmt.Println(base64Decode)
+	//ASE
+	var PwdKey = []byte("DIS**#KKKDJJSKDI")
+	ASE := encryption.AESEncrypt("ASE", PwdKey)
+	fmt.Println(ASE)
+	ASEDecrypt := encryption.AESDecrypt(ASE, PwdKey)
+	fmt.Println(ASEDecrypt)
+	//RSA
+	privateKey, publicKey := encryption.RSACreateKey()
+	RSA := encryption.RSAEncrypt(publicKey, "RSA", crypto.SHA256.New())
+	fmt.Println(RSA)
+	RSADecrypt := encryption.RSADecrypt(privateKey, RSA, crypto.SHA256)
+	fmt.Println(RSADecrypt)
 }
