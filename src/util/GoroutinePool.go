@@ -73,7 +73,7 @@ func (P *Pool) work() {
 		f()
 		P.lock.Lock()
 		P.jobNum--
-		if P.activeNum > P.coreNum {
+		if P.activeNum > P.coreNum && P.jobNum < P.activeNum {
 			P.activeNum--
 			P.lock.Unlock()
 			break

@@ -22,20 +22,20 @@ func HandleException(err interface{}) {
 }
 
 func configurationExHandle(err *ConfigurationError) {
-	util.Loglevel(util.Error, err.Name, err.Message+"-"+err.Error()+"-"+err.Time.Format("2006-01-02 15:04:05"))
+	util.Loglevel(util.Warn, err.Name, err.Message)
 	os.Exit(0)
 }
 
 func dataBaseExHandle(err *DataBaseError) {
-	util.Loglevel(util.Error, err.Name, err.Message+"-"+err.Error()+"-"+err.Time.Format("2006-01-02 15:04:05"))
+	util.Loglevel(util.Warn, err.Name, err.Message)
 	os.Exit(0)
 }
 
 func systemExHandle(err *SystemError) {
-	util.Loglevel(util.Error, err.Name, err.Message+"-"+err.Error()+"-"+err.Time.Format("2006-01-02 15:04:05"))
+	util.Loglevel(util.Warn, err.Name, err.Message)
 	os.Exit(0)
 }
 
 func userExHandle(err *UserError) {
-	util.Loglevel(util.Warn, err.Name, err.Message+"-"+err.Error()+"-"+err.Time.Format("2006-01-02 15:04:05"))
+	util.Loglevel(util.Warn, err.Name, err.Message)
 }

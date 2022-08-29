@@ -79,5 +79,6 @@ gin : v1.8.1
 swagger for go : v0.22.3
 gorm : v1.3.6
 sqllit : v1.3.6
+mysql : v8.0.13
 gowatch : v1.5.2
 ```

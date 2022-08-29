@@ -25,46 +25,25 @@ func LoadDatabase() (E error) {
 		return err
 	}
 	for i := 0; i < len(serverModels); i++ {
-		model := &entity.ServerModel{
-			IP:        serverModels[i].IP,
-			Port:      serverModels[i].Port,
-			Name:      serverModels[i].Name,
-			Time:      serverModels[i].Time,
-			Colony:    serverModels[i].Colony,
-			Namespace: serverModels[i].Namespace,
-		}
+		model := serverModels[i].Clone()
 		_, e := RegisterServer(model)
 		if e != nil {
 			return e
 		}
 	}
 	for i := 0; i < len(deleteServerModels); i++ {
-		model := &entity.ServerModel{
-			IP:        deleteServerModels[i].IP,
-			Port:      deleteServerModels[i].Port,
-			Name:      deleteServerModels[i].Name,
-			Time:      deleteServerModels[i].Time,
-			Colony:    deleteServerModels[i].Colony,
-			Namespace: deleteServerModels[i].Namespace,
-		}
+		model := deleteServerModels[i].Clone()
 		Bean.DeleteInstanceList.Append(*model)
 	}
-	Bean.LeadersRWLock.Lock()
+	Bean.Leaders.LeaderModelsListRWLock.Lock()
 	for i := 0; i < len(leaderServerModels); i++ {
-		model := entity.ServerModel{
-			IP:        leaderServerModels[i].IP,
-			Port:      leaderServerModels[i].Port,
-			Name:      leaderServerModels[i].Name,
-			Time:      leaderServerModels[i].Time,
-			Colony:    leaderServerModels[i].Colony,
-			Namespace: leaderServerModels[i].Namespace,
+		model := leaderServerModels[i].Clone()
+		if Bean.Leaders.LeaderModelsList[model.Namespace] == nil {
+			Bean.Leaders.LeaderModelsList[model.Namespace] = make(map[string]entity.ServerModel)
 		}
-		if Bean.Leaders[model.Namespace] == nil {
-			Bean.Leaders[model.Namespace] = make(map[string]entity.ServerModel)
-		}
-		Bean.Leaders[model.Namespace][model.Colony] = model
+		Bean.Leaders.LeaderModelsList[model.Namespace][model.Colony] = *model
 	}
-	Bean.LeadersRWLock.Unlock()
+	Bean.Leaders.LeaderModelsListRWLock.Unlock()
 	return nil
 }
 
@@ -99,8 +78,8 @@ func Persistence() (E error) {
 			return nil
 		}, func(tx *gorm.DB) error {
 			list := util.NewLinkList[entity.ServerModel]()
-			Bean.LeadersRWLock.RLock()
-			for _, v := range Bean.Leaders {
+			Bean.Leaders.LeaderModelsListRWLock.RLock()
+			for _, v := range Bean.Leaders.LeaderModelsList {
 				for _, s := range v {
 					list.Append(s)
 				}
@@ -109,7 +88,7 @@ func Persistence() (E error) {
 			if e != nil || b != true {
 				return e
 			}
-			Bean.LeadersRWLock.RUnlock()
+			Bean.Leaders.LeaderModelsListRWLock.RUnlock()
 			return nil
 		})
 		if e != nil {

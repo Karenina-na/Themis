@@ -1,7 +1,7 @@
 goroutine:
   max-goroutine: 2000 #goroutine池最大线程数
   core-goroutine: 1000  #goroutine池核心线程数
-  timeout: 10 #goroutine池空闲超时时间 单位秒
+  timeout: 10 #goroutine池等待超时时间 单位秒
 
 Themis:
   port: 8080  #注册中心http端口
@@ -21,6 +21,17 @@ Themis:
   database:
     enable: true  #是否开启持久化
     persistence-time: 10 #持久化间隔 单位秒
+    soft-delete-enable: false #是否开启软删除
+    type: mysql #数据库选型  mysql/sqllit
+    mysql:
+      host: 192.168.71.128 #数据库地址
+      port: 3306 #数据库端口
+      user: root #数据库用户名
+      password: root #数据库密码
+      name: themis #数据库名称
+      max-open-conns: 10 #数据库最大连接数
+      max-idle-conns: 10 #数据库最大空闲连接数
+      max-conns-lifetime: 10 #数据库连接最大存活时间 单位秒
 
   listen:
     space-time: 10 #监控间隔时间

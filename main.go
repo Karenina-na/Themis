@@ -53,17 +53,17 @@ import (
 func main() {
 	arg := flag.String("mode", "debug", "debug / release /test 环境")
 	flag.Parse()
+	FactoryInit.ThemisInitFactory(arg)
 	if *arg == "debug" {
 		gin.SetMode(gin.DebugMode)
-		fmt.Println("debug mode")
+		util.Loglevel(util.Info, "main", "debug mode")
 	} else if *arg == "release" {
 		gin.SetMode(gin.ReleaseMode)
-		fmt.Println("release mode")
+		util.Loglevel(util.Info, "main", "release mode")
 	} else if *arg == "test" {
 		gin.SetMode(gin.TestMode)
-		fmt.Println("test mode")
+		util.Loglevel(util.Info, "main", "test mode")
 	}
-	FactoryInit.ThemisInitFactory(arg)
 	defer func() {
 		err := recover()
 		util.Loglevel(util.Error, "main", util.Strval(err))
@@ -80,6 +80,7 @@ func main() {
 	router.MessageAPI(r)
 	router.OperatorAPI(r)
 	go func() {
+		util.Loglevel(util.Info, "main", "start service on port:"+config.Port)
 		err := r.Run(":" + config.Port)
 		if err != nil {
 			util.Loglevel(util.Error, "main", util.Strval(err))

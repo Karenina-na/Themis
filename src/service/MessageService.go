@@ -7,8 +7,6 @@ import (
 	"Themis/src/service/Bean"
 	"Themis/src/service/LeaderAlgorithm"
 	"Themis/src/util"
-	"encoding/json"
-	"net"
 	"strings"
 	"time"
 )
@@ -27,7 +25,7 @@ func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 	if S.Colony == "" {
 		S.Colony = "default"
 	}
-	Bean.ServerModelQueue <- *S
+	Bean.ServersQueue <- *S
 	util.Loglevel(util.Debug, "RegisterServer", "注册服务-"+util.Strval(*S))
 	return true, nil
 }
@@ -45,7 +43,7 @@ func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 		flag := false
 		for flag == false {
 			select {
-			case Bean.ServerModelBeatQueue <- *model:
+			case Bean.ServersBeatQueue <- *model:
 				flag = true
 				break
 			default:
@@ -67,9 +65,9 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 		}
 	}()
 	util.Loglevel(util.Debug, "Election", "选举开始")
-	Bean.ServerModelListRWLock.RLock()
+	Bean.Servers.ServerModelsListRWLock.RLock()
 	ChoiceList := util.NewLinkList[entity.ServerModel]()
-	for colonyMap, servers := range Bean.ServerModelList[model.Namespace] {
+	for colonyMap, servers := range Bean.Servers.ServerModelsList[model.Namespace] {
 		str := strings.Split(colonyMap, "::")
 		colony := str[0]
 		if colony == model.Colony {
@@ -78,14 +76,13 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 			})
 		}
 	}
-	Bean.ServerModelListRWLock.RUnlock()
+	Bean.Servers.ServerModelsListRWLock.RUnlock()
 	leader := LeaderAlgorithm.CreateLeader(ChoiceList)
-	Bean.LeadersRWLock.Lock()
-	Bean.Leaders[model.Namespace][model.Colony] = leader
-	Bean.LeadersRWLock.Unlock()
+	Bean.Leaders.LeaderModelsListRWLock.Lock()
+	Bean.Leaders.LeaderModelsList[model.Namespace][model.Colony] = leader
+	Bean.Leaders.LeaderModelsListRWLock.Unlock()
 	util.Loglevel(util.Debug, "Election", "选举完成，发起通信-leader:"+leader.IP)
 	ChoiceList.Iterator(func(index int, model entity.ServerModel) {
-		server := model
 		Bean.RoutinePool.CreateWork(func() (E error) {
 			defer func() {
 				r := recover()
@@ -93,17 +90,10 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 					E = exception.NewSystemError("udp-message-goroutine", util.Strval(r))
 				}
 			}()
-			conn, err := net.DialTimeout("udp", server.IP+":"+config.UDPPort,
-				time.Duration(config.UDPTimeOut)*time.Second)
-			if err != nil {
-				return exception.NewUserError("udp-message", " UDP通信错误 "+err.Error()+util.Strval(server))
-			} else {
-				data, _ := json.Marshal(leader)
-				_, _ = conn.Write(data)
-			}
-			return nil
-		}, func(Message error) {
-			exception.HandleException(Message)
+			E = model.SendMessageUDP(leader, config.UDPPort, config.UDPTimeOut)
+			return E
+		}, func(err error) {
+			exception.HandleException(exception.NewUserError("udp-message", " UDP通信错误 "+err.Error()+" "+util.Strval(model)))
 		})
 	})
 	return true, nil
@@ -117,9 +107,9 @@ func GetLeader(model *entity.ServerModel) (m entity.ServerModel, E error) {
 			E = exception.NewUserError("GetLeader-service", util.Strval(r))
 		}
 	}()
-	Bean.LeadersRWLock.RLock()
-	leader := Bean.Leaders[model.Namespace][model.Colony]
-	Bean.LeadersRWLock.RUnlock()
+	Bean.Leaders.LeaderModelsListRWLock.RLock()
+	leader := Bean.Leaders.LeaderModelsList[model.Namespace][model.Colony]
+	Bean.Leaders.LeaderModelsListRWLock.RUnlock()
 	return leader, nil
 }
 
@@ -132,15 +122,15 @@ func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 		}
 	}()
 	list := make([]entity.ServerModel, 0, 100)
-	Bean.ServerModelListRWLock.RLock()
-	for _, L := range Bean.ServerModelList[model.Namespace] {
+	Bean.Servers.ServerModelsListRWLock.RLock()
+	for _, L := range Bean.Servers.ServerModelsList[model.Namespace] {
 		L.Iterator(func(index int, model entity.ServerModel) {
 			if model.IP != model.IP {
 				list = append(list, model)
 			}
 		})
 	}
-	Bean.ServerModelListRWLock.RUnlock()
+	Bean.Servers.ServerModelsListRWLock.RUnlock()
 	return list, nil
 }
 
@@ -152,14 +142,14 @@ func GetServersNumber(model *entity.ServerModel) (num int, E error) {
 			E = exception.NewUserError("GetServersNumber-service", util.Strval(r))
 		}
 	}()
-	Bean.ServerModelListRWLock.RLock()
-	for name, List := range Bean.ServerModelList[model.Namespace] {
+	Bean.Servers.ServerModelsListRWLock.RLock()
+	for name, List := range Bean.Servers.ServerModelsList[model.Namespace] {
 		str := strings.Split(name, "::")
 		colony := str[0]
 		if colony == model.Colony {
 			return List.Length(), nil
 		}
 	}
-	Bean.ServerModelListRWLock.RUnlock()
+	Bean.Servers.ServerModelsListRWLock.RUnlock()
 	return 0, nil
 }

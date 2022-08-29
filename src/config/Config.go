@@ -34,11 +34,44 @@ var (
 	// CreateLeaderAlgorithm 记账人选举算法
 	CreateLeaderAlgorithm string
 
+	// Database 数据库模型
+	Database struct {
+		// DatabaseType 数据库类型
+		DatabaseType string
+
+		// DatabaseHost 数据库地址
+		DatabaseHost string
+
+		// DatabasePort 数据库端口
+		DatabasePort string
+
+		// DatabaseName 数据库名称
+		DatabaseName string
+
+		// DatabaseUser 数据库用户名
+		DatabaseUser string
+
+		// DatabasePassword 数据库密码
+		DatabasePassword string
+
+		// DatabaseMaxOpenConns 数据库最大连接数
+		DatabaseMaxOpenConns int
+
+		// DatabaseMaxIdleConns 数据库最大空闲连接数
+		DatabaseMaxIdleConns int
+
+		// DatabaseMaxLifetimeConns 数据库最大连接生命周期
+		DatabaseMaxLifetimeConns int
+	}
+
 	// DatabaseEnable 是否开启持久化
 	DatabaseEnable bool
 
 	// PersistenceTime 持久化时间
 	PersistenceTime int64
+
+	// DatabaseSoftDeleteEnable 是否开启软删除
+	DatabaseSoftDeleteEnable bool
 
 	// ListenTime 监听时间
 	ListenTime int64

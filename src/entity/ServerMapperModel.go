@@ -5,7 +5,7 @@ import "gorm.io/gorm"
 type ServerMapperMode struct {
 	gorm.Model
 	ServerModel
-	Type int `json:"Type"`
+	Type int `json:"Type" gorm:"column:type"`
 }
 
 func NewServerMapperMode(model ServerModel, Type int) *ServerMapperMode {
@@ -21,4 +21,8 @@ func NewServerMapperMode(model ServerModel, Type int) *ServerMapperMode {
 		},
 		Type,
 	}
+}
+
+func (model ServerMapperMode) TableName() string {
+	return "tb_server_mapper"
 }

@@ -21,22 +21,22 @@ func Register() (E error) {
 	util.Loglevel(util.Debug, "Register", "创建注册协程")
 
 	for {
-		data := <-Bean.ServerModelQueue
+		data := <-Bean.ServersQueue
 		namespace := data.Namespace
 		name := data.Colony + "::" + data.Name
-		Bean.LeadersRWLock.Lock()
-		if Bean.Leaders[namespace] == nil {
-			Bean.Leaders[namespace] = make(map[string]entity.ServerModel)
+		Bean.Leaders.LeaderModelsListRWLock.Lock()
+		if Bean.Leaders.LeaderModelsList[namespace] == nil {
+			Bean.Leaders.LeaderModelsList[namespace] = make(map[string]entity.ServerModel)
 		}
-		Bean.LeadersRWLock.Unlock()
-		Bean.ServerModelListRWLock.Lock()
-		if Bean.ServerModelList[namespace] == nil {
-			Bean.ServerModelList[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
+		Bean.Leaders.LeaderModelsListRWLock.Unlock()
+		Bean.Servers.ServerModelsListRWLock.Lock()
+		if Bean.Servers.ServerModelsList[namespace] == nil {
+			Bean.Servers.ServerModelsList[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
 		}
-		if Bean.ServerModelList[namespace][name] == nil {
-			Bean.ServerModelList[namespace][name] = util.NewLinkList[entity.ServerModel]()
+		if Bean.Servers.ServerModelsList[namespace][name] == nil {
+			Bean.Servers.ServerModelsList[namespace][name] = util.NewLinkList[entity.ServerModel]()
 		}
-		Bean.ServerModelList[namespace][name].Append(data)
+		Bean.Servers.ServerModelsList[namespace][name].Append(data)
 		Bean.InstanceList.Append(data)
 		if config.ServerModelBeatEnable {
 			Bean.RoutinePool.CreateWork(func() (E error) {
@@ -56,7 +56,7 @@ func Register() (E error) {
 				exception.HandleException(Message)
 			})
 		}
-		Bean.ServerModelListRWLock.Unlock()
+		Bean.Servers.ServerModelsListRWLock.Unlock()
 	}
 }
 
@@ -73,27 +73,27 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 	for {
 		t := time.Now().Unix() - start
 		if t == config.ServerBeatTime {
-			Bean.ServerModelListRWLock.Lock()
-			Bean.ServerModelList[namespace][name].DeleteByValue(model)
-			if Bean.ServerModelList[namespace][name].IsEmpty() {
-				delete(Bean.ServerModelList[namespace], name)
+			Bean.Servers.ServerModelsListRWLock.Lock()
+			Bean.Servers.ServerModelsList[namespace][name].DeleteByValue(model)
+			if Bean.Servers.ServerModelsList[namespace][name].IsEmpty() {
+				delete(Bean.Servers.ServerModelsList[namespace], name)
 			}
-			if len(Bean.ServerModelList[namespace]) == 0 && namespace != "default" {
-				delete(Bean.ServerModelList, namespace)
-				Bean.LeadersRWLock.Lock()
-				delete(Bean.Leaders, namespace)
-				Bean.LeadersRWLock.Unlock()
+			if len(Bean.Servers.ServerModelsList[namespace]) == 0 && namespace != "default" {
+				delete(Bean.Servers.ServerModelsList, namespace)
+				Bean.Leaders.LeaderModelsListRWLock.Lock()
+				delete(Bean.Leaders.LeaderModelsList, namespace)
+				Bean.Leaders.LeaderModelsListRWLock.Unlock()
 			}
 			Bean.InstanceList.DeleteByValue(model)
-			Bean.ServerModelListRWLock.Unlock()
+			Bean.Servers.ServerModelsListRWLock.Unlock()
 			return nil
 		}
 		select {
-		case data := <-Bean.ServerModelBeatQueue:
+		case data := <-Bean.ServersBeatQueue:
 			if reflect.DeepEqual(model, data) {
 				start = time.Now().Unix()
 			} else {
-				Bean.ServerModelBeatQueue <- data
+				Bean.ServersBeatQueue <- data
 			}
 		default:
 		}
@@ -111,12 +111,11 @@ func GetCenterStatusRoutine() (E error) {
 	}()
 	util.Loglevel(util.Debug, "GetCenterStatusRoutine", "创建监控中心协程")
 	for {
-		Bean.CenterStatusLock.Lock()
+		Bean.CenterStatus.CenterStatusInfoLock.Lock()
 		activeNum, jobNum := Bean.RoutinePool.CheckStatus()
-		computerStatus := entity.NewComputerInfoModel(
-			util.GetCpuInfo(), *util.GetMemInfo(), *util.GetHostInfo(), util.GetDiskInfo(), util.GetNetInfo(), activeNum, jobNum)
-		Bean.CenterStatus = computerStatus
-		Bean.CenterStatusLock.Unlock()
+		Bean.CenterStatus.CenterStatusInfo.SetComputerInfoModel(util.GetCpuInfo(), *util.GetMemInfo(), *util.GetHostInfo(),
+			util.GetDiskInfo(), util.GetNetInfo(), activeNum, jobNum)
+		Bean.CenterStatus.CenterStatusInfoLock.Unlock()
 		time.Sleep(time.Second * time.Duration(config.ListenTime))
 	}
 }

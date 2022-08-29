@@ -38,8 +38,8 @@ func CheckLeader(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("CheckLeader-service", util.Strval(r))
 		}
 	}()
-	Bean.LeadersRWLock.RLock()
-	Assert := reflect.DeepEqual(*model, Bean.Leaders[model.Namespace][model.Colony])
-	Bean.LeadersRWLock.RUnlock()
+	Bean.Leaders.LeaderModelsListRWLock.RLock()
+	Assert := reflect.DeepEqual(*model, Bean.Leaders.LeaderModelsList[model.Namespace][model.Colony])
+	Bean.Leaders.LeaderModelsListRWLock.RUnlock()
 	return Assert, nil
 }

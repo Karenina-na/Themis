@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"Themis/src/config"
 	"Themis/src/entity"
 	"Themis/src/exception"
 	"Themis/src/util"
@@ -121,33 +122,19 @@ func SelectAllServers() (S1 []entity.ServerModel, S2 []entity.ServerModel, S3 []
 	LeaderList = make([]entity.ServerModel, 0, 100)
 	var index int64
 	for index = 0; index < result.RowsAffected; index++ {
+		model := entity.NewServerModel()
+		model.IP = modelList[index].IP
+		model.Name = modelList[index].Name
+		model.Port = modelList[index].Port
+		model.Colony = modelList[index].Colony
+		model.Namespace = modelList[index].Namespace
+		model.Time = modelList[index].Time
 		switch modelList[index].Type {
 		case NORMAL:
-			model := entity.NewServerModel()
-			model.IP = modelList[index].IP
-			model.Name = modelList[index].Name
-			model.Port = modelList[index].Port
-			model.Colony = modelList[index].Colony
-			model.Namespace = modelList[index].Namespace
-			model.Time = modelList[index].Time
 			List = append(List, *model)
 		case DELETE:
-			model := entity.NewServerModel()
-			model.IP = modelList[index].IP
-			model.Name = modelList[index].Name
-			model.Port = modelList[index].Port
-			model.Colony = modelList[index].Colony
-			model.Namespace = modelList[index].Namespace
-			model.Time = modelList[index].Time
 			DeleteList = append(DeleteList, *model)
 		case LEADER:
-			model := entity.NewServerModel()
-			model.IP = modelList[index].IP
-			model.Name = modelList[index].Name
-			model.Port = modelList[index].Port
-			model.Colony = modelList[index].Colony
-			model.Namespace = modelList[index].Namespace
-			model.Time = modelList[index].Time
 			LeaderList = append(LeaderList, *model)
 		}
 	}
@@ -166,8 +153,14 @@ func DeleteServer(model *entity.ServerModel, tx *gorm.DB) (B bool, E error) {
 	if err != nil {
 		return false, exception.NewUserError("DeleteServer-mapper", "数据库挂载索引结构失败-"+err.Error())
 	}
-	if err := tx.Delete(&entity.ServerMapperMode{}, "IP = ?", model.IP).Error; err != nil {
-		return false, err
+	if config.DatabaseSoftDeleteEnable {
+		if err := tx.Delete(&entity.ServerMapperMode{}, "IP = ?", model.IP).Error; err != nil {
+			return false, err
+		}
+	} else {
+		if err := tx.Unscoped().Delete(&entity.ServerMapperMode{}, "IP = ?", model.IP).Error; err != nil {
+			return false, err
+		}
 	}
 	util.Loglevel(util.Debug, "DeleteServer-mapper", "数据删除")
 	return true, nil
@@ -184,8 +177,14 @@ func DeleteAllServer(tx *gorm.DB) (B bool, E error) {
 	if err != nil {
 		return false, exception.NewUserError("DeleteAllServer-mapper", "数据库挂载索引结构失败-"+err.Error())
 	}
-	if err = tx.Where("1 = 1").Delete(&entity.ServerMapperMode{}).Error; err != nil {
-		return false, err
+	if config.DatabaseSoftDeleteEnable {
+		if err = tx.Where("1 = 1").Delete(&entity.ServerMapperMode{}).Error; err != nil {
+			return false, err
+		}
+	} else {
+		if err = tx.Unscoped().Where("1 = 1").Delete(&entity.ServerMapperMode{}).Error; err != nil {
+			return false, err
+		}
 	}
 	util.Loglevel(util.Debug, "DeleteAllServer-mapper", "数据全部删除")
 	return true, nil

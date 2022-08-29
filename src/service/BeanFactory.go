@@ -6,8 +6,6 @@ import (
 	"Themis/src/exception"
 	"Themis/src/service/Bean"
 	"Themis/src/util"
-	"fmt"
-	"os"
 	"sync"
 )
 
@@ -31,36 +29,33 @@ func InitServer() (E error) {
 	Bean.InstanceList = util.NewLinkList[entity.ServerModel]()
 	Bean.DeleteInstanceList = util.NewLinkList[entity.ServerModel]()
 
-	Bean.ServerModelList = make(map[string]map[string]*util.LinkList[entity.ServerModel])
-	Bean.ServerModelList["default"] = make(map[string]*util.LinkList[entity.ServerModel])
-	Bean.ServerModelListRWLock = sync.RWMutex{}
+	Bean.Servers = Bean.NewServersModel()
+	Bean.Servers.ServerModelsList["default"] = make(map[string]*util.LinkList[entity.ServerModel])
 
-	Bean.ServerModelQueue = make(chan entity.ServerModel, config.ServerModelQueueNum)
+	Bean.ServersQueue = make(chan entity.ServerModel, config.ServerModelQueueNum)
 
-	Bean.ServerModelBeatQueue = make(chan entity.ServerModel, config.ServerModelBeatQueue)
+	Bean.ServersBeatQueue = make(chan entity.ServerModel, config.ServerModelBeatQueue)
 
-	Bean.Leaders = make(map[string]map[string]entity.ServerModel)
-	Bean.Leaders["default"] = make(map[string]entity.ServerModel)
-	Bean.LeadersRWLock = sync.RWMutex{}
+	Bean.Leaders = Bean.NewLeadersModel()
+	Bean.Leaders.LeaderModelsList["default"] = make(map[string]entity.ServerModel)
+	Bean.Leaders.LeaderModelsListRWLock = sync.RWMutex{}
 
 	for i := 0; i < config.ServerModelHandleNum; i++ {
 		Bean.RoutinePool.CreateWork(Register, func(message error) {
 			exception.HandleException(message)
 		})
 	}
+	Bean.CenterStatus = Bean.NewCenterStatusModel()
 	Bean.RoutinePool.CreateWork(GetCenterStatusRoutine, func(message error) {
 		exception.HandleException(message)
 	})
 	if config.DatabaseEnable {
-		if _, err := os.Stat("./db/Themis.db"); err == nil {
-			if err := LoadDatabase(); err != nil {
-				return err
-			}
+		if err := LoadDatabase(); err != nil {
+			return err
 		}
 		Bean.RoutinePool.CreateWork(Persistence, func(message error) {
 			exception.HandleException(message)
 		})
 	}
-	fmt.Println(Bean.RoutinePool.CheckStatus())
 	return nil
 }

@@ -57,17 +57,19 @@ type NetInfoModel struct {
 	PacketsReceived string `json:"packets_received"`
 }
 
-func NewComputerInfoModel(c []CpuInfoModel, m MemInfoModel,
-	h HostInfoModel, d []DiskInfoModel, n []NetInfoModel, activateNum int, jobNum int) *ComputerInfoModel {
-	return &ComputerInfoModel{
-		CpuInfo:         c,
-		MemInfo:         m,
-		HostInfo:        h,
-		DiskInfo:        d,
-		NetInfo:         n,
-		PoolActivateNum: activateNum,
-		PoolJobNum:      jobNum,
-	}
+func NewComputerInfoModel() *ComputerInfoModel {
+	return &ComputerInfoModel{}
+}
+
+func (com *ComputerInfoModel) SetComputerInfoModel(c []CpuInfoModel, m MemInfoModel,
+	h HostInfoModel, d []DiskInfoModel, n []NetInfoModel, activateNum int, jobNum int) {
+	com.CpuInfo = c
+	com.MemInfo = m
+	com.HostInfo = h
+	com.DiskInfo = d
+	com.NetInfo = n
+	com.PoolActivateNum = activateNum
+	com.PoolJobNum = jobNum
 }
 
 func NewCpuInfoModel(cpuName string, coreNum int32, freq float64, VendorId string, physicalId string, usage float64) *CpuInfoModel {
