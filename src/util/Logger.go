@@ -92,6 +92,11 @@ func recordFile(message string, level LogLevel, logger *log.Logger) {
 	}
 	logger.SetOutput(file)
 	logger.Println(message)
+	err = file.Close()
+	if err != nil {
+		f("关闭日志文件异常")
+		return
+	}
 }
 
 func exists(path string) bool {

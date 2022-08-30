@@ -57,42 +57,47 @@ func Persistence() (E error) {
 	}()
 	util.Loglevel(util.Debug, "Persistence", "创建持久化数据协程")
 	for {
-		time.Sleep(time.Duration(config.PersistenceTime) * time.Second)
-		_, e := mapper.Transaction(func(tx *gorm.DB) error {
-			b, e := mapper.DeleteAllServer(tx)
-			if e != nil || b != true {
-				return e
-			}
+		select {
+		case <-Bean.CLOSE:
+			util.Loglevel(util.Debug, "Persistence", "持久化数据协程退出")
 			return nil
-		}, func(tx *gorm.DB) error {
-			b, e := mapper.StorageList(Bean.InstanceList, mapper.NORMAL, tx)
-			if e != nil || b != true {
-				return e
-			}
-			return nil
-		}, func(tx *gorm.DB) error {
-			b, e := mapper.StorageList(Bean.DeleteInstanceList, mapper.DELETE, tx)
-			if e != nil || b != true {
-				return e
-			}
-			return nil
-		}, func(tx *gorm.DB) error {
-			list := util.NewLinkList[entity.ServerModel]()
-			Bean.Leaders.LeaderModelsListRWLock.RLock()
-			for _, v := range Bean.Leaders.LeaderModelsList {
-				for _, s := range v {
-					list.Append(s)
+		case <-time.After(time.Second * time.Duration(config.PersistenceTime)):
+			_, e := mapper.Transaction(func(tx *gorm.DB) error {
+				b, e := mapper.DeleteAllServer(tx)
+				if e != nil || b != true {
+					return e
 				}
-			}
-			b, e := mapper.StorageList(list, mapper.LEADER, tx)
-			if e != nil || b != true {
+				return nil
+			}, func(tx *gorm.DB) error {
+				b, e := mapper.StorageList(Bean.InstanceList, mapper.NORMAL, tx)
+				if e != nil || b != true {
+					return e
+				}
+				return nil
+			}, func(tx *gorm.DB) error {
+				b, e := mapper.StorageList(Bean.DeleteInstanceList, mapper.DELETE, tx)
+				if e != nil || b != true {
+					return e
+				}
+				return nil
+			}, func(tx *gorm.DB) error {
+				list := util.NewLinkList[entity.ServerModel]()
+				Bean.Leaders.LeaderModelsListRWLock.RLock()
+				for _, v := range Bean.Leaders.LeaderModelsList {
+					for _, s := range v {
+						list.Append(s)
+					}
+				}
+				b, e := mapper.StorageList(list, mapper.LEADER, tx)
+				if e != nil || b != true {
+					return e
+				}
+				Bean.Leaders.LeaderModelsListRWLock.RUnlock()
+				return nil
+			})
+			if e != nil {
 				return e
 			}
-			Bean.Leaders.LeaderModelsListRWLock.RUnlock()
-			return nil
-		})
-		if e != nil {
-			return e
 		}
 	}
 }

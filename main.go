@@ -1,12 +1,10 @@
 package main
 
 import (
-	FactoryInit "Themis/src/Init"
+	Init "Themis/src/Factory"
 	"Themis/src/config"
-	"Themis/src/service"
 	"Themis/src/util"
 	"flag"
-	"fmt"
 	swaggerFile "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
@@ -53,7 +51,7 @@ import (
 func main() {
 	arg := flag.String("mode", "debug", "debug / release /test 环境")
 	flag.Parse()
-	FactoryInit.ThemisInitFactory(arg)
+	Init.ThemisInitFactory(arg)
 	if *arg == "debug" {
 		gin.SetMode(gin.DebugMode)
 		util.Loglevel(util.Info, "main", "debug mode")
@@ -66,7 +64,9 @@ func main() {
 	}
 	defer func() {
 		err := recover()
-		util.Loglevel(util.Error, "main", util.Strval(err))
+		if err != nil {
+			util.Loglevel(util.Error, "main", util.Strval(err))
+		}
 	}()
 	r := gin.New()
 	r.Use(gin.Logger())
@@ -85,12 +85,6 @@ func main() {
 		if err != nil {
 			util.Loglevel(util.Error, "main", util.Strval(err))
 			util.Loglevel(util.Error, "main", "server start error")
-			data, err := service.GetCenterStatus()
-			if err != nil {
-				util.Loglevel(util.Error, "main", fmt.Sprintf("%v", data))
-			} else {
-				util.Loglevel(util.Error, "main", fmt.Sprintf("%v", err))
-			}
 			os.Exit(0)
 		}
 	}()
@@ -98,6 +92,8 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	util.Loglevel(util.Info, "main", "Themis is exiting...")
+	Init.ThemisCloseFactory()
 	runtime.GC()
-	time.Sleep(1 * time.Second)
+	util.Loglevel(util.Info, "main", "Themis is exited")
+	time.Sleep(time.Second * 5)
 }

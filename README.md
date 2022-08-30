@@ -31,7 +31,7 @@
 Themis:.
 ├─bin   //可执行文件
 ├─conf  //项目配置，需与bin中的exe文件放在同一个目录下
-├─db    //数据库文件
+├─db    //sqllit数据库文件
 ├─docs  //swagger文档
 ├─log   //日志
 ├─src   //源码
@@ -40,7 +40,7 @@ Themis:.
 │  │  └─encryption  //加密算法
 │  ├─entity         //数据模型
 │  ├─exception      //异常处理
-│  ├─Init           //初始化加载器
+│  ├─factory        //服务加载器
 │  ├─mapper         //数据持久层
 │  ├─router         //后端路由
 │  ├─service        //业务逻辑层

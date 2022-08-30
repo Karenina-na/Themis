@@ -1,4 +1,4 @@
-package FactoryInit
+package Init
 
 import (
 	"Themis/docs"

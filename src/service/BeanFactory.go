@@ -46,7 +46,7 @@ func InitServer() (E error) {
 		})
 	}
 	Bean.CenterStatus = Bean.NewCenterStatusModel()
-	Bean.RoutinePool.CreateWork(GetCenterStatusRoutine, func(message error) {
+	Bean.RoutinePool.CreateWork(CenterStatusRoutine, func(message error) {
 		exception.HandleException(message)
 	})
 	if config.DatabaseEnable {
@@ -57,5 +57,19 @@ func InitServer() (E error) {
 			exception.HandleException(message)
 		})
 	}
+	Bean.CLOSE = make(chan struct{}, 0)
+	return nil
+}
+
+// Close 关闭服务
+func Close() (E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewSystemError("Close-service", util.Strval(r))
+		}
+	}()
+	close(Bean.CLOSE)
+	Bean.RoutinePool.Close()
 	return nil
 }

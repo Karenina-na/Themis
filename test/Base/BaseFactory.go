@@ -1,7 +1,7 @@
 package Base
 
 import (
-	FactoryInit "Themis/src/Init"
+	Init "Themis/src/Factory"
 	"Themis/src/controller"
 	"Themis/src/router"
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ import (
 
 func FactoryBaseInit() *gin.Engine {
 	arg := "debug"
-	FactoryInit.ThemisInitFactory(&arg)
+	Init.ThemisInitFactory(&arg)
 	r := gin.New()
 	gin.SetMode(arg)
 	r.Use(gin.Logger())

@@ -28,4 +28,8 @@ var Leaders *LeadersModel
 // RoutinePool goroutine池
 var RoutinePool *util.Pool
 
+// CenterStatus 服务状态
 var CenterStatus *CenterStatusModel
+
+// CLOSE 服务关闭
+var CLOSE chan struct{}
