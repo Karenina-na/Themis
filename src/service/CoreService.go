@@ -43,7 +43,7 @@ func Register() (E error) {
 			}
 			Bean.Servers.ServerModelsList[namespace][name].Append(data)
 			Bean.InstanceList.Append(data)
-			if config.ServerModelBeatEnable {
+			if config.ServerBeat.ServerModelBeatEnable {
 				Bean.RoutinePool.CreateWork(func() (E error) {
 					defer func() {
 						r := recover()
@@ -82,7 +82,7 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 			return nil
 		case <-time.After(time.Millisecond):
 			t := time.Now().Unix() - start
-			if t == config.ServerBeatTime {
+			if t == config.ServerBeat.ServerBeatTime {
 				Bean.Servers.ServerModelsListRWLock.Lock()
 				Bean.Servers.ServerModelsList[namespace][name].DeleteByValue(model)
 				if Bean.Servers.ServerModelsList[namespace][name].IsEmpty() {

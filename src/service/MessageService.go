@@ -38,7 +38,7 @@ func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("FlashHeartBeat-service", util.Strval(r))
 		}
 	}()
-	if config.ServerModelBeatEnable {
+	if config.ServerBeat.ServerModelBeatEnable {
 		util.Loglevel(util.Debug, "FlashHeartBeat", "刷新心跳-"+util.Strval(*model))
 		flag := false
 		for flag == false {
@@ -90,7 +90,7 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 					E = exception.NewSystemError("udp-message-goroutine", util.Strval(r))
 				}
 			}()
-			E = model.SendMessageUDP(leader, config.UDPPort, config.UDPTimeOut)
+			E = model.SendMessageUDP(leader, config.Port.UDPPort, config.Port.UDPTimeOut)
 			return E
 		}, func(err error) {
 			exception.HandleException(exception.NewUserError("udp-message", " UDP通信错误 "+err.Error()+" "+util.Strval(model)))

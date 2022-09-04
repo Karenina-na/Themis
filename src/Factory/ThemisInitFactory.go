@@ -6,6 +6,7 @@ import (
 	"Themis/src/exception"
 	"Themis/src/mapper"
 	"Themis/src/service"
+	"Themis/src/sync"
 	"Themis/src/util"
 )
 
@@ -28,7 +29,7 @@ func ThemisInitFactory(arg *string) {
 		exception.HandleException(err)
 	}
 	util.Loglevel(util.Debug, "ThemisInitFactory", "初始化Swagger文档")
-	if config.DatabaseEnable {
+	if config.Persistence.PersistenceEnable {
 		util.Loglevel(util.Debug, "ThemisInitFactory", "初始化数据库")
 		if err := mapper.InitMapper(); err != nil {
 			exception.HandleException(err)
@@ -37,5 +38,11 @@ func ThemisInitFactory(arg *string) {
 	util.Loglevel(util.Debug, "ThemisInitFactory", "初始化服务")
 	if err := service.InitServer(); err != nil {
 		exception.HandleException(err)
+	}
+	if config.Cluster.ClusterEnable {
+		util.Loglevel(util.Debug, "ThemisInitFactory", "初始化集群")
+		if err := sync.InitSync(); err != nil {
+			exception.HandleException(err)
+		}
 	}
 }

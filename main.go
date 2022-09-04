@@ -3,8 +3,10 @@ package main
 import (
 	Init "Themis/src/Factory"
 	"Themis/src/config"
+	"Themis/src/service/Bean"
 	"Themis/src/util"
 	"flag"
+	"fmt"
 	swaggerFile "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
@@ -80,8 +82,8 @@ func main() {
 	router.MessageAPI(r)
 	router.OperatorAPI(r)
 	go func() {
-		util.Loglevel(util.Info, "main", "start service on port:"+config.Port)
-		err := r.Run(":" + config.Port)
+		util.Loglevel(util.Info, "main", "start service on port:"+config.Port.CenterPort)
+		err := r.Run(":" + config.Port.CenterPort)
 		if err != nil {
 			util.Loglevel(util.Error, "main", util.Strval(err))
 			util.Loglevel(util.Error, "main", "server start error")
@@ -95,5 +97,6 @@ func main() {
 	Init.ThemisCloseFactory()
 	runtime.GC()
 	util.Loglevel(util.Info, "main", "Themis is exited")
+	fmt.Println(Bean.RoutinePool.CheckStatus())
 	time.Sleep(time.Second * 5)
 }

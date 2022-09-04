@@ -17,7 +17,8 @@ func InitServer() (E error) {
 			E = exception.NewSystemError("InitServer-service", util.Strval(r))
 		}
 	}()
-	Bean.RoutinePool = util.CreatePool(config.CoreRoutineNum, config.MaxRoutineNum, config.RoutineTimeOut)
+	Bean.RoutinePool = util.CreatePool(config.Goroutine.CoreRoutineNum,
+		config.Goroutine.MaxRoutineNum, config.Goroutine.RoutineTimeOut)
 	Bean.RoutinePool.SetExceptionFunc(func(r any) {
 		exception.HandleException(exception.NewSystemError("Pool池", util.Strval(r)))
 	})
@@ -32,15 +33,15 @@ func InitServer() (E error) {
 	Bean.Servers = Bean.NewServersModel()
 	Bean.Servers.ServerModelsList["default"] = make(map[string]*util.LinkList[entity.ServerModel])
 
-	Bean.ServersQueue = make(chan entity.ServerModel, config.ServerModelQueueNum)
+	Bean.ServersQueue = make(chan entity.ServerModel, config.ServerRegister.ServerModelQueueNum)
 
-	Bean.ServersBeatQueue = make(chan entity.ServerModel, config.ServerModelBeatQueue)
+	Bean.ServersBeatQueue = make(chan entity.ServerModel, config.ServerBeat.ServerModelBeatQueue)
 
 	Bean.Leaders = Bean.NewLeadersModel()
 	Bean.Leaders.LeaderModelsList["default"] = make(map[string]entity.ServerModel)
 	Bean.Leaders.LeaderModelsListRWLock = sync.RWMutex{}
 
-	for i := 0; i < config.ServerModelHandleNum; i++ {
+	for i := 0; i < config.ServerRegister.ServerModelHandleNum; i++ {
 		Bean.RoutinePool.CreateWork(Register, func(message error) {
 			exception.HandleException(message)
 		})
@@ -49,7 +50,7 @@ func InitServer() (E error) {
 	Bean.RoutinePool.CreateWork(CenterStatusRoutine, func(message error) {
 		exception.HandleException(message)
 	})
-	if config.DatabaseEnable {
+	if config.Persistence.PersistenceEnable {
 		if err := LoadDatabase(); err != nil {
 			return err
 		}

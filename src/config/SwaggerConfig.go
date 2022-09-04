@@ -16,7 +16,7 @@ func SwaggerConfig(docs *swag.Spec) (E error) {
 	docs.Title = "Themis API"
 	docs.Description = "分布式记账系统调度中心"
 	docs.Version = "1.0"
-	docs.Host = "localhost:" + Port
+	docs.Host = "localhost:" + Port.CenterPort
 	docs.Schemes = []string{"http", "https"}
 	docs.BasePath = "/api/v1"
 	return nil

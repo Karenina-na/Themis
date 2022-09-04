@@ -43,9 +43,12 @@ Themis:.
 │  ├─factory        //服务加载器
 │  ├─mapper         //数据持久层
 │  ├─router         //后端路由
-│  ├─service        //业务逻辑层
+│  ├─service        //业务逻辑层层
+│  │  ├─Bean        //逻辑状态Bean
 │  │  └─LeaderAlgorithm  //选举算法
-│  └─util           //工具类
+│  ├─sync           //集群同步器
+│  │  └─syncBean    //同步状态Bean
+│  └─util            //工具类  
 └─test              //测试
     ├─Base          //测试初始化加载器
     └─ServerTest    //服务测试用例

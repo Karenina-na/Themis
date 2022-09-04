@@ -91,7 +91,7 @@ func (P *Pool) work() {
 			if P.activeNum > P.coreNum && P.jobNum < P.activeNum {
 				P.activeNum--
 				P.lock.Unlock()
-				break
+				return
 			}
 			P.lock.Unlock()
 		case <-time.After(time.Duration(P.timeout) * time.Second):

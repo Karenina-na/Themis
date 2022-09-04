@@ -153,7 +153,7 @@ func DeleteServer(model *entity.ServerModel, tx *gorm.DB) (B bool, E error) {
 	if err != nil {
 		return false, exception.NewUserError("DeleteServer-mapper", "数据库挂载索引结构失败-"+err.Error())
 	}
-	if config.DatabaseSoftDeleteEnable {
+	if config.Persistence.SoftDeleteEnable {
 		if err := tx.Delete(&entity.ServerMapperMode{}, "IP = ?", model.IP).Error; err != nil {
 			return false, err
 		}
@@ -177,7 +177,7 @@ func DeleteAllServer(tx *gorm.DB) (B bool, E error) {
 	if err != nil {
 		return false, exception.NewUserError("DeleteAllServer-mapper", "数据库挂载索引结构失败-"+err.Error())
 	}
-	if config.DatabaseSoftDeleteEnable {
+	if config.Persistence.SoftDeleteEnable {
 		if err = tx.Where("1 = 1").Delete(&entity.ServerMapperMode{}).Error; err != nil {
 			return false, err
 		}

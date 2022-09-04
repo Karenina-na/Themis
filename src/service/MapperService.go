@@ -61,7 +61,7 @@ func Persistence() (E error) {
 		case <-Bean.CLOSE:
 			util.Loglevel(util.Debug, "Persistence", "持久化数据协程退出")
 			return nil
-		case <-time.After(time.Second * time.Duration(config.PersistenceTime)):
+		case <-time.After(time.Second * time.Duration(config.Persistence.PersistenceTime)):
 			_, e := mapper.Transaction(func(tx *gorm.DB) error {
 				b, e := mapper.DeleteAllServer(tx)
 				if e != nil || b != true {

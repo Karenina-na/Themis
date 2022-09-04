@@ -35,6 +35,9 @@ func InitConfig() (E error) {
 		if err := LoadListenConfig(); err != nil {
 			return err
 		}
+		if err := ClusterConfig(); err != nil {
+			return err
+		}
 	} else {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			return exception.NewConfigurationError("InitConfig-config", "配置文件不存在")
@@ -52,20 +55,20 @@ func LoadRoutineConfig() (E error) {
 			E = exception.NewSystemError("LoadRoutineConfig-config", util.Strval(r))
 		}
 	}()
-	MaxRoutineNum = viper.GetInt(`goroutine.max-goroutine`)
-	if !VerifyReg(PositiveReg, strconv.Itoa(MaxRoutineNum)) {
+	Goroutine.MaxRoutineNum = viper.GetInt(`goroutine.max-goroutine`)
+	if !VerifyReg(PositiveReg, strconv.Itoa(Goroutine.MaxRoutineNum)) {
 		return exception.NewConfigurationError("LoadRoutineConfig-config", "goroutine.max-goroutine非法")
 	}
-	CoreRoutineNum = viper.GetInt(`goroutine.core-goroutine`)
-	if !VerifyReg(PositiveReg, strconv.Itoa(CoreRoutineNum)) {
+	Goroutine.CoreRoutineNum = viper.GetInt(`goroutine.core-goroutine`)
+	if !VerifyReg(PositiveReg, strconv.Itoa(Goroutine.CoreRoutineNum)) {
 		return exception.NewConfigurationError("LoadRoutineConfig-config", "goroutine.core-goroutine非法")
 	}
-	if CoreRoutineNum > MaxRoutineNum {
+	if Goroutine.CoreRoutineNum > Goroutine.MaxRoutineNum {
 		return exception.NewConfigurationError("LoadRoutineConfig-config",
 			"goroutine.core-goroutine大于goroutine.max-goroutine")
 	}
-	RoutineTimeOut = viper.GetInt(`goroutine.timeout`)
-	if !VerifyReg(PositiveReg, strconv.Itoa(RoutineTimeOut)) {
+	Goroutine.RoutineTimeOut = viper.GetInt(`goroutine.timeout`)
+	if !VerifyReg(PositiveReg, strconv.Itoa(Goroutine.RoutineTimeOut)) {
 		return exception.NewConfigurationError("LoadRoutineConfig-config", "goroutine.timeout非法")
 	}
 	return nil
@@ -78,14 +81,14 @@ func LoadPortConfig() (E error) {
 			E = exception.NewSystemError("LoadPortConfig-config", util.Strval(r))
 		}
 	}()
-	Port = viper.GetString(`Themis.port`)
-	if !VerifyReg(PortReg, Port) {
+	Port.CenterPort = viper.GetString(`Themis.port`)
+	if !VerifyReg(PortReg, Port.CenterPort) {
 		return exception.NewConfigurationError("LoadPortConfig-config", "Themis.port端口非法")
 	}
-	UDPPort = viper.GetString(`Themis.UDP-port`)
-	if !VerifyReg(PortReg, UDPPort) {
+	Port.UDPPort = viper.GetString(`Themis.UDP-port`)
+	if !VerifyReg(PortReg, Port.UDPPort) {
 		return exception.NewConfigurationError("LoadPortConfig-config", "Themis.UDP-port端口非法")
-	} else if UDPPort == Port {
+	} else if Port.UDPPort == Port.CenterPort {
 		return exception.NewConfigurationError("LoadPortConfig-config",
 			"Themis.UDP-port端口不能与Themis.port端口相同")
 	}
@@ -93,7 +96,7 @@ func LoadPortConfig() (E error) {
 	if !VerifyReg(PositiveReg, udpTimeOut) {
 		return exception.NewConfigurationError("LoadPortConfig-config", "Themis.UDP-timeout非法")
 	}
-	UDPTimeOut, _ = strconv.Atoi(udpTimeOut)
+	Port.UDPTimeOut, _ = strconv.Atoi(udpTimeOut)
 	return nil
 }
 
@@ -104,29 +107,29 @@ func LoadServerConfig() (E error) {
 			E = exception.NewSystemError("LoadServerConfig-config", util.Strval(r))
 		}
 	}()
-	ServerModelQueueNum = viper.GetInt(`Themis.server.model-queue`)
-	if !VerifyReg(PositiveReg, strconv.Itoa(ServerModelQueueNum)) {
+	ServerRegister.ServerModelQueueNum = viper.GetInt(`Themis.server.model-queue`)
+	if !VerifyReg(PositiveReg, strconv.Itoa(ServerRegister.ServerModelQueueNum)) {
 		return exception.NewConfigurationError("LoadServerConfig-config",
 			"Themis.server.model-queue非法")
 	}
-	ServerModelHandleNum = viper.GetInt(`Themis.server.model-handle-number`)
-	if !VerifyReg(PositiveReg, strconv.Itoa(ServerModelHandleNum)) {
+	ServerRegister.ServerModelHandleNum = viper.GetInt(`Themis.server.model-handle-number`)
+	if !VerifyReg(PositiveReg, strconv.Itoa(ServerRegister.ServerModelHandleNum)) {
 		return exception.NewConfigurationError("LoadServerConfig-config",
 			"Themis.server.model-handle-number")
 	}
-	ServerModelBeatEnable = viper.GetBool(`Themis.server.beat-enable`)
-	if ServerModelBeatEnable {
-		ServerModelBeatQueue = viper.GetInt(`Themis.server.beat-queue`)
-		if !VerifyReg(PositiveReg, strconv.Itoa(ServerModelBeatQueue)) {
+	ServerBeat.ServerModelBeatEnable = viper.GetBool(`Themis.server.beat-enable`)
+	if ServerBeat.ServerModelBeatEnable {
+		ServerBeat.ServerModelBeatQueue = viper.GetInt(`Themis.server.beat-queue`)
+		if !VerifyReg(PositiveReg, strconv.Itoa(ServerBeat.ServerModelBeatQueue)) {
 			return exception.NewConfigurationError("LoadServerConfig-config", "Themis.server.beat-queue非法")
 		}
-		ServerBeatTime = int64(viper.GetInt(`Themis.server.beat-time`))
-		if !VerifyReg(PositiveReg, strconv.Itoa(int(ServerBeatTime))) {
+		ServerBeat.ServerBeatTime = int64(viper.GetInt(`Themis.server.beat-time`))
+		if !VerifyReg(PositiveReg, strconv.Itoa(int(ServerBeat.ServerBeatTime))) {
 			return exception.NewConfigurationError("LoadServerConfig-config", "Themis.server.beat-time非法")
 		}
 	} else {
-		ServerModelBeatQueue = 0
-		ServerBeatTime = math.MaxInt
+		ServerBeat.ServerModelBeatQueue = 0
+		ServerBeat.ServerBeatTime = math.MaxInt
 	}
 	CreateLeaderAlgorithm = viper.GetString(`Themis.leader-algorithm`)
 	return nil
@@ -139,44 +142,46 @@ func LoadDatabaseConfig() (E error) {
 			E = exception.NewSystemError("LoadDatabaseConfig-config", util.Strval(r))
 		}
 	}()
-	DatabaseEnable = viper.GetBool(`Themis.database.enable`)
-	if DatabaseEnable {
-		PersistenceTime = int64(viper.GetInt(`Themis.database.persistence-time`))
-		if !VerifyReg(PositiveReg, strconv.Itoa(int(PersistenceTime))) {
+	Persistence.PersistenceEnable = viper.GetBool(`Themis.database.enable`)
+	if Persistence.PersistenceEnable {
+		Persistence.PersistenceTime = int64(viper.GetInt(`Themis.database.persistence-time`))
+		if !VerifyReg(PositiveReg, strconv.Itoa(int(Persistence.PersistenceTime))) {
 			return exception.NewConfigurationError("LoadDatabaseConfig-config", "Themis.database.persistence-time非法")
 		}
-		DatabaseSoftDeleteEnable = viper.GetBool(`Themis.database.soft-delete-enable`)
+		Persistence.SoftDeleteEnable = viper.GetBool(`Themis.database.soft-delete-enable`)
 		Database.DatabaseType = viper.GetString(`Themis.database.type`)
-		Database.DatabaseHost = viper.GetString(`Themis.database.mysql.host`)
-		if !VerifyReg(IpReg, Database.DatabaseHost) {
-			return exception.NewConfigurationError("LoadDatabaseConfig-config",
-				"Themis.database.mysql.host非法")
-		}
-		Database.DatabasePort = viper.GetString(`Themis.database.mysql.port`)
-		if !VerifyReg(PortReg, Database.DatabasePort) {
-			return exception.NewConfigurationError("LoadDatabaseConfig-config",
-				"Themis.database.mysql.port非法")
-		}
-		Database.DatabaseName = viper.GetString(`Themis.database.mysql.name`)
-		Database.DatabaseUser = viper.GetString(`Themis.database.mysql.user`)
-		Database.DatabasePassword = viper.GetString(`Themis.database.mysql.password`)
-		Database.DatabaseMaxOpenConns = viper.GetInt(`Themis.database.mysql.max-open-conns`)
-		if !VerifyReg(PositiveReg, strconv.Itoa(Database.DatabaseMaxOpenConns)) {
-			return exception.NewConfigurationError("LoadDatabaseConfig-config",
-				"Themis.database.mysql.max-open-conns非法")
-		}
-		Database.DatabaseMaxIdleConns = viper.GetInt(`Themis.database.mysql.max-idle-conns`)
-		if !VerifyReg(PositiveReg, strconv.Itoa(Database.DatabaseMaxIdleConns)) {
-			return exception.NewConfigurationError("LoadDatabaseConfig-config",
-				"Themis.database.mysql.max-idle-conns非法")
-		}
-		Database.DatabaseMaxLifetimeConns = viper.GetInt(`Themis.database.mysql.max-conns-lifetime`)
-		if !VerifyReg(PositiveReg, strconv.Itoa(Database.DatabaseMaxLifetimeConns)) {
-			return exception.NewConfigurationError("LoadDatabaseConfig-config",
-				"Themis.database.mysql.max-conns-lifetime非法")
+		if Database.DatabaseType == "mysql" {
+			Database.DatabaseHost = viper.GetString(`Themis.database.mysql.host`)
+			if !VerifyReg(IpReg, Database.DatabaseHost) && !VerifyReg(localhostReg, Database.DatabaseHost) {
+				return exception.NewConfigurationError("LoadDatabaseConfig-config",
+					"Themis.database.mysql.host非法")
+			}
+			Database.DatabasePort = viper.GetString(`Themis.database.mysql.port`)
+			if !VerifyReg(PortReg, Database.DatabasePort) {
+				return exception.NewConfigurationError("LoadDatabaseConfig-config",
+					"Themis.database.mysql.port非法")
+			}
+			Database.DatabaseName = viper.GetString(`Themis.database.mysql.name`)
+			Database.DatabaseUser = viper.GetString(`Themis.database.mysql.user`)
+			Database.DatabasePassword = viper.GetString(`Themis.database.mysql.password`)
+			Database.DatabaseMaxOpenConns = viper.GetInt(`Themis.database.mysql.max-open-conns`)
+			if !VerifyReg(PositiveReg, strconv.Itoa(Database.DatabaseMaxOpenConns)) {
+				return exception.NewConfigurationError("LoadDatabaseConfig-config",
+					"Themis.database.mysql.max-open-conns非法")
+			}
+			Database.DatabaseMaxIdleConns = viper.GetInt(`Themis.database.mysql.max-idle-conns`)
+			if !VerifyReg(PositiveReg, strconv.Itoa(Database.DatabaseMaxIdleConns)) {
+				return exception.NewConfigurationError("LoadDatabaseConfig-config",
+					"Themis.database.mysql.max-idle-conns非法")
+			}
+			Database.DatabaseMaxLifetimeConns = viper.GetInt(`Themis.database.mysql.max-conns-lifetime`)
+			if !VerifyReg(PositiveReg, strconv.Itoa(Database.DatabaseMaxLifetimeConns)) {
+				return exception.NewConfigurationError("LoadDatabaseConfig-config",
+					"Themis.database.mysql.max-conns-lifetime非法")
+			}
 		}
 	} else {
-		PersistenceTime = 0
+		Persistence.PersistenceTime = 0
 	}
 	return nil
 }
@@ -191,6 +196,70 @@ func LoadListenConfig() (E error) {
 	ListenTime = int64(viper.GetInt(`Themis.listen.space-time`))
 	if !VerifyReg(PositiveReg, strconv.Itoa(int(ListenTime))) {
 		return exception.NewConfigurationError("LoadListenConfig-config", "Themis.listen.space-time非法")
+	}
+	return nil
+}
+
+func ClusterConfig() (E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewSystemError("ClusterConfig-config", util.Strval(r))
+		}
+	}()
+	Cluster.ClusterEnable = viper.GetBool(`Themis.cluster.enable`)
+	if Cluster.ClusterEnable {
+		Cluster.TrackEnable = viper.GetBool(`Themis.cluster.track-enable`)
+		Cluster.IP = viper.GetString(`Themis.cluster.ip`)
+		if !VerifyReg(IpReg, Cluster.IP) && !VerifyReg(localhostReg, Cluster.IP) {
+			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.ip非法")
+		}
+		Cluster.Port = viper.GetString(`Themis.cluster.port`)
+		if !VerifyReg(PortReg, Cluster.Port) {
+			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.port非法")
+		}
+		Cluster.MaxFollowTimeOut = int64(viper.GetInt(`Themis.cluster.max-follow-timeout`))
+		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MaxFollowTimeOut))) {
+			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.max-timeout非法")
+		}
+		Cluster.MinFollowTimeOut = int64(viper.GetInt(`Themis.cluster.min-follow-timeout`))
+		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MinFollowTimeOut))) {
+			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.min-timeout非法")
+		}
+		Cluster.MaxCandidateTimeOut = int64(viper.GetInt(`Themis.cluster.max-candidate-timeout`))
+		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MaxCandidateTimeOut))) {
+			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.max-candidate-timeout非法")
+		}
+		Cluster.MinCandidateTimeOut = int64(viper.GetInt(`Themis.cluster.min-candidate-timeout`))
+		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MinCandidateTimeOut))) {
+			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.min-candidate-timeout非法")
+		}
+		Cluster.UDPTimeOut = int64(viper.GetInt(`Themis.cluster.udp-timeout`))
+		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.UDPTimeOut))) {
+			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.udp-timeout非法")
+		}
+		Cluster.UDPQueueNum = viper.GetInt(`Themis.cluster.udp-queue-num`)
+		if !VerifyReg(PositiveReg, strconv.Itoa(Cluster.UDPQueueNum)) {
+			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.udp-queue-num非法")
+		}
+		Cluster.LeaderSyncTime = int64(viper.GetInt(`Themis.cluster.leader-sync-time`))
+		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.LeaderSyncTime))) {
+			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.leader-sync-time非法")
+		}
+		Cluster.Clusters = make([]map[string]string, 0)
+		clusters := viper.Get(`Themis.cluster.clusters`)
+		for _, cluster := range clusters.([]interface{}) {
+			clusterMap := make(map[string]string)
+			clusterMap["ip"] = util.Strval(cluster.(map[string]interface{})["ip"])
+			if !VerifyReg(IpReg, clusterMap["ip"]) && !VerifyReg(localhostReg, clusterMap["ip"]) {
+				return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.clusters.ip非法")
+			}
+			clusterMap["port"] = util.Strval(cluster.(map[string]interface{})["port"])
+			if !VerifyReg(PortReg, clusterMap["port"]) {
+				return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.clusters.port非法")
+			}
+			Cluster.Clusters = append(Cluster.Clusters, clusterMap)
+		}
 	}
 	return nil
 }

@@ -36,3 +36,22 @@ Themis:
 
   listen:
     space-time: 10 #监控间隔时间
+
+  #集群配置
+  cluster:
+    enable: true #是否开启集群
+    track-enable: true #是否开启集群数据跟踪
+    ip: localhost #ip地址
+    port: 8080 #集群端口
+    max-follow-timeout: 10 #raft-follow最大超时时间 单位秒
+    min-follow-timeout: 5  #raft-follow最小超时时间 单位秒
+    max-candidate-timeout: 10 #raft-candidate最大超时时间 单位秒
+    min-candidate-timeout: 5 #raft-candidate最小超时时间 单位秒
+    leader-sync-time: 500 #集群leader同步时间 单位毫秒
+    udp-timeout: 10 #UDP超时时间 单位秒
+    udp-queue-num: 100 #集群处理队列容量
+    clusters: #集群列表
+      - ip: localhost
+        port: 8081
+      - ip: localhost
+        port: 8082
