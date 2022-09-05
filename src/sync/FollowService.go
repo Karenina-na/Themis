@@ -65,11 +65,17 @@ func StatusOperatorFollow(m *syncBean.MessageModel) (E error) {
 		}
 	case syncBean.CANDIDATE:
 		if m.Term > syncBean.Term {
+			if config.Cluster.TrackEnable {
+				util.Loglevel(util.Debug, "StatusOperatorFollow-sync", "收到CANDIDATE信息-"+util.Strval(m.Address))
+			}
 			message := syncBean.NewMessageModel()
 			message.SetMessageMode(syncBean.Term, syncBean.Status,
 				nil, nil, nil,
 				config.Cluster.IP, config.Cluster.Port,
 				m.Address.IP, m.Address.Port, true)
+			if config.Cluster.TrackEnable {
+				util.Loglevel(util.Debug, "StatusOperatorFollow-sync", "投票true")
+			}
 			syncBean.UdpSendMessage <- *message
 		}
 	}

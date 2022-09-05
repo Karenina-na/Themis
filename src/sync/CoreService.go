@@ -77,17 +77,14 @@ func UDPReceive() (E error) {
 				return exception.NewUserError("UDPReceive-sync-goroutine", "json转换错误"+err.Error())
 			}
 			syncBean.UdpReceiveMessage <- msg
-			return nil
 		}
 	}, func(Message error) {
 		exception.HandleException(Message)
 	})
-	select {
-	case <-syncBean.CloseChan:
-		err := serverConn.Close()
-		if err != nil {
-			return exception.NewUserError("UDPReceive-sync", "关闭udp服务错误-"+err.Error())
-		}
-		return
+	<-syncBean.CloseChan
+	err = serverConn.Close()
+	if err != nil {
+		return exception.NewUserError("UDPReceive-sync", "关闭udp服务错误-"+err.Error())
 	}
+	return
 }

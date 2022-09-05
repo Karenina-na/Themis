@@ -3,10 +3,8 @@ package main
 import (
 	Init "Themis/src/Factory"
 	"Themis/src/config"
-	"Themis/src/service/Bean"
 	"Themis/src/util"
 	"flag"
-	"fmt"
 	swaggerFile "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
@@ -97,6 +95,5 @@ func main() {
 	Init.ThemisCloseFactory()
 	runtime.GC()
 	util.Loglevel(util.Info, "main", "Themis is exited")
-	fmt.Println(Bean.RoutinePool.CheckStatus())
 	time.Sleep(time.Second * 5)
 }
