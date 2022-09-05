@@ -4,6 +4,7 @@ import (
 	"Themis/src/config"
 	"Themis/src/exception"
 	"Themis/src/util"
+	"database/sql"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -12,6 +13,8 @@ import (
 )
 
 var DB *gorm.DB
+
+var sqlDB *sql.DB
 
 // InitMapper 初始化数据库
 func InitMapper() (E error) {
@@ -38,6 +41,21 @@ func InitMapper() (E error) {
 	return nil
 }
 
+// CloseMapper 关闭数据库
+func CloseMapper() (E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewSystemError("CloseMapper-mapper", util.Strval(r))
+		}
+	}()
+	err := sqlDB.Close()
+	if err != nil {
+		return exception.NewDataBaseError("MysqlInit-mapper", "数据库连接池关闭错误-"+err.Error())
+	}
+	return nil
+}
+
 func MysqlInit() (E error) {
 	defer func() {
 		r := recover()
@@ -54,8 +72,8 @@ func MysqlInit() (E error) {
 	if err != nil {
 		return exception.NewDataBaseError("MysqlInit-mapper", "mysql数据库初始化失败-"+err.Error())
 	}
-	sqlDB, E := DB.DB()
-	if E != nil {
+	sqlDB, err = DB.DB()
+	if err != nil {
 		return exception.NewDataBaseError("MysqlInit-mapper", "mysql数据库连接池初始化失败-"+err.Error())
 	}
 	sqlDB.SetMaxOpenConns(config.Database.DatabaseMaxOpenConns)
@@ -83,6 +101,10 @@ func SqlLitInit() (E error) {
 	DB, err = gorm.Open(sqlite.Open("./db/Themis.db"), &gorm.Config{})
 	if err != nil {
 		return exception.NewDataBaseError("SqlLitInit-mapper", "sqllit数据库初始化失败-"+err.Error())
+	}
+	sqlDB, err = DB.DB()
+	if err != nil {
+		return exception.NewDataBaseError("MysqlInit-mapper", "sqllit数据库连接池初始化失败-"+err.Error())
 	}
 	return nil
 }
