@@ -10,9 +10,10 @@ type MessageModel struct {
 		DeleteInstances []entity.ServerModel `json:"deleteInstances"`
 		Leaders         []entity.ServerModel `json:"leaders"`
 	} `json:"message"`
-	Address       SyncAddressModel `json:"address"`
-	TargetAddress SyncAddressModel `json:"targetAddress"`
-	BOOL          bool             `json:"bool"`
+	UDPAddress       SyncAddressModel `json:"udpAddress"`
+	UDPTargetAddress SyncAddressModel `json:"udpTargetAddress"`
+	ServicePort      string           `json:"servicePort"`
+	BOOL             bool             `json:"bool"`
 }
 
 func NewMessageModel() *MessageModel {
@@ -28,8 +29,8 @@ func NewMessageModel() *MessageModel {
 		}{Instances: make([]entity.ServerModel, 0),
 			DeleteInstances: make([]entity.ServerModel, 0),
 			Leaders:         make([]entity.ServerModel, 0)}),
-		Address:       SyncAddressModel{},
-		TargetAddress: SyncAddressModel{},
+		UDPAddress:       SyncAddressModel{},
+		UDPTargetAddress: SyncAddressModel{},
 	}
 }
 
@@ -39,6 +40,7 @@ func (message *MessageModel) SetMessageMode( // 设置消息模型
 	instances []entity.ServerModel, // 实例列表
 	deleteInstances []entity.ServerModel, // 删除实例列表
 	leaders []entity.ServerModel, // leader列表
+	servicePort string, //服务地址
 	AddressIP string, // 消息来源IP
 	AddressPort string, // 消息来源端口
 	TargetAddressIP string, // 消息目标IP
@@ -50,9 +52,10 @@ func (message *MessageModel) SetMessageMode( // 设置消息模型
 	message.Message.Instances = instances
 	message.Message.DeleteInstances = deleteInstances
 	message.Message.Leaders = leaders
-	message.Address.IP = AddressIP
-	message.Address.Port = AddressPort
-	message.TargetAddress.IP = TargetAddressIP
-	message.TargetAddress.Port = TargetAddressPort
+	message.ServicePort = servicePort
+	message.UDPAddress.IP = AddressIP
+	message.UDPAddress.Port = AddressPort
+	message.UDPTargetAddress.IP = TargetAddressIP
+	message.UDPTargetAddress.Port = TargetAddressPort
 	message.BOOL = BOOL
 }

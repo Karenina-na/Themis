@@ -25,6 +25,7 @@ CandidateHead:
 		m := syncBean.NewMessageModel()
 		m.SetMessageMode(syncBean.Term, syncBean.Status,
 			nil, nil, nil,
+			config.Port.CenterPort,
 			config.Cluster.IP, config.Cluster.Port,
 			value.IP, value.Port, false)
 		syncBean.UdpSendMessage <- *m
@@ -42,8 +43,9 @@ CandidateHead:
 			case syncBean.LEADER:
 				if m.Term >= syncBean.Term {
 					syncBean.Term = m.Term
-					syncBean.LeaderAddress.IP = m.Address.IP
-					syncBean.LeaderAddress.Port = m.Address.Port
+					syncBean.LeaderAddress.IP = m.UDPAddress.IP
+					syncBean.LeaderAddress.Port = m.UDPAddress.Port
+					syncBean.LeaderServicePort = m.ServicePort
 					util.Loglevel(util.Debug, "Candidate-sync", "收到Leader，转换FOLLOW")
 					E := ChangeToFollow()
 					if E != nil {
@@ -69,8 +71,9 @@ CandidateHead:
 					message := syncBean.NewMessageModel()
 					message.SetMessageMode(syncBean.Term, syncBean.Status,
 						nil, nil, nil,
+						config.Port.CenterPort,
 						config.Cluster.IP, config.Cluster.Port,
-						m.Address.IP, m.Address.Port, true)
+						m.UDPAddress.IP, m.UDPAddress.Port, true)
 					syncBean.UdpSendMessage <- *message
 					util.Loglevel(util.Debug, "Candidate-sync", "收到更大Term的Candidate，转换FOLLOW")
 					E := ChangeToFollow()

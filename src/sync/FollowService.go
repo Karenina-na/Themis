@@ -52,11 +52,12 @@ func StatusOperatorFollow(m *syncBean.MessageModel) (E error) {
 	case syncBean.LEADER:
 		if m.Term >= syncBean.Term {
 			if config.Cluster.TrackEnable {
-				util.Loglevel(util.Debug, "StatusOperatorFollow-sync", "收到LEADER信息-"+util.Strval(m.Address))
+				util.Loglevel(util.Debug, "StatusOperatorFollow-sync", "收到LEADER信息-"+util.Strval(m.UDPAddress))
 			}
-			if m.Address.IP != syncBean.LeaderAddress.IP || m.Address.Port != syncBean.LeaderAddress.Port {
-				syncBean.LeaderAddress.IP = m.Address.IP
-				syncBean.LeaderAddress.Port = m.Address.Port
+			if m.UDPAddress.IP != syncBean.LeaderAddress.IP || m.UDPAddress.Port != syncBean.LeaderAddress.Port {
+				syncBean.LeaderAddress.IP = m.UDPAddress.IP
+				syncBean.LeaderAddress.Port = m.UDPAddress.Port
+				syncBean.LeaderServicePort = m.ServicePort
 				syncBean.Term = m.Term
 			}
 			if err := CreateSyncRoutine(m); err != nil {
@@ -66,13 +67,14 @@ func StatusOperatorFollow(m *syncBean.MessageModel) (E error) {
 	case syncBean.CANDIDATE:
 		if m.Term > syncBean.Term {
 			if config.Cluster.TrackEnable {
-				util.Loglevel(util.Debug, "StatusOperatorFollow-sync", "收到CANDIDATE信息-"+util.Strval(m.Address))
+				util.Loglevel(util.Debug, "StatusOperatorFollow-sync", "收到CANDIDATE信息-"+util.Strval(m.UDPAddress))
 			}
 			message := syncBean.NewMessageModel()
 			message.SetMessageMode(syncBean.Term, syncBean.Status,
 				nil, nil, nil,
+				config.Port.CenterPort,
 				config.Cluster.IP, config.Cluster.Port,
-				m.Address.IP, m.Address.Port, true)
+				m.UDPAddress.IP, m.UDPAddress.Port, true)
 			if config.Cluster.TrackEnable {
 				util.Loglevel(util.Debug, "StatusOperatorFollow-sync", "投票true")
 			}

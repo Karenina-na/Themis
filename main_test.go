@@ -8,6 +8,7 @@ import (
 	"crypto"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/goleak"
 	"testing"
 	"time"
 )
@@ -19,6 +20,7 @@ model3:= ip:333.333.333.333 namespace:A
 model4:= ip:444.444.444.444 namespace:A
 */
 func Test(t *testing.T) {
+	defer goleak.VerifyNone(t)
 	//ServerTest.RegisterTest(router)	// 注册
 	//ServerTest.ElectionTest(router)	// 选举
 	//ServerTest.GetLeaderTest(router)	// 获取leader实例

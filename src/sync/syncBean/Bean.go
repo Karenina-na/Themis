@@ -11,6 +11,8 @@ var (
 	Status StatusLevel
 	// LeaderAddress 选举出的leader
 	LeaderAddress *SyncAddressModel
+	// LeaderServicePort leader服务端口
+	LeaderServicePort string
 	// SyncAddress 同步服务地址
 	SyncAddress *util.LinkList[SyncAddressModel]
 	// UdpReceiveMessage UDP接收消息队列

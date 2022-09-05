@@ -74,6 +74,7 @@ func main() {
 	r.Use(cors.Default())
 	r.StaticFS("/static", http.Dir("./static"))
 	r.Use(controller.Interception())
+	r.Use(controller.ClusterCandidateInterception())
 	if *arg == "debug" {
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFile.Handler))
 	}

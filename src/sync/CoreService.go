@@ -22,7 +22,8 @@ func UDPSend() (E error) {
 	for {
 		select {
 		case msg := <-syncBean.UdpSendMessage:
-			conn, err := net.DialTimeout("udp", msg.TargetAddress.IP+":"+msg.TargetAddress.Port,
+			msg.ServicePort = config.Port.CenterPort
+			conn, err := net.DialTimeout("udp", msg.UDPTargetAddress.IP+":"+msg.UDPTargetAddress.Port,
 				time.Duration(config.Cluster.UDPTimeOut)*time.Second)
 			if err != nil {
 				return exception.NewUserError("UDPSend-sync-goroutine", "UDP连接错误-"+err.Error())

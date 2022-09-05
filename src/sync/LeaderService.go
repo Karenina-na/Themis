@@ -22,6 +22,7 @@ func Leader() (E error) {
 	syncBean.Status = syncBean.LEADER
 	syncBean.LeaderAddress.IP = config.Cluster.IP
 	syncBean.LeaderAddress.Port = config.Cluster.Port
+	syncBean.LeaderServicePort = config.Port.CenterPort
 	SyncRoutineBool := make(chan bool, 0)
 	Bean.RoutinePool.CreateWork(func() (E error) {
 		util.Loglevel(util.Debug, "Leader-sync", "leader数据发送协程启动")
@@ -34,11 +35,13 @@ func Leader() (E error) {
 				}
 				m := syncBean.NewMessageModel()
 				syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
-					m.SetMessageMode(syncBean.Term, syncBean.Status, instances, deleteInstances, leaderInstances,
+					m.SetMessageMode(syncBean.Term, syncBean.Status,
+						instances, deleteInstances, leaderInstances,
+						config.Port.CenterPort,
 						config.Cluster.IP, config.Cluster.Port, value.IP, value.Port, false)
 					syncBean.UdpSendMessage <- *m
 					if config.Cluster.TrackEnable {
-						util.Loglevel(util.Debug, "Leader-sync", "leader数据发送协程发送数据"+util.Strval(m.TargetAddress))
+						util.Loglevel(util.Debug, "Leader-sync", "leader数据发送协程发送数据"+util.Strval(m.UDPTargetAddress))
 					}
 				})
 			case <-SyncRoutineBool:
@@ -60,10 +63,20 @@ func Leader() (E error) {
 				case syncBean.LEADER:
 					if m.Term > syncBean.Term {
 						syncBean.Term = m.Term
-						syncBean.LeaderAddress.IP = m.Address.IP
-						syncBean.LeaderAddress.Port = m.Address.Port
+						syncBean.LeaderAddress.IP = m.UDPAddress.IP
+						syncBean.LeaderAddress.Port = m.UDPAddress.Port
+						syncBean.LeaderServicePort = m.ServicePort
 						close(SyncRoutineBool)
 						util.Loglevel(util.Info, "Leader-sync", "Leader卸任,收到其他leader，成为FOLLOW")
+						E := ChangeToFollow()
+						if E != nil {
+							return E
+						}
+						return nil
+					}
+					if m.Term == syncBean.Term {
+						close(SyncRoutineBool)
+						util.Loglevel(util.Info, "Leader-sync", "Leader卸任,收到其他相同任期的leader，成为FOLLOW")
 						E := ChangeToFollow()
 						if E != nil {
 							return E
@@ -75,8 +88,9 @@ func Leader() (E error) {
 						message := syncBean.NewMessageModel()
 						message.SetMessageMode(syncBean.Term, syncBean.Status,
 							nil, nil, nil,
+							config.Port.CenterPort,
 							config.Cluster.IP, config.Cluster.Port,
-							m.Address.IP, m.Address.Port, true)
+							m.UDPAddress.IP, m.UDPAddress.Port, true)
 						syncBean.UdpSendMessage <- *message
 						syncBean.Term = m.Term
 						close(SyncRoutineBool)
