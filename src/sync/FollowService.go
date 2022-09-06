@@ -10,7 +10,11 @@ import (
 	"time"
 )
 
-// Follow 跟随状态
+//
+// Follow
+// @Description: 跟随者
+// @return       E error
+//
 func Follow() (E error) {
 	defer func() {
 		r := recover()
@@ -41,6 +45,12 @@ func Follow() (E error) {
 	}
 }
 
+//
+// StatusOperatorFollow
+// @Description: FOLLOW状态下的操作
+// @param        m *syncBean.MessageModel
+// @return       E error
+//
 func StatusOperatorFollow(m *syncBean.MessageModel) (E error) {
 	defer func() {
 		r := recover()
@@ -58,6 +68,7 @@ func StatusOperatorFollow(m *syncBean.MessageModel) (E error) {
 				syncBean.LeaderAddress.IP = m.UDPAddress.IP
 				syncBean.LeaderAddress.Port = m.UDPAddress.Port
 				syncBean.LeaderServicePort = m.ServicePort
+				syncBean.LeaderName = m.Name
 				syncBean.Term = m.Term
 			}
 			if err := CreateSyncRoutine(m); err != nil {
@@ -84,6 +95,12 @@ func StatusOperatorFollow(m *syncBean.MessageModel) (E error) {
 	return nil
 }
 
+//
+// CreateSyncRoutine
+// @Description: 创建同步协程
+// @param        m *syncBean.MessageModel
+// @return       E error
+//
 func CreateSyncRoutine(m *syncBean.MessageModel) (E error) {
 	defer func() {
 		r := recover()

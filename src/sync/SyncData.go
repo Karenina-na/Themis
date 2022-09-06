@@ -8,6 +8,12 @@ import (
 	"Themis/src/util"
 )
 
+//
+// DataSyncInstances
+// @Description: 同步实例数据
+// @param        list []entity.ServerModel 实例列表
+// @return       E    error                    错误信息
+//
 func DataSyncInstances(list []entity.ServerModel) (E error) {
 	defer func() {
 		r := recover()
@@ -26,6 +32,12 @@ func DataSyncInstances(list []entity.ServerModel) (E error) {
 	return nil
 }
 
+//
+// DataSyncDelete
+// @Description: 同步删除数据
+// @param        list []entity.ServerModel 实例列表
+// @return       E    error                    错误信息
+//
 func DataSyncDelete(list []entity.ServerModel) (E error) {
 	defer func() {
 		r := recover()
@@ -44,6 +56,12 @@ func DataSyncDelete(list []entity.ServerModel) (E error) {
 	return nil
 }
 
+//
+// DataSyncLeader
+// @Description: 同步leader数据
+// @param        list []entity.ServerModel 实例列表
+// @return       E    error                    错误信息
+//
 func DataSyncLeader(list []entity.ServerModel) (E error) {
 	defer func() {
 		r := recover()

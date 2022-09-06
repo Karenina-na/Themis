@@ -10,7 +10,11 @@ import (
 	"time"
 )
 
-// Leader 领导者状态
+//
+// Leader
+// @Description: 领导者
+// @return       E 异常
+//
 func Leader() (E error) {
 	defer func() {
 		r := recover()
@@ -23,6 +27,7 @@ func Leader() (E error) {
 	syncBean.LeaderAddress.IP = config.Cluster.IP
 	syncBean.LeaderAddress.Port = config.Cluster.Port
 	syncBean.LeaderServicePort = config.Port.CenterPort
+	syncBean.LeaderName = syncBean.Name
 	SyncRoutineBool := make(chan bool, 0)
 	Bean.RoutinePool.CreateWork(func() (E error) {
 		util.Loglevel(util.Debug, "Leader-sync", "leader数据发送协程启动")
@@ -66,6 +71,7 @@ func Leader() (E error) {
 						syncBean.LeaderAddress.IP = m.UDPAddress.IP
 						syncBean.LeaderAddress.Port = m.UDPAddress.Port
 						syncBean.LeaderServicePort = m.ServicePort
+						syncBean.LeaderName = m.Name
 						close(SyncRoutineBool)
 						util.Loglevel(util.Info, "Leader-sync", "Leader卸任,收到其他leader，成为FOLLOW")
 						E := ChangeToFollow()
@@ -122,6 +128,14 @@ func Leader() (E error) {
 	}
 }
 
+//
+// CreateSendSyncData
+// @Description: 创建发送同步数据
+// @return       instances  实例列表
+// @return       list       删除实例列表
+// @return       leaderList leader实例列表
+// @return       E          错误
+//
 func CreateSendSyncData() (instances []entity.ServerModel,
 	list []entity.ServerModel, leaderList []entity.ServerModel, E error) {
 	defer func() {

@@ -1,4 +1,4 @@
-package controller
+package interception
 
 import (
 	"Themis/src/config"
@@ -7,27 +7,13 @@ import (
 	"Themis/src/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
-	"time"
 )
 
-func Interception() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		url := c.Request.Host + c.Request.URL.Path
-		t := time.Now().UnixNano()
-		defer func() {
-			util.Loglevel(util.Debug, "Interception", "<-----------------------------------------------------")
-			util.Loglevel(util.Info, "Interception", url)
-			before := time.Now().UnixNano() - t
-			util.Loglevel(util.Debug, "Interception", "耗时: "+
-				strconv.FormatFloat(float64(before)/1000000000, 'f', 5, 64)+" s")
-			util.Loglevel(util.Debug, "Interception", "----------------------------------------------------->")
-		}()
-		c.Next()
-	}
-}
-
-// ClusterFollowInterception 拦截不属于follow的请求
+//
+// ClusterFollowInterception
+// @Description: 拦截不属于Follow的请求
+// @return       gin.HandlerFunc 返回拦截器
+//
 func ClusterFollowInterception() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if syncBean.Status == syncBean.FOLLOW {
@@ -41,7 +27,11 @@ func ClusterFollowInterception() gin.HandlerFunc {
 	}
 }
 
-// ClusterLeaderInterception 拦截不属于leader的请求
+//
+// ClusterLeaderInterception
+// @Description: 拦截不属于Leader的请求
+// @return       gin.HandlerFunc 返回拦截器
+//
 func ClusterLeaderInterception() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if config.Cluster.ClusterEnable {
@@ -54,7 +44,11 @@ func ClusterLeaderInterception() gin.HandlerFunc {
 	}
 }
 
-// ClusterCandidateInterception Candidate状态拒绝提供服务
+//
+// ClusterCandidateInterception
+// @Description: Candidate节点拦截器
+// @return       gin.HandlerFunc 返回拦截器
+//
 func ClusterCandidateInterception() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if config.Cluster.ClusterEnable {

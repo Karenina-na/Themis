@@ -9,7 +9,11 @@ import (
 	"time"
 )
 
-// Candidate 候选人状态
+//
+// Candidate
+// @Description: Candidate Service
+// @return       E : error
+//
 func Candidate() (E error) {
 	defer func() {
 		r := recover()
@@ -46,6 +50,7 @@ CandidateHead:
 					syncBean.LeaderAddress.IP = m.UDPAddress.IP
 					syncBean.LeaderAddress.Port = m.UDPAddress.Port
 					syncBean.LeaderServicePort = m.ServicePort
+					syncBean.LeaderName = m.Name
 					util.Loglevel(util.Debug, "Candidate-sync", "收到Leader，转换FOLLOW")
 					E := ChangeToFollow()
 					if E != nil {

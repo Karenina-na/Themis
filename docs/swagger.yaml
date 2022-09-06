@@ -126,7 +126,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: https://www.wzxaugenstern.online/#/
-  title: Themis API
+  title: Themis
   version: "1.0"
 paths:
   /message/beat:
@@ -355,6 +355,45 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 删除服务实例并拉入黑名单
+      tags:
+      - 管理层
+  /operator/getClusterLeader:
+    get:
+      consumes:
+      - application/json
+      description: 由管理员调用获取中心集群领导者
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回中心集群领导者名称
+          schema:
+            $ref: '#/definitions/entity.ResultModel'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取中心集群领导者
+      tags:
+      - 管理层
+  /operator/getClusterStatus:
+    get:
+      consumes:
+      - application/json
+      description: 由管理员调用获取中心当前身份状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回集群状态
+          schema:
+            allOf:
+            - $ref: '#/definitions/entity.ResultModel'
+            - properties:
+                data:
+                  type: integer
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 获取中心当前身份状态
       tags:
       - 管理层
   /operator/getDeleteInstance:

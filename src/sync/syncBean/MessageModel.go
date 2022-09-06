@@ -2,7 +2,9 @@ package syncBean
 
 import "Themis/src/entity"
 
+// MessageModel 消息模型
 type MessageModel struct {
+	Name    string      `json:"name"`
 	Term    int         `json:"term"`
 	Status  StatusLevel `json:"StatusLevel"`
 	Message struct {
@@ -16,8 +18,14 @@ type MessageModel struct {
 	BOOL             bool             `json:"bool"`
 }
 
+//
+// NewMessageModel
+// @Description: 创建消息模型
+// @return       *MessageModel 消息模型
+//
 func NewMessageModel() *MessageModel {
 	return &MessageModel{
+		Name: Name,
 		Message: struct {
 			Instances       []entity.ServerModel `json:"instances"`
 			DeleteInstances []entity.ServerModel `json:"deleteInstances"`
@@ -34,6 +42,23 @@ func NewMessageModel() *MessageModel {
 	}
 }
 
+//
+// SetMessageMode
+// @Description: 设置消息模型
+// @receiver     message 消息模型
+// @param        //     消息模型
+// @param        //     消息模型
+// @param        //     消息模型
+// @param        //     消息模型
+// @param        //     消息模型
+// @param        //     消息模型
+// @param        //服务地址 消息模型
+// @param        //     消息模型
+// @param        //     消息模型
+// @param        //     消息模型
+// @param        //     消息模型
+// @param        //     消息模型
+//
 func (message *MessageModel) SetMessageMode( // 设置消息模型
 	term int, // 选期
 	status StatusLevel, // 服务状态

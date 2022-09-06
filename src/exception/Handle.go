@@ -5,6 +5,11 @@ import (
 	"os"
 )
 
+//
+// HandleException
+// @Description: Handle the exception
+// @param        err : The exception
+//
 func HandleException(err interface{}) {
 	switch E := err.(type) {
 	case *ConfigurationError:
@@ -21,21 +26,41 @@ func HandleException(err interface{}) {
 	}
 }
 
+//
+// configurationExHandle
+// @Description: Handle the configuration exception
+// @param        err : The exception
+//
 func configurationExHandle(err *ConfigurationError) {
 	util.Loglevel(util.Warn, err.Name, err.Message)
 	os.Exit(0)
 }
 
+//
+// dataBaseExHandle
+// @Description: Handle the database exception
+// @param        err : The exception
+//
 func dataBaseExHandle(err *DataBaseError) {
 	util.Loglevel(util.Warn, err.Name, err.Message)
 	os.Exit(0)
 }
 
+//
+// systemExHandle
+// @Description: Handle the system exception
+// @param        err : The exception
+//
 func systemExHandle(err *SystemError) {
 	util.Loglevel(util.Warn, err.Name, err.Message)
 	os.Exit(0)
 }
 
+//
+// userExHandle
+// @Description: Handle the user exception
+// @param        err : The exception
+//
 func userExHandle(err *UserError) {
 	util.Loglevel(util.Warn, err.Name, err.Message)
 }

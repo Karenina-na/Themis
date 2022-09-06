@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+// LinkList is a linked list
 type LinkList[T any] struct {
 	head      *linkListNode[T]
 	tail      *linkListNode[T]
@@ -14,12 +15,18 @@ type LinkList[T any] struct {
 	iteRWLock *sync.Mutex
 }
 
+// NewLinkList creates a new linked list
 type linkListNode[T any] struct {
 	object T
 	next   *linkListNode[T]
 	prev   *linkListNode[T]
 }
 
+//
+// NewLinkList
+// @Description: create a new linked list
+// @return       *LinkList[T] : the new linked list
+//
 func NewLinkList[T any]() *LinkList[T] {
 	lock := &sync.RWMutex{}
 	iteLock := &sync.Mutex{}
@@ -36,6 +43,12 @@ func NewLinkList[T any]() *LinkList[T] {
 	}
 }
 
+//
+// Append
+// @Description: append an object to the linked list
+// @receiver     L
+// @param        data
+//
 func (L *LinkList[T]) Append(data T) {
 	L.rwLock.Lock()
 	L.len++
@@ -49,6 +62,12 @@ func (L *LinkList[T]) Append(data T) {
 	L.rwLock.Unlock()
 }
 
+//
+// ToString
+// @Description: convert the linked list to string
+// @receiver     L      : the linked list
+// @return       string : the string of the linked list
+//
 func (L LinkList[T]) ToString() string {
 	L.rwLock.RLock()
 	var S string
@@ -63,6 +82,12 @@ func (L LinkList[T]) ToString() string {
 	return S
 }
 
+//
+// ToStringBack
+// @Description: convert the linked list to string in reverse order
+// @receiver     L      : the linked list
+// @return       string : the string of the linked list
+//
 func (L LinkList[T]) ToStringBack() string {
 	L.rwLock.RLock()
 	var S string
@@ -77,12 +102,25 @@ func (L LinkList[T]) ToStringBack() string {
 	return S
 }
 
+//
+// Length
+// @Description: get the length of the linked list
+// @receiver     L   : the linked list
+// @return       int : the length of the linked list
+//
 func (L LinkList[T]) Length() int {
 	L.rwLock.RLock()
 	defer L.rwLock.RUnlock()
 	return L.len
 }
 
+//
+// Get
+// @Description: get the object at the index
+// @receiver     L   : the linked list
+// @param        num : the index
+// @return       T   : the object at the index
+//
 func (L LinkList[T]) Get(num int) T {
 	L.rwLock.RLock()
 	defer L.rwLock.RUnlock()
@@ -109,6 +147,12 @@ func (L LinkList[T]) Get(num int) T {
 	}
 }
 
+//
+// Clear
+// @Description: clear the linked list
+// @receiver     L    : the linked list
+// @return       bool : true if the linked list is empty
+//
 func (L *LinkList[T]) Clear() bool {
 	L.rwLock.Lock()
 	Node := &linkListNode[T]{
@@ -122,6 +166,13 @@ func (L *LinkList[T]) Clear() bool {
 	return true
 }
 
+//
+// DeleteByNum
+// @Description: delete the object at the index
+// @receiver     L    : the linked list
+// @param        num : the index
+// @return       bool : true if the object is deleted
+//
 func (L *LinkList[T]) DeleteByNum(num int) bool {
 	L.rwLock.Lock()
 	defer L.rwLock.Unlock()
@@ -163,6 +214,13 @@ func (L *LinkList[T]) DeleteByNum(num int) bool {
 	}
 }
 
+//
+// DeleteByValue
+// @Description: delete the object by the value
+// @receiver     L    : the linked list
+// @param        o : the value
+// @return       bool : true if the object is deleted
+//
 func (L *LinkList[T]) DeleteByValue(o T) bool {
 	L.rwLock.Lock()
 	defer L.rwLock.Unlock()
@@ -194,6 +252,13 @@ func (L *LinkList[T]) DeleteByValue(o T) bool {
 	return false
 }
 
+//
+// DeleteAllByValue
+// @Description: delete all the objects by the value
+// @receiver     L    : the linked list
+// @param        o : the value
+// @return       bool : true if the object is deleted
+//
 func (L *LinkList[T]) DeleteAllByValue(o T) bool {
 	L.rwLock.Lock()
 	defer L.rwLock.Unlock()
@@ -223,6 +288,14 @@ L1:
 	return true
 }
 
+//
+// InsertValue
+// @Description: insert the value at the index
+// @receiver     L    : the linked list
+// @param        num : the index
+// @param        v   : the value
+// @return       bool : true if the value is inserted
+//
 func (L *LinkList[T]) InsertValue(num int, v T) bool {
 	L.rwLock.Lock()
 	defer L.rwLock.Unlock()
@@ -262,6 +335,14 @@ func (L *LinkList[T]) InsertValue(num int, v T) bool {
 	return true
 }
 
+//
+// UpdateValue
+// @Description: update the value at the index
+// @receiver     L    : the linked list
+// @param        num : the index
+// @param        v   : the value
+// @return       bool : true if the value is updated
+//
 func (L *LinkList[T]) UpdateValue(num int, v T) bool {
 	L.rwLock.Lock()
 	defer L.rwLock.Unlock()
@@ -278,6 +359,13 @@ func (L *LinkList[T]) UpdateValue(num int, v T) bool {
 	return true
 }
 
+//
+// Contain
+// @Description: check if the linked list contains the value
+// @receiver     L    : the linked list
+// @param        v : the value
+// @return       bool : true if the value is contained
+//
 func (L LinkList[T]) Contain(v T) bool {
 	L.rwLock.RLock()
 	defer L.rwLock.RUnlock()
@@ -291,6 +379,12 @@ func (L LinkList[T]) Contain(v T) bool {
 	return false
 }
 
+//
+// IsEmpty
+// @Description: check if the linked list is empty
+// @receiver     L    : the linked list
+// @return       bool : true if the linked list is empty
+//
 func (L LinkList[T]) IsEmpty() bool {
 	L.rwLock.RLock()
 	defer L.rwLock.RUnlock()
@@ -300,6 +394,12 @@ func (L LinkList[T]) IsEmpty() bool {
 	return false
 }
 
+//
+// Iterator
+// @Description: iterator the linked list
+// @receiver     L : the linked list
+// @param        f : the function
+//
 func (L LinkList[T]) Iterator(f func(index int, value T)) {
 	L.iteRWLock.Lock()
 	next := L.head

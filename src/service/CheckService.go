@@ -8,7 +8,13 @@ import (
 	"reflect"
 )
 
-// CheckServer 检查服务是否存在
+//
+// CheckServer
+// @Description: 检查服务是否存在
+// @param        model 服务模型
+// @return       B     是否存在
+// @return       E     错误
+//
 func CheckServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -19,7 +25,13 @@ func CheckServer(model *entity.ServerModel) (B bool, E error) {
 	return Bean.InstanceList.Contain(*model), nil
 }
 
-// CheckDeleteServer 检查服务是否存在黑名单
+//
+// CheckDeleteServer
+// @Description: 检查服务是否在黑名单
+// @param        model 服务模型
+// @return       B     是否存在
+// @return       E     错误
+//
 func CheckDeleteServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -30,7 +42,13 @@ func CheckDeleteServer(model *entity.ServerModel) (B bool, E error) {
 	return Bean.DeleteInstanceList.Contain(*model), nil
 }
 
-// CheckLeader 检查是否是领导
+//
+// CheckLeader
+// @Description: 检查服务是否为Leader
+// @param        model 服务模型
+// @return       B     是否存在
+// @return       E     错误
+//
 func CheckLeader(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()

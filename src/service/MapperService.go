@@ -11,7 +11,11 @@ import (
 	"time"
 )
 
-// LoadDatabase 加载数据库
+//
+// LoadDatabase
+// @Description: 加载数据库数据
+// @return       E error
+//
 func LoadDatabase() (E error) {
 	defer func() {
 		r := recover()
@@ -47,7 +51,11 @@ func LoadDatabase() (E error) {
 	return nil
 }
 
-// Persistence 持久化数据
+//
+// Persistence
+// @Description: 持久化数据
+// @return       E error
+//
 func Persistence() (E error) {
 	defer func() {
 		r := recover()
@@ -58,7 +66,7 @@ func Persistence() (E error) {
 	util.Loglevel(util.Debug, "Persistence", "创建持久化数据协程")
 	for {
 		select {
-		case <-Bean.CLOSE:
+		case <-Bean.ServiceCloseChan:
 			util.Loglevel(util.Debug, "Persistence", "持久化数据协程退出")
 			return nil
 		case <-time.After(time.Second * time.Duration(config.Persistence.PersistenceTime)):

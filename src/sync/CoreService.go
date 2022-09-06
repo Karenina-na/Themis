@@ -11,7 +11,11 @@ import (
 	"time"
 )
 
-// UDPSend 发送udp消息
+//
+// UDPSend
+// @Description: 发送udp消息
+// @return       E error
+//
 func UDPSend() (E error) {
 	defer func() {
 		r := recover()
@@ -48,7 +52,11 @@ func UDPSend() (E error) {
 	}
 }
 
-// UDPReceive 接收udp消息
+//
+// UDPReceive
+// @Description: 接收udp消息
+// @return       E error
+//
 func UDPReceive() (E error) {
 	defer func() {
 		r := recover()

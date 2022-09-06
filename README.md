@@ -23,8 +23,13 @@
 * GET /api/v1/operator/getDeleteInstances 获取黑名单内的实例
 * DELETE /api/v1/operator/cancelDeleteInstance 将服务从黑名单删除  
 * GET /api/v1/operator/getStatus 获取调度中心服务状态
+* GET /api/v1/operator/getColony 获取当前集群Leader
+* GET /api/v1/operator/getColony 获取当前集群服务身份
 
 ### 具体API请运行项目并访问http://localhost:8080/swagger/index.html   查看swagger文档
+```
+swag init -g swag.go -d .\src\swag\ #创建swag文档
+```
 
 ## 项目结构
 ```     
@@ -37,7 +42,9 @@ Themis:.
 ├─src   //源码
 │  ├─config         //配置加载器
 │  ├─controller     //前端控制器
-│  │  └─encryption  //加密算法
+│  │  ├─encryption  //加密控制器
+│  │  ├─interception    //拦截器
+│  │  └─util    //工具
 │  ├─entity         //数据模型
 │  ├─exception      //异常处理
 │  ├─factory        //服务加载器
@@ -46,6 +53,10 @@ Themis:.
 │  ├─service        //业务逻辑层层
 │  │  ├─Bean        //逻辑状态Bean
 │  │  └─LeaderAlgorithm  //选举算法
+│  ├─swag           //swagger文档
+│  │  ├─controller  //swagger控制器
+│  │  ├─entity    //swagger数据模型
+│  │  └─syncBean    //swagger数据模型
 │  ├─sync           //集群同步器
 │  │  └─syncBean    //同步状态Bean
 │  └─util            //工具类  

@@ -2,12 +2,20 @@ package entity
 
 import "gorm.io/gorm"
 
+// ServerMapperMode 服务器映射表
 type ServerMapperMode struct {
 	gorm.Model
 	ServerModel
 	Type int `json:"Type" gorm:"column:type"`
 }
 
+//
+// NewServerMapperMode
+// @Description: 创建服务器映射表
+// @param        model 服务器映射表
+// @param        Type  服务器类型
+// @return       *ServerMapperMode
+//
 func NewServerMapperMode(model ServerModel, Type int) *ServerMapperMode {
 	return &ServerMapperMode{
 		gorm.Model{},
@@ -23,6 +31,12 @@ func NewServerMapperMode(model ServerModel, Type int) *ServerMapperMode {
 	}
 }
 
+//
+// TableName
+// @Description: 获取表名
+// @receiver     model  服务器映射表
+// @return       string 表名
+//
 func (model ServerMapperMode) TableName() string {
 	return "tb_server_mapper"
 }

@@ -6,6 +6,12 @@ import (
 	"github.com/swaggo/swag"
 )
 
+//
+// SwaggerConfig
+// @Description: Swagger配置
+// @param        docs 文档目录
+// @return       E    错误
+//
 func SwaggerConfig(docs *swag.Spec) (E error) {
 	defer func() {
 		r := recover()

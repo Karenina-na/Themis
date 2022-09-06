@@ -14,11 +14,21 @@ const (
 	Error
 )
 
+//logLevel	日志等级
 type logLevel int
 
+//f 	异常处理函数
 var f func(r any)
+
+//flag	是否开启debug模式
 var flag bool
 
+//
+// LoggerInit
+// @Description: 初始化日志
+// @param        f 异常处理函数
+// @param        F 是否开启debug模式
+//
 func LoggerInit(f func(r any), F logLevel) {
 	switch F {
 	case Debug:
@@ -32,6 +42,13 @@ func LoggerInit(f func(r any), F logLevel) {
 	}
 }
 
+//
+// Loglevel
+// @Description: 日志等级
+// @param        level   日志等级
+// @param        name    日志名称
+// @param        message 日志内容
+//
 func Loglevel(level logLevel, name string, message string) {
 	var logger *log.Logger
 	defer func() {
@@ -64,10 +81,22 @@ func Loglevel(level logLevel, name string, message string) {
 	}
 }
 
+//
+// setExceptionFunc
+// @Description: 设置异常处理函数
+// @param        exceptionFunc 异常处理函数
+//
 func setExceptionFunc(exceptionFunc func(r any)) {
 	f = exceptionFunc
 }
 
+//
+// recordFile
+// @Description: 记录日志到文件
+// @param        message 日志内容
+// @param        level   日志等级
+// @param        logger  日志对象
+//
 func recordFile(message string, level logLevel, logger *log.Logger) {
 	var FileLevel string
 	switch level {
@@ -99,6 +128,12 @@ func recordFile(message string, level logLevel, logger *log.Logger) {
 	}
 }
 
+//
+// exists
+// @Description: 判断文件是否存在
+// @param        path 文件路径
+// @return       bool 是否存在
+//
 func exists(path string) bool {
 	_, err := os.Stat(path) //os.Stat获取文件信息
 	if err != nil {

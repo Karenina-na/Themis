@@ -11,7 +11,13 @@ import (
 	"time"
 )
 
-// RegisterServer 注册服务器
+//
+// RegisterServer
+// @Description: 注册服务器
+// @param        S 服务器模型
+// @return       B 是否成功
+// @return       E 错误
+//
 func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -30,7 +36,13 @@ func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
-// FlashHeartBeat 心跳
+//
+// FlashHeartBeat
+// @Description: 心跳
+// @param        model 服务器模型
+// @return       B     是否成功
+// @return       E     错误
+//
 func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -56,7 +68,13 @@ func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 	return false, nil
 }
 
-// Election 发起选举
+//
+// Election
+// @Description: 选举
+// @param        model 服务器模型
+// @return       B     是否成功
+// @return       E     错误
+//
 func Election(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -99,7 +117,13 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
-// GetLeader 获取leader
+//
+// GetLeader
+// @Description: 获取leader
+// @param        model 服务器模型
+// @return       m     leader
+// @return       E     错误
+//
 func GetLeader(model *entity.ServerModel) (m entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -113,7 +137,13 @@ func GetLeader(model *entity.ServerModel) (m entity.ServerModel, E error) {
 	return leader, nil
 }
 
-// GetServers 获取leader领导的服务器列表
+//
+// GetServers
+// @Description: 获取服务器列表
+// @param        model 服务器模型
+// @return       m     服务器列表
+// @return       E     错误
+//
 func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -134,7 +164,13 @@ func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 	return list, nil
 }
 
-// GetServersNumber 获取leader领导的服务器列表数量
+//
+// GetServersNumber
+// @Description: 获取服务器数量
+// @param        model 服务器模型
+// @return       num   服务器数量
+// @return       E     错误
+//
 func GetServersNumber(model *entity.ServerModel) (num int, E error) {
 	defer func() {
 		r := recover()

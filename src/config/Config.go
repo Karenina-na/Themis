@@ -98,6 +98,9 @@ var (
 		//TrackEnable 是否开启跟踪
 		TrackEnable bool
 
+		// ClusterName 集群名称
+		ClusterName string
+
 		//IP	地址
 		IP string
 

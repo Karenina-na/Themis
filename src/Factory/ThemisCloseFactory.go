@@ -8,6 +8,10 @@ import (
 	"Themis/src/sync"
 )
 
+//
+// ThemisCloseFactory
+// @Description: ThemisCloseFactory
+//
 func ThemisCloseFactory() {
 	if config.Persistence.PersistenceEnable {
 		err := mapper.CloseMapper()

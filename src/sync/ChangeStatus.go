@@ -6,6 +6,11 @@ import (
 	"Themis/src/util"
 )
 
+//
+// ChangeToFollow
+// @Description: change to follow
+// @return       E error
+//
 func ChangeToFollow() (E error) {
 	defer func() {
 		r := recover()
@@ -25,6 +30,11 @@ func ChangeToFollow() (E error) {
 	return nil
 }
 
+//
+// ChangeToCandidate
+// @Description: change to candidate
+// @return       E error
+//
 func ChangeToCandidate() (E error) {
 	defer func() {
 		r := recover()
@@ -44,6 +54,11 @@ func ChangeToCandidate() (E error) {
 	return nil
 }
 
+//
+// ChangeToLeader
+// @Description: change to leader
+// @return       E error
+//
 func ChangeToLeader() (E error) {
 	defer func() {
 		r := recover()

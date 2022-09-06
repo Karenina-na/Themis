@@ -16,7 +16,7 @@ Themis:
     beat-queue: 200 #服务心跳处理队列容量
     beat-time: 30  #服务心跳超时时间   单位秒
 
-  leader-algorithm:  RandomAlgorithmCreateLeader #记账人选举算法
+  leader-algorithm: RandomAlgorithmCreateLeader #记账人选举算法
 
   database:
     enable: true  #是否开启持久化
@@ -41,6 +41,7 @@ Themis:
   cluster:
     enable: true #是否开启集群
     track-enable: true #是否开启集群数据跟踪
+    name: themis-A #集群名称
     ip: localhost #ip地址
     port: 8080 #集群端口
     max-follow-timeout: 10 #raft-follow最大超时时间 单位秒

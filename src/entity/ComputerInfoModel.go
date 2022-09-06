@@ -4,6 +4,7 @@ import (
 	"strconv"
 )
 
+// ComputerInfoModel is the model of computer info
 type ComputerInfoModel struct {
 	CpuInfo         []CpuInfoModel  `json:"cpu_info"`
 	MemInfo         MemInfoModel    `json:"mem_info"`
@@ -14,6 +15,7 @@ type ComputerInfoModel struct {
 	PoolJobNum      int             `json:"pool_job_num"`
 }
 
+// CpuInfoModel is the model of cpu info
 type CpuInfoModel struct {
 	CpuName       string `json:"cpu_name"`
 	CpuCoreNum    string `json:"cpu_core_num"`
@@ -23,6 +25,7 @@ type CpuInfoModel struct {
 	CpuUsage      string `json:"cpu_usage"`
 }
 
+// MemInfoModel is the model of memory info
 type MemInfoModel struct {
 	MemTotal string `json:"mem_total"`
 	MemUsed  string `json:"mem_used"`
@@ -30,6 +33,7 @@ type MemInfoModel struct {
 	MemUsage string `json:"mem_usage"`
 }
 
+// HostInfoModel is the model of host info
 type HostInfoModel struct {
 	HostName          string `json:"host_name"`
 	HostOs            string `json:"host_os"`
@@ -39,6 +43,7 @@ type HostInfoModel struct {
 	HostId            string `json:"host_id"`
 }
 
+// DiskInfoModel is the model of disk info
 type DiskInfoModel struct {
 	DiskName  string `json:"disk_name"`
 	DiskSize  string `json:"disk_size"`
@@ -49,6 +54,7 @@ type DiskInfoModel struct {
 	Opts      string `json:"opts"`
 }
 
+// NetInfoModel is the model of network info
 type NetInfoModel struct {
 	NetName         string `json:"net_name"`
 	BytesSent       string `json:"bytes_sent"`
@@ -57,10 +63,27 @@ type NetInfoModel struct {
 	PacketsReceived string `json:"packets_received"`
 }
 
+//
+// NewComputerInfoModel
+// @Description: create a new ComputerInfoModel
+// @return       *ComputerInfoModel
+//
 func NewComputerInfoModel() *ComputerInfoModel {
 	return &ComputerInfoModel{}
 }
 
+//
+// SetComputerInfoModel
+// @Description: set the ComputerInfoModel
+// @receiver     com         *ComputerInfoModel
+// @param        c           []CpuInfoModel
+// @param        m           MemInfoModel
+// @param        h           HostInfoModel
+// @param        d           []DiskInfoModel
+// @param        n           []NetInfoModel
+// @param        activateNum int
+// @param        jobNum      int
+//
 func (com *ComputerInfoModel) SetComputerInfoModel(c []CpuInfoModel, m MemInfoModel,
 	h HostInfoModel, d []DiskInfoModel, n []NetInfoModel, activateNum int, jobNum int) {
 	com.CpuInfo = c
@@ -72,6 +95,17 @@ func (com *ComputerInfoModel) SetComputerInfoModel(c []CpuInfoModel, m MemInfoMo
 	com.PoolJobNum = jobNum
 }
 
+//
+// NewCpuInfoModel
+// @Description: create a new CpuInfoModel
+// @param        cpuName    string
+// @param        coreNum    int
+// @param        freq       float64
+// @param        VendorId   string
+// @param        physicalId string
+// @param        usage      float64
+// @return       *CpuInfoModel cpu info model
+//
 func NewCpuInfoModel(cpuName string, coreNum int32, freq float64, VendorId string, physicalId string, usage float64) *CpuInfoModel {
 	frequency := strconv.FormatFloat(freq/1000, 'f', 4, 64) + " GHz"
 	coreNumber := strconv.Itoa(int(coreNum))
@@ -86,6 +120,15 @@ func NewCpuInfoModel(cpuName string, coreNum int32, freq float64, VendorId strin
 	}
 }
 
+//
+// NewMemInfoModel
+// @Description: create a new MemInfoModel
+// @param        memTotal uint64
+// @param        memAvi   uint64
+// @param        memUsed  uint64
+// @param        memUsage float64
+// @return       *MemInfoModel memory info model
+//
 func NewMemInfoModel(memTotal uint64, memAvi uint64, memUsed uint64, memUsage float64) *MemInfoModel {
 	MemTotal := strconv.FormatFloat(float64(memTotal)/1024/1024/1024, 'f', 4, 64) + " GB"
 	MemAvi := strconv.FormatFloat(float64(memAvi)/1024/1024/1024, 'f', 4, 64) + " GB"
@@ -99,6 +142,17 @@ func NewMemInfoModel(memTotal uint64, memAvi uint64, memUsed uint64, memUsage fl
 	}
 }
 
+//
+// NewHostInfoModel
+// @Description: create a new HostInfoModel
+// @param        hostName      string
+// @param        os            string
+// @param        osVersion     string
+// @param        kernelVersion string
+// @param        kernelArch    string
+// @param        hostId        string
+// @return       *HostInfoModel host info model
+//
 func NewHostInfoModel(hostName string, os string, osVersion string, kernelVersion string, kernelArch string, hostId string) *HostInfoModel {
 	return &HostInfoModel{
 		HostName:          hostName,
@@ -110,6 +164,18 @@ func NewHostInfoModel(hostName string, os string, osVersion string, kernelVersio
 	}
 }
 
+//
+// NewDiskInfoModel
+// @Description: create a new DiskInfoModel
+// @param        diskName  string
+// @param        diskSize  uint64
+// @param        diskUsed  uint64
+// @param        diskAvi   uint64
+// @param        diskUsage float64
+// @param        fsType    string
+// @param        opts      string
+// @return       *DiskInfoModel disk info model
+//
 func NewDiskInfoModel(diskName string, diskSize uint64, diskUsed uint64, diskAvi uint64, diskUsage float64, fsType string, opts string) *DiskInfoModel {
 	DiskSize := strconv.FormatFloat(float64(diskSize)/1024/1024/1024, 'f', 4, 64) + " GB"
 	DiskUsed := strconv.FormatFloat(float64(diskUsed)/1024/1024/1024, 'f', 4, 64) + " GB"
@@ -126,6 +192,16 @@ func NewDiskInfoModel(diskName string, diskSize uint64, diskUsed uint64, diskAvi
 	}
 }
 
+//
+// NewNetInfoModel
+// @Description: create a new NetInfoModel
+// @param        name            string
+// @param        bytesSent       uint64
+// @param        bytesReceived   uint64
+// @param        packetsSent     uint64
+// @param        packetsReceived uint64
+// @return       *NetInfoModel   network info model
+//
 func NewNetInfoModel(name string, bytesSent uint64, bytesReceived uint64, packetsSent uint64, packetsReceived uint64) *NetInfoModel {
 	BytesSent := strconv.FormatFloat(float64(bytesSent)/1024/1024, 'f', 4, 64) + " MB"
 	BytesReceived := strconv.FormatFloat(float64(bytesReceived)/1024/1024, 'f', 4, 64) + " MB"

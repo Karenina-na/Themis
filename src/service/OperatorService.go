@@ -4,12 +4,19 @@ import (
 	"Themis/src/entity"
 	"Themis/src/exception"
 	"Themis/src/service/Bean"
+	"Themis/src/sync/syncBean"
 	"Themis/src/util"
 	"reflect"
 	"strings"
 )
 
-// DeleteServer 删除服务
+//
+// DeleteServer
+// @Description: 删除服务
+// @param        model 服务模型
+// @return       B     是否成功
+// @return       E     错误
+//
 func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -46,7 +53,13 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
-// DeleteColonyServer 删除集群服务
+//
+// DeleteColonyServer
+// @Description: 删除集群
+// @param        model 服务模型
+// @return       B     是否成功
+// @return       E     错误
+//
 func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -89,7 +102,12 @@ func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
-// GetBlacklistServer 获取黑名单服务
+//
+// GetBlacklistServer
+// @Description: 获取黑名单服务
+// @return       m 黑名单服务
+// @return       E 错误
+//
 func GetBlacklistServer() (m []entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -104,7 +122,13 @@ func GetBlacklistServer() (m []entity.ServerModel, E error) {
 	return list, nil
 }
 
-// DeleteInstanceFromBlacklist 删除黑名单中的服务
+//
+// DeleteInstanceFromBlacklist
+// @Description: 从黑名单中删除服务
+// @param        model 服务模型
+// @return       B     是否成功
+// @return       E     错误
+//
 func DeleteInstanceFromBlacklist(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -117,7 +141,12 @@ func DeleteInstanceFromBlacklist(model *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
-// GetInstances 获取所有服务
+//
+// GetInstances
+// @Description: 获取所有服务实例
+// @return       m 服务实例
+// @return       E 错误
+//
 func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -150,7 +179,13 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 	return ServerLists, nil
 }
 
-// GetInstancesByNamespaceAndColony 获取指定命名空间下指定集群的所有服务
+//
+// GetInstancesByNamespaceAndColony
+// @Description: 获取指定命名空间和集群的服务实例
+// @param        model 服务模型
+// @return       m     服务实例
+// @return       E     错误
+//
 func GetInstancesByNamespaceAndColony(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -201,7 +236,12 @@ func GetInstancesByNamespaceAndColony(model *entity.ServerModel) (m []entity.Ser
 	return list, nil
 }
 
-// GetCenterStatus 获取中心状态
+//
+// GetCenterStatus
+// @Description: 获取中心状态
+// @return       C 中心消息
+// @return       E 错误
+//
 func GetCenterStatus() (C *entity.ComputerInfoModel, E error) {
 	defer func() {
 		r := recover()
@@ -212,4 +252,39 @@ func GetCenterStatus() (C *entity.ComputerInfoModel, E error) {
 	Bean.CenterStatus.CenterStatusInfoLock.RLock()
 	defer Bean.CenterStatus.CenterStatusInfoLock.RUnlock()
 	return Bean.CenterStatus.CenterStatusInfo, nil
+}
+
+//
+// GetClusterLeader
+// @Description: 获取集群leader
+// @return       name 集群leader
+// @return       E    错误
+//
+func GetClusterLeader() (name string, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetClusterLeader-service", util.Strval(r))
+		}
+	}()
+	if syncBean.Status != syncBean.CANDIDATE {
+		return syncBean.LeaderName, nil
+	}
+	return "", nil
+}
+
+//
+// GetClusterStatus
+// @Description: 获取集群状态
+// @return       s 集群状态
+// @return       E 错误
+//
+func GetClusterStatus() (s syncBean.StatusLevel, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetClusterStatus-service", util.Strval(r))
+		}
+	}()
+	return syncBean.Status, nil
 }

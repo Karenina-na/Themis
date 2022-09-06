@@ -9,7 +9,11 @@ import (
 	"sync"
 )
 
-// InitServer 初始化服务
+//
+// InitServer
+// @Description: 初始化服务
+// @return       E 异常
+//
 func InitServer() (E error) {
 	defer func() {
 		r := recover()
@@ -58,11 +62,15 @@ func InitServer() (E error) {
 			exception.HandleException(message)
 		})
 	}
-	Bean.CLOSE = make(chan struct{}, 0)
+	Bean.ServiceCloseChan = make(chan struct{}, 0)
 	return nil
 }
 
-// Close 关闭服务
+//
+// Close
+// @Description: 关闭服务
+// @return       E 异常
+//
 func Close() (E error) {
 	defer func() {
 		r := recover()
@@ -70,7 +78,7 @@ func Close() (E error) {
 			E = exception.NewSystemError("Close-service", util.Strval(r))
 		}
 	}()
-	close(Bean.CLOSE)
+	close(Bean.ServiceCloseChan)
 	Bean.RoutinePool.Close()
 	return nil
 }

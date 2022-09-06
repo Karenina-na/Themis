@@ -8,6 +8,11 @@ import (
 	"strconv"
 )
 
+//
+// InitConfig
+// @Description: 初始化配置文件
+// @return       E error
+//
 func InitConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -35,7 +40,7 @@ func InitConfig() (E error) {
 		if err := LoadListenConfig(); err != nil {
 			return err
 		}
-		if err := ClusterConfig(); err != nil {
+		if err := LoadClusterConfig(); err != nil {
 			return err
 		}
 	} else {
@@ -48,6 +53,11 @@ func InitConfig() (E error) {
 	return nil
 }
 
+//
+// LoadRoutineConfig
+// @Description: 加载协程配置
+// @return       E error
+//
 func LoadRoutineConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -74,6 +84,11 @@ func LoadRoutineConfig() (E error) {
 	return nil
 }
 
+//
+// LoadPortConfig
+// @Description: 加载端口配置
+// @return       E error
+//
 func LoadPortConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -100,6 +115,11 @@ func LoadPortConfig() (E error) {
 	return nil
 }
 
+//
+// LoadServerConfig
+// @Description: 加载服务相关配置
+// @return       E error
+//
 func LoadServerConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -135,6 +155,11 @@ func LoadServerConfig() (E error) {
 	return nil
 }
 
+//
+// LoadDatabaseConfig
+// @Description: 加载数据库配置
+// @return       E error
+//
 func LoadDatabaseConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -186,6 +211,11 @@ func LoadDatabaseConfig() (E error) {
 	return nil
 }
 
+//
+// LoadListenConfig
+// @Description: 加载监听配置
+// @return       E error
+//
 func LoadListenConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -200,51 +230,57 @@ func LoadListenConfig() (E error) {
 	return nil
 }
 
-func ClusterConfig() (E error) {
+//
+// LoadClusterConfig
+// @Description: 加载集群配置
+// @return       E error
+//
+func LoadClusterConfig() (E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			E = exception.NewSystemError("ClusterConfig-config", util.Strval(r))
+			E = exception.NewSystemError("LoadClusterConfig-config", util.Strval(r))
 		}
 	}()
 	Cluster.ClusterEnable = viper.GetBool(`Themis.cluster.enable`)
 	if Cluster.ClusterEnable {
 		Cluster.TrackEnable = viper.GetBool(`Themis.cluster.track-enable`)
+		Cluster.ClusterName = viper.GetString(`Themis.cluster.name`)
 		Cluster.IP = viper.GetString(`Themis.cluster.ip`)
 		if !VerifyReg(IpReg, Cluster.IP) && !VerifyReg(localhostReg, Cluster.IP) {
-			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.ip非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.ip非法")
 		}
 		Cluster.Port = viper.GetString(`Themis.cluster.port`)
 		if !VerifyReg(PortReg, Cluster.Port) {
-			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.port非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.port非法")
 		}
 		Cluster.MaxFollowTimeOut = int64(viper.GetInt(`Themis.cluster.max-follow-timeout`))
 		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MaxFollowTimeOut))) {
-			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.max-timeout非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.max-timeout非法")
 		}
 		Cluster.MinFollowTimeOut = int64(viper.GetInt(`Themis.cluster.min-follow-timeout`))
 		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MinFollowTimeOut))) {
-			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.min-timeout非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.min-timeout非法")
 		}
 		Cluster.MaxCandidateTimeOut = int64(viper.GetInt(`Themis.cluster.max-candidate-timeout`))
 		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MaxCandidateTimeOut))) {
-			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.max-candidate-timeout非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.max-candidate-timeout非法")
 		}
 		Cluster.MinCandidateTimeOut = int64(viper.GetInt(`Themis.cluster.min-candidate-timeout`))
 		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MinCandidateTimeOut))) {
-			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.min-candidate-timeout非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.min-candidate-timeout非法")
 		}
 		Cluster.UDPTimeOut = int64(viper.GetInt(`Themis.cluster.udp-timeout`))
 		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.UDPTimeOut))) {
-			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.udp-timeout非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.udp-timeout非法")
 		}
 		Cluster.UDPQueueNum = viper.GetInt(`Themis.cluster.udp-queue-num`)
 		if !VerifyReg(PositiveReg, strconv.Itoa(Cluster.UDPQueueNum)) {
-			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.udp-queue-num非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.udp-queue-num非法")
 		}
 		Cluster.LeaderSyncTime = int64(viper.GetInt(`Themis.cluster.leader-sync-time`))
 		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.LeaderSyncTime))) {
-			return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.leader-sync-time非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.leader-sync-time非法")
 		}
 		Cluster.Clusters = make([]map[string]string, 0)
 		clusters := viper.Get(`Themis.cluster.clusters`)
@@ -252,11 +288,11 @@ func ClusterConfig() (E error) {
 			clusterMap := make(map[string]string)
 			clusterMap["ip"] = util.Strval(cluster.(map[string]interface{})["ip"])
 			if !VerifyReg(IpReg, clusterMap["ip"]) && !VerifyReg(localhostReg, clusterMap["ip"]) {
-				return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.clusters.ip非法")
+				return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.clusters.ip非法")
 			}
 			clusterMap["port"] = util.Strval(cluster.(map[string]interface{})["port"])
 			if !VerifyReg(PortReg, clusterMap["port"]) {
-				return exception.NewConfigurationError("ClusterConfig-config", "Themis.cluster.clusters.port非法")
+				return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.clusters.port非法")
 			}
 			Cluster.Clusters = append(Cluster.Clusters, clusterMap)
 		}

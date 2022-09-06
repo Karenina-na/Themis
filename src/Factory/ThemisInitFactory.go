@@ -10,6 +10,11 @@ import (
 	"Themis/src/util"
 )
 
+//
+// ThemisInitFactory
+// @Description: Themis初始化工厂
+// @param        arg 初始化级别
+//
 func ThemisInitFactory(arg *string) {
 	if *arg == "debug" {
 		util.LoggerInit(func(r any) {

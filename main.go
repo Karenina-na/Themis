@@ -3,6 +3,7 @@ package main
 import (
 	Init "Themis/src/Factory"
 	"Themis/src/config"
+	"Themis/src/controller/interception"
 	"Themis/src/util"
 	"flag"
 	swaggerFile "github.com/swaggo/files"
@@ -16,7 +17,6 @@ import (
 )
 
 import (
-	"Themis/src/controller"
 	"Themis/src/router"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -39,7 +39,8 @@ import (
 ~ limitations under the License.
 */
 
-// @title          Themis API
+//
+// @title          Themis
 // @version        1.0
 // @description    分布式记账系统调度中心
 // @termsOfService https://www.wzxaugenstern.online/#/
@@ -48,6 +49,10 @@ import (
 // @contact.email  1539989223@qq.com
 // @license.name   Apache 2.0
 // @license.url    http://www.apache.org/licenses/LICENSE-2.0.html
+//
+// main
+// @Description:   主函数
+//
 func main() {
 	arg := flag.String("mode", "debug", "debug / release /test 环境")
 	flag.Parse()
@@ -73,8 +78,7 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(cors.Default())
 	r.StaticFS("/static", http.Dir("./static"))
-	r.Use(controller.Interception())
-	r.Use(controller.ClusterCandidateInterception())
+	r.Use(interception.Interception())
 	if *arg == "debug" {
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFile.Handler))
 	}

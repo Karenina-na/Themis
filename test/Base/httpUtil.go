@@ -8,6 +8,13 @@ import (
 	"net/http/httptest"
 )
 
+//
+// Get
+// @Description: get请求
+// @param        uri    请求地址
+// @param        router 路由
+// @return       *httptest.ResponseRecorder 响应
+//
 func Get(uri string, router *gin.Engine) *httptest.ResponseRecorder {
 	// 构造get请求
 	req := httptest.NewRequest("GET", uri, nil)
@@ -18,6 +25,14 @@ func Get(uri string, router *gin.Engine) *httptest.ResponseRecorder {
 	return w
 }
 
+//
+// Post
+// @Description: post请求
+// @param        uri    请求地址
+// @param        param  请求参数
+// @param        router 路由
+// @return       *httptest.ResponseRecorder 响应
+//
 func Post(uri string, param entity.ServerModel, router *gin.Engine) *httptest.ResponseRecorder {
 	jsonByte, _ := json.Marshal(param)
 	req := httptest.NewRequest("POST", uri, bytes.NewReader(jsonByte))
@@ -29,6 +44,14 @@ func Post(uri string, param entity.ServerModel, router *gin.Engine) *httptest.Re
 	return w
 }
 
+//
+// Put
+// @Description: put请求
+// @param        uri    请求地址
+// @param        param  请求参数
+// @param        router 路由
+// @return       *httptest.ResponseRecorder 响应
+//
 func Put(uri string, param entity.ServerModel, router *gin.Engine) *httptest.ResponseRecorder {
 	jsonByte, _ := json.Marshal(param)
 	req := httptest.NewRequest("PUT", uri, bytes.NewReader(jsonByte))
@@ -40,6 +63,14 @@ func Put(uri string, param entity.ServerModel, router *gin.Engine) *httptest.Res
 	return w
 }
 
+//
+// Delete
+// @Description: delete请求
+// @param        uri    请求地址
+// @param        param  请求参数
+// @param        router 路由
+// @return       *httptest.ResponseRecorder 响应
+//
 func Delete(uri string, param entity.ServerModel, router *gin.Engine) *httptest.ResponseRecorder {
 	jsonByte, _ := json.Marshal(param)
 	req := httptest.NewRequest("DELETE", uri, bytes.NewReader(jsonByte))

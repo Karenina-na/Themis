@@ -31,5 +31,5 @@ var RoutinePool *util.Pool
 // CenterStatus 服务状态
 var CenterStatus *CenterStatusModel
 
-// CLOSE 服务关闭
-var CLOSE chan struct{}
+// ServiceCloseChan 服务关闭
+var ServiceCloseChan chan struct{}

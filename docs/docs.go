@@ -403,6 +403,74 @@ const docTemplate = `{
                 }
             }
         },
+        "/operator/getClusterLeader": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "由管理员调用获取中心集群领导者",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取中心集群领导者",
+                "responses": {
+                    "200": {
+                        "description": "返回中心集群领导者名称",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ResultModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/operator/getClusterStatus": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "由管理员调用获取中心当前身份状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取中心当前身份状态",
+                "responses": {
+                    "200": {
+                        "description": "返回集群状态",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/operator/getDeleteInstance": {
             "get": {
                 "security": [
@@ -771,7 +839,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Themis API",
+	Title:            "Themis",
 	Description:      "分布式记账系统调度中心",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

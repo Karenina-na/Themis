@@ -10,7 +10,11 @@ import (
 	"time"
 )
 
-// Register 注册服务
+//
+// Register
+// @Description: 注册服务
+// @return       E error
+//
 func Register() (E error) {
 	defer func() {
 		r := recover()
@@ -22,8 +26,7 @@ func Register() (E error) {
 	for {
 		select {
 		case <-time.After(time.Second):
-			time.Sleep(time.Millisecond)
-		case <-Bean.CLOSE:
+		case <-Bean.ServiceCloseChan:
 			util.Loglevel(util.Debug, "Register", "注册协程退出")
 			return nil
 		case data := <-Bean.ServersQueue:
@@ -65,7 +68,14 @@ func Register() (E error) {
 	}
 }
 
-// ServerBeat 心跳服务
+//
+// ServerBeat
+// @Description: 服务心跳
+// @param        model     服务模型
+// @param        namespace 命名空间
+// @param        name      服务名称
+// @return       E         error
+//
 func ServerBeat(model entity.ServerModel, namespace string, name string) (E error) {
 	defer func() {
 		r := recover()
@@ -77,7 +87,7 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 	start := time.Now().Unix()
 	for {
 		select {
-		case <-Bean.CLOSE:
+		case <-Bean.ServiceCloseChan:
 			util.Loglevel(util.Debug, "ServerBeat", "心跳协程退出-"+util.Strval(model))
 			return nil
 		case <-time.After(time.Millisecond):
@@ -112,7 +122,11 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 	}
 }
 
-// CenterStatusRoutine 监控中心协程
+//
+// CenterStatusRoutine
+// @Description: 中心状态协程
+// @return       E error
+//
 func CenterStatusRoutine() (E error) {
 	defer func() {
 		r := recover()
@@ -123,7 +137,7 @@ func CenterStatusRoutine() (E error) {
 	util.Loglevel(util.Debug, "CenterStatusRoutine", "创建监控中心协程")
 	for {
 		select {
-		case <-Bean.CLOSE:
+		case <-Bean.ServiceCloseChan:
 			util.Loglevel(util.Debug, "CenterStatusRoutine", "监控中心协程退出")
 			return nil
 		case <-time.After(time.Second * time.Duration(config.ListenTime)):
@@ -132,7 +146,6 @@ func CenterStatusRoutine() (E error) {
 			Bean.CenterStatus.CenterStatusInfo.SetComputerInfoModel(util.GetCpuInfo(), *util.GetMemInfo(), *util.GetHostInfo(),
 				util.GetDiskInfo(), util.GetNetInfo(), activeNum, jobNum)
 			Bean.CenterStatus.CenterStatusInfoLock.Unlock()
-		case <-time.After(time.Millisecond):
 		}
 	}
 }

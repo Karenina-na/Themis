@@ -8,6 +8,11 @@ import (
 	"Themis/src/util"
 )
 
+//
+// InitSync
+// @Description: 初始化同步
+// @return       E error
+//
 func InitSync() (E error) {
 	defer func() {
 		r := recover()
@@ -15,6 +20,7 @@ func InitSync() (E error) {
 			E = exception.NewSystemError("InitSync-sync", util.Strval(r))
 		}
 	}()
+	syncBean.Name = config.Cluster.ClusterName
 	syncBean.CloseChan = make(chan bool)
 	syncBean.Status = syncBean.FOLLOW
 	syncBean.Term = 1
@@ -65,6 +71,11 @@ func InitSync() (E error) {
 	return nil
 }
 
+//
+// Close
+// @Description: 关闭同步
+// @return       E error
+//
 func Close() (E error) {
 	defer func() {
 		r := recover()
