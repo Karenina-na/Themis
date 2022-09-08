@@ -296,6 +296,11 @@ func LoadClusterConfig() (E error) {
 			}
 			Cluster.Clusters = append(Cluster.Clusters, clusterMap)
 		}
+		Cluster.EnableEncryption = viper.GetBool(`Themis.cluster.enable-encryption`)
+		if Cluster.EnableEncryption {
+			key := viper.GetString(`Themis.cluster.encryption-key`)
+			Cluster.EncryptionKey = []byte(key)
+		}
 	}
 	return nil
 }

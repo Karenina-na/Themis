@@ -130,5 +130,11 @@ var (
 
 		//Clusters	集群
 		Clusters []map[string]string
+
+		//EnableEncryption	是否开启加密
+		EnableEncryption bool
+
+		//EncryptionKey	加密密钥
+		EncryptionKey []byte
 	}
 )

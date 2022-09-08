@@ -1,6 +1,9 @@
 package syncBean
 
-import "Themis/src/entity"
+import (
+	"Themis/src/config"
+	"Themis/src/entity"
+)
 
 // MessageModel 消息模型
 type MessageModel struct {
@@ -16,6 +19,7 @@ type MessageModel struct {
 	UDPTargetAddress SyncAddressModel `json:"udpTargetAddress"`
 	ServicePort      string           `json:"servicePort"`
 	BOOL             bool             `json:"bool"`
+	Sign             string           `json:"sign"`
 }
 
 //
@@ -72,6 +76,7 @@ func (message *MessageModel) SetMessageMode( // 设置消息模型
 	TargetAddressPort string, // 消息目标端口
 	BOOL bool, // 布尔值
 ) {
+	message.Name = config.Cluster.ClusterName
 	message.Term = term
 	message.Status = status
 	message.Message.Instances = instances
@@ -83,4 +88,5 @@ func (message *MessageModel) SetMessageMode( // 设置消息模型
 	message.UDPTargetAddress.IP = TargetAddressIP
 	message.UDPTargetAddress.Port = TargetAddressPort
 	message.BOOL = BOOL
+	message.Sign = "Themis"
 }

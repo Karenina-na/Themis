@@ -24,7 +24,7 @@ func InitSync() (E error) {
 	syncBean.CloseChan = make(chan bool)
 	syncBean.Status = syncBean.FOLLOW
 	syncBean.Term = 1
-	syncBean.LeaderAddress = &syncBean.SyncAddressModel{}
+	syncBean.Leader = *syncBean.NewLeaderModel()
 	syncBean.SyncAddress = util.NewLinkList[syncBean.SyncAddressModel]()
 	for _, value := range config.Cluster.Clusters {
 		syncBean.SyncAddress.Append(syncBean.SyncAddressModel{IP: value["ip"], Port: value["port"]})

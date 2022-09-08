@@ -268,7 +268,7 @@ func GetClusterLeader() (name string, E error) {
 		}
 	}()
 	if syncBean.Status != syncBean.CANDIDATE {
-		return syncBean.LeaderName, nil
+		return syncBean.Leader.LeaderName, nil
 	}
 	return "", nil
 }

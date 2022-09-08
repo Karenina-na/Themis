@@ -42,7 +42,6 @@ Themis:.
 ├─src   //源码
 │  ├─config         //配置加载器
 │  ├─controller     //前端控制器
-│  │  ├─encryption  //加密控制器
 │  │  ├─interception    //拦截器
 │  │  └─util    //工具
 │  ├─entity         //数据模型
@@ -60,6 +59,7 @@ Themis:.
 │  ├─sync           //集群同步器
 │  │  └─syncBean    //同步状态Bean
 │  └─util            //工具类  
+│     └─encryption  //加密控制器
 └─test              //测试
     ├─Base          //测试初始化加载器
     └─ServerTest    //服务测试用例

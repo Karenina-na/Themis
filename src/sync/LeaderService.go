@@ -24,10 +24,7 @@ func Leader() (E error) {
 	}()
 	util.Loglevel(util.Debug, "Leader-sync", "Leader状态")
 	syncBean.Status = syncBean.LEADER
-	syncBean.LeaderAddress.IP = config.Cluster.IP
-	syncBean.LeaderAddress.Port = config.Cluster.Port
-	syncBean.LeaderServicePort = config.Port.CenterPort
-	syncBean.LeaderName = syncBean.Name
+	syncBean.Leader.SetLeaderModel(syncBean.Name, config.Cluster.IP, config.Cluster.Port, config.Port.CenterPort)
 	SyncRoutineBool := make(chan bool, 0)
 	Bean.RoutinePool.CreateWork(func() (E error) {
 		util.Loglevel(util.Debug, "Leader-sync", "leader数据发送协程启动")
@@ -68,10 +65,7 @@ func Leader() (E error) {
 				case syncBean.LEADER:
 					if m.Term > syncBean.Term {
 						syncBean.Term = m.Term
-						syncBean.LeaderAddress.IP = m.UDPAddress.IP
-						syncBean.LeaderAddress.Port = m.UDPAddress.Port
-						syncBean.LeaderServicePort = m.ServicePort
-						syncBean.LeaderName = m.Name
+						syncBean.Leader.SetLeaderModel(m.Name, m.UDPAddress.IP, m.UDPAddress.Port, m.ServicePort)
 						close(SyncRoutineBool)
 						util.Loglevel(util.Info, "Leader-sync", "Leader卸任,收到其他leader，成为FOLLOW")
 						E := ChangeToFollow()

@@ -18,7 +18,7 @@ func ClusterFollowInterception() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if syncBean.Status == syncBean.FOLLOW {
 			c.Redirect(http.StatusTemporaryRedirect, "http://"+
-				syncBean.LeaderAddress.IP+":"+syncBean.LeaderServicePort+
+				syncBean.Leader.LeaderAddress.IP+":"+syncBean.Leader.LeaderAddress.Port+
 				c.Request.URL.Path)
 			util.Loglevel(util.Info, "ClusterInterception", "重定向到Leader节点")
 			c.Abort()
