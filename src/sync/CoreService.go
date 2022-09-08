@@ -6,6 +6,7 @@ import (
 	"Themis/src/service/Bean"
 	"Themis/src/sync/syncBean"
 	"Themis/src/util"
+	"Themis/src/util/encryption"
 	"encoding/json"
 	"net"
 	"time"
@@ -35,6 +36,9 @@ func UDPSend() (E error) {
 			data, err := json.Marshal(msg)
 			if err != nil {
 				return exception.NewUserError("UDPSend-sync-goroutine", "json转换错误"+err.Error())
+			}
+			if config.Cluster.EnableEncryption {
+				data = []byte(encryption.AESEncrypt(string(data), config.Cluster.EncryptionKey))
 			}
 			_, err = conn.Write(data)
 			if err != nil {
@@ -81,7 +85,12 @@ func UDPReceive() (E error) {
 				return nil
 			}
 			var msg syncBean.MessageModel
-			err = json.Unmarshal(buf[:n], &msg)
+			if config.Cluster.EnableEncryption {
+				buf = []byte(encryption.AESDecrypt(string(buf[:n]), config.Cluster.EncryptionKey))
+			} else {
+				buf = buf[:n]
+			}
+			err = json.Unmarshal(buf, &msg)
 			if err != nil {
 				return exception.NewUserError("UDPReceive-sync-goroutine", "json转换错误"+err.Error())
 			}

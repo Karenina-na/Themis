@@ -56,3 +56,5 @@ Themis:
         port: 8081
       - ip: localhost
         port: 8082
+    enable-encryption: false #是否开启加密
+    encryption-key: DIS**#KKKDJJSKDI #加密key

@@ -47,10 +47,7 @@ CandidateHead:
 			case syncBean.LEADER:
 				if m.Term >= syncBean.Term {
 					syncBean.Term = m.Term
-					syncBean.LeaderAddress.IP = m.UDPAddress.IP
-					syncBean.LeaderAddress.Port = m.UDPAddress.Port
-					syncBean.LeaderServicePort = m.ServicePort
-					syncBean.LeaderName = m.Name
+					syncBean.Leader.SetLeaderModel(m.Name, m.UDPAddress.IP, m.UDPAddress.Port, m.ServicePort)
 					util.Loglevel(util.Debug, "Candidate-sync", "收到Leader，转换FOLLOW")
 					E := ChangeToFollow()
 					if E != nil {

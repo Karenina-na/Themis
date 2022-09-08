@@ -1,8 +1,8 @@
 package main
 
 import (
-	Init "Themis/src/Factory"
-	"Themis/src/controller/encryption"
+	Factory "Themis/src/Factory"
+	"Themis/src/util/encryption"
 	"Themis/test/Base"
 	"Themis/test/ServerTest"
 	"crypto"
@@ -51,11 +51,10 @@ func Test(t *testing.T) {
 	/*注册-心跳-拉入黑名单-拉出黑名单*/
 	test4(router)
 
-	Init.ThemisCloseFactory()
+	Factory.ThemisCloseFactory()
 
 	/*哈希算法*/
 	test5()
-
 }
 
 /**

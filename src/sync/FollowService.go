@@ -64,11 +64,9 @@ func StatusOperatorFollow(m *syncBean.MessageModel) (E error) {
 			if config.Cluster.TrackEnable {
 				util.Loglevel(util.Debug, "StatusOperatorFollow-sync", "收到LEADER信息-"+util.Strval(m.UDPAddress))
 			}
-			if m.UDPAddress.IP != syncBean.LeaderAddress.IP || m.UDPAddress.Port != syncBean.LeaderAddress.Port {
-				syncBean.LeaderAddress.IP = m.UDPAddress.IP
-				syncBean.LeaderAddress.Port = m.UDPAddress.Port
-				syncBean.LeaderServicePort = m.ServicePort
-				syncBean.LeaderName = m.Name
+			if m.UDPAddress.IP != syncBean.Leader.LeaderAddress.IP ||
+				m.UDPAddress.Port != syncBean.Leader.LeaderAddress.Port {
+				syncBean.Leader.SetLeaderModel(m.Name, m.UDPAddress.IP, m.UDPAddress.Port, m.ServicePort)
 				syncBean.Term = m.Term
 			}
 			if err := CreateSyncRoutine(m); err != nil {

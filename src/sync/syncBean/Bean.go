@@ -11,12 +11,8 @@ var (
 	Term int
 	// Status 服务状态
 	Status StatusLevel
-	// LeaderName	leader名
-	LeaderName string
-	// LeaderAddress 选举出的leader
-	LeaderAddress *SyncAddressModel
-	// LeaderServicePort leader服务端口
-	LeaderServicePort string
+	// Leader 选举出的Leader模型
+	Leader LeaderModel
 	// SyncAddress 同步服务地址
 	SyncAddress *util.LinkList[SyncAddressModel]
 	// UdpReceiveMessage UDP接收消息队列
