@@ -3,6 +3,7 @@ package syncBean
 import (
 	"Themis/src/config"
 	"Themis/src/entity"
+	"Themis/src/util/encryption"
 )
 
 // MessageModel 消息模型
@@ -88,5 +89,19 @@ func (message *MessageModel) SetMessageMode( // 设置消息模型
 	message.UDPTargetAddress.IP = TargetAddressIP
 	message.UDPTargetAddress.Port = TargetAddressPort
 	message.BOOL = BOOL
-	message.Sign = "Themis"
+	message.Sign = encryption.Sha256(message.Name +
+		message.UDPAddress.IP + message.UDPAddress.Port +
+		message.UDPTargetAddress.IP + message.UDPTargetAddress.Port)
+}
+
+//
+// VerifySign
+//  @Description: 验证消息模型签名
+//  @receiver message	消息模型
+//  @return bool	是否通过
+//
+func (message *MessageModel) VerifySign() bool {
+	return message.Sign == encryption.Sha256(message.Name+
+		message.UDPAddress.IP+message.UDPAddress.Port+
+		message.UDPTargetAddress.IP+message.UDPTargetAddress.Port)
 }

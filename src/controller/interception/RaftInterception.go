@@ -16,13 +16,15 @@ import (
 //
 func ClusterFollowInterception() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if syncBean.Status == syncBean.FOLLOW {
-			c.Redirect(http.StatusTemporaryRedirect, "http://"+
-				syncBean.Leader.LeaderAddress.IP+":"+syncBean.Leader.LeaderAddress.Port+
-				c.Request.URL.Path)
-			util.Loglevel(util.Info, "ClusterInterception", "重定向到Leader节点")
-			c.Abort()
-			return
+		if config.Cluster.ClusterEnable {
+			if syncBean.Status == syncBean.FOLLOW {
+				c.Redirect(http.StatusTemporaryRedirect, "http://"+
+					syncBean.Leader.LeaderAddress.IP+":"+syncBean.Leader.LeaderServicePort+
+					c.Request.URL.Path)
+				util.Loglevel(util.Info, "ClusterInterception", "重定向到Leader节点")
+				c.Abort()
+				return
+			}
 		}
 	}
 }
@@ -39,7 +41,6 @@ func ClusterLeaderInterception() gin.HandlerFunc {
 				c.Next()
 				return
 			}
-
 		}
 	}
 }

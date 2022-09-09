@@ -100,5 +100,5 @@ func main() {
 	Init.ThemisCloseFactory()
 	runtime.GC()
 	util.Loglevel(util.Info, "main", "Themis is exited")
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * 3)
 }

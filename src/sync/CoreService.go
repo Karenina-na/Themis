@@ -94,7 +94,11 @@ func UDPReceive() (E error) {
 			if err != nil {
 				return exception.NewUserError("UDPReceive-sync-goroutine", "json转换错误"+err.Error())
 			}
-			syncBean.UdpReceiveMessage <- msg
+			if msg.VerifySign() {
+				syncBean.UdpReceiveMessage <- msg
+			} else {
+				util.Loglevel(util.Info, "UDPReceive-sync-goroutine", "签名错误")
+			}
 		}
 	}, func(Message error) {
 		exception.HandleException(Message)
