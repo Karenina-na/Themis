@@ -125,8 +125,11 @@ var (
 		//UDPQueueNum	UDP队列
 		UDPQueueNum int
 
-		//LeaderSyncTime	同步时间
-		LeaderSyncTime int64
+		//LeaderSnapshotSyncTime	snapshot同步时间
+		LeaderSnapshotSyncTime int64
+
+		//LeaderHeartbeatTime		心跳间隔
+		LeaderHeartbeatTime int64
 
 		//Clusters	集群
 		Clusters []map[string]string

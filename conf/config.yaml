@@ -48,7 +48,8 @@ Themis:
     min-follow-timeout: 5  #raft-follow最小超时时间 单位秒
     max-candidate-timeout: 10 #raft-candidate最大超时时间 单位秒
     min-candidate-timeout: 5 #raft-candidate最小超时时间 单位秒
-    leader-sync-time: 500 #集群leader同步时间 单位毫秒
+    leader-snapshot-sync-time: 5000 #集群leader-snapshot同步时间 单位毫秒
+    leader-heartbeat-time: 1000 #集群leader-heartbeat时间 单位毫秒
     udp-timeout: 10 #UDP超时时间 单位秒
     udp-queue-num: 100 #集群处理队列容量
     clusters: #集群列表

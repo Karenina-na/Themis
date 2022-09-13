@@ -11,11 +11,9 @@ import (
 	"time"
 )
 
-//
 // LoadDatabase
 // @Description: 加载数据库数据
 // @return       E error
-//
 func LoadDatabase() (E error) {
 	defer func() {
 		r := recover()
@@ -51,11 +49,9 @@ func LoadDatabase() (E error) {
 	return nil
 }
 
-//
 // Persistence
 // @Description: 持久化数据
 // @return       E error
-//
 func Persistence() (E error) {
 	defer func() {
 		r := recover()

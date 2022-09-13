@@ -7,11 +7,9 @@ import (
 	"time"
 )
 
-//
 // Interception
 // @Description: 拦截器              debug打印请求信息和耗时
 // @return       gin.HandlerFunc 返回拦截器
-//
 func Interception() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		url := c.Request.Host + c.Request.URL.Path

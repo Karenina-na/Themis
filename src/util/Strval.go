@@ -5,12 +5,10 @@ import (
 	"strconv"
 )
 
-//
 // Strval
 // @Description: convert any type to string
 // @param        value any type
 // @return       string converted string
-//
 func Strval(value interface{}) string {
 	var key string
 	if value == nil {

@@ -8,11 +8,9 @@ import (
 	"net/http"
 )
 
-//
 // FactoryBaseInit
 // @Description: 初始化基础模块
 // @return       *gin.Engine 返回路由引擎
-//
 func FactoryBaseInit() *gin.Engine {
 	arg := "debug"
 	Init.ThemisInitFactory(&arg)

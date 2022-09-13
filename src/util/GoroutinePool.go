@@ -21,14 +21,12 @@ type Pool struct {
 	cancelFunc    context.CancelFunc
 }
 
-//
 // CreatePool
 // @Description: 创建一个协程池
 // @param        coreNum 核心协程数
 // @param        maxNum  最大协程数
 // @param        timeout 超时时间
 // @return       *Pool   协程池
-//
 func CreatePool(coreNum int, maxNum int, timeout int) *Pool {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	P := &Pool{
@@ -49,26 +47,22 @@ func CreatePool(coreNum int, maxNum int, timeout int) *Pool {
 	return P
 }
 
-//
 // CheckStatus
 // @Description: 检查协程池状态
 // @receiver     P         协程池
 // @return       activeNum 活跃协程数
 // @return       jobNum    任务数
-//
 func (P *Pool) CheckStatus() (activeNum int, jobNum int) {
 	P.lock.RLock()
 	defer P.lock.RUnlock()
 	return P.activeNum, P.jobNum
 }
 
-//
 // CreateWork
 // @Description: 创建一个任务
 // @receiver     P             协程池
 // @param        f             任务函数
 // @param        exceptionFunc 异常处理函数
-//
 func (P *Pool) CreateWork(f func() (E error), exceptionFunc func(Message error)) {
 	F := func() {
 		if err := f(); err != nil {
@@ -93,11 +87,9 @@ func (P *Pool) CreateWork(f func() (E error), exceptionFunc func(Message error))
 	P.lock.Unlock()
 }
 
-//
 // work
 // @Description: 协程池工作函数
 // @receiver     P 协程池
-//
 func (P *Pool) work() {
 	defer func() {
 		r := recover()
@@ -127,21 +119,17 @@ func (P *Pool) work() {
 	}
 }
 
-//
 // SetExceptionFunc
 // @Description: 设置异常处理函数
 // @receiver     P 协程池
 // @param        f 异常处理函数
-//
 func (P *Pool) SetExceptionFunc(f func(r any)) {
 	P.exceptionFunc = f
 }
 
-//
 // Close
 // @Description: 关闭协程池
 // @receiver     P 协程池
-//
 func (P *Pool) Close() {
 	P.lock.Lock()
 	P.maxNum = 0

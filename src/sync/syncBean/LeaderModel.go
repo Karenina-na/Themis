@@ -18,7 +18,8 @@ func NewLeaderModel() *LeaderModel {
 	}
 }
 
-func (L *LeaderModel) SetLeaderModel(leaderName string, leaderIP string, leaderPort string, leaderServicePort string) {
+func (L *LeaderModel) SetLeaderModel(leaderName string, leaderIP string,
+	leaderPort string, leaderServicePort string) {
 	L.LeaderName = leaderName
 	L.LeaderAddress.IP = leaderIP
 	L.LeaderAddress.Port = leaderPort

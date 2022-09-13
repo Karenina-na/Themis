@@ -9,11 +9,9 @@ import (
 	"sync"
 )
 
-//
 // InitServer
 // @Description: 初始化服务
 // @return       E 异常
-//
 func InitServer() (E error) {
 	defer func() {
 		r := recover()
@@ -66,11 +64,9 @@ func InitServer() (E error) {
 	return nil
 }
 
-//
 // Close
 // @Description: 关闭服务
 // @return       E 异常
-//
 func Close() (E error) {
 	defer func() {
 		r := recover()

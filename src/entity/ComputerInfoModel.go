@@ -63,16 +63,13 @@ type NetInfoModel struct {
 	PacketsReceived string `json:"packets_received"`
 }
 
-//
 // NewComputerInfoModel
 // @Description: create a new ComputerInfoModel
 // @return       *ComputerInfoModel
-//
 func NewComputerInfoModel() *ComputerInfoModel {
 	return &ComputerInfoModel{}
 }
 
-//
 // SetComputerInfoModel
 // @Description: set the ComputerInfoModel
 // @receiver     com         *ComputerInfoModel
@@ -83,7 +80,6 @@ func NewComputerInfoModel() *ComputerInfoModel {
 // @param        n           []NetInfoModel
 // @param        activateNum int
 // @param        jobNum      int
-//
 func (com *ComputerInfoModel) SetComputerInfoModel(c []CpuInfoModel, m MemInfoModel,
 	h HostInfoModel, d []DiskInfoModel, n []NetInfoModel, activateNum int, jobNum int) {
 	com.CpuInfo = c
@@ -95,7 +91,6 @@ func (com *ComputerInfoModel) SetComputerInfoModel(c []CpuInfoModel, m MemInfoMo
 	com.PoolJobNum = jobNum
 }
 
-//
 // NewCpuInfoModel
 // @Description: create a new CpuInfoModel
 // @param        cpuName    string
@@ -105,7 +100,6 @@ func (com *ComputerInfoModel) SetComputerInfoModel(c []CpuInfoModel, m MemInfoMo
 // @param        physicalId string
 // @param        usage      float64
 // @return       *CpuInfoModel cpu info model
-//
 func NewCpuInfoModel(cpuName string, coreNum int32, freq float64, VendorId string, physicalId string, usage float64) *CpuInfoModel {
 	frequency := strconv.FormatFloat(freq/1000, 'f', 4, 64) + " GHz"
 	coreNumber := strconv.Itoa(int(coreNum))
@@ -120,7 +114,6 @@ func NewCpuInfoModel(cpuName string, coreNum int32, freq float64, VendorId strin
 	}
 }
 
-//
 // NewMemInfoModel
 // @Description: create a new MemInfoModel
 // @param        memTotal uint64
@@ -128,7 +121,6 @@ func NewCpuInfoModel(cpuName string, coreNum int32, freq float64, VendorId strin
 // @param        memUsed  uint64
 // @param        memUsage float64
 // @return       *MemInfoModel memory info model
-//
 func NewMemInfoModel(memTotal uint64, memAvi uint64, memUsed uint64, memUsage float64) *MemInfoModel {
 	MemTotal := strconv.FormatFloat(float64(memTotal)/1024/1024/1024, 'f', 4, 64) + " GB"
 	MemAvi := strconv.FormatFloat(float64(memAvi)/1024/1024/1024, 'f', 4, 64) + " GB"
@@ -142,7 +134,6 @@ func NewMemInfoModel(memTotal uint64, memAvi uint64, memUsed uint64, memUsage fl
 	}
 }
 
-//
 // NewHostInfoModel
 // @Description: create a new HostInfoModel
 // @param        hostName      string
@@ -152,7 +143,6 @@ func NewMemInfoModel(memTotal uint64, memAvi uint64, memUsed uint64, memUsage fl
 // @param        kernelArch    string
 // @param        hostId        string
 // @return       *HostInfoModel host info model
-//
 func NewHostInfoModel(hostName string, os string, osVersion string, kernelVersion string, kernelArch string, hostId string) *HostInfoModel {
 	return &HostInfoModel{
 		HostName:          hostName,
@@ -164,7 +154,6 @@ func NewHostInfoModel(hostName string, os string, osVersion string, kernelVersio
 	}
 }
 
-//
 // NewDiskInfoModel
 // @Description: create a new DiskInfoModel
 // @param        diskName  string
@@ -175,7 +164,6 @@ func NewHostInfoModel(hostName string, os string, osVersion string, kernelVersio
 // @param        fsType    string
 // @param        opts      string
 // @return       *DiskInfoModel disk info model
-//
 func NewDiskInfoModel(diskName string, diskSize uint64, diskUsed uint64, diskAvi uint64, diskUsage float64, fsType string, opts string) *DiskInfoModel {
 	DiskSize := strconv.FormatFloat(float64(diskSize)/1024/1024/1024, 'f', 4, 64) + " GB"
 	DiskUsed := strconv.FormatFloat(float64(diskUsed)/1024/1024/1024, 'f', 4, 64) + " GB"
@@ -192,7 +180,6 @@ func NewDiskInfoModel(diskName string, diskSize uint64, diskUsed uint64, diskAvi
 	}
 }
 
-//
 // NewNetInfoModel
 // @Description: create a new NetInfoModel
 // @param        name            string
@@ -201,7 +188,6 @@ func NewDiskInfoModel(diskName string, diskSize uint64, diskUsed uint64, diskAvi
 // @param        packetsSent     uint64
 // @param        packetsReceived uint64
 // @return       *NetInfoModel   network info model
-//
 func NewNetInfoModel(name string, bytesSent uint64, bytesReceived uint64, packetsSent uint64, packetsReceived uint64) *NetInfoModel {
 	BytesSent := strconv.FormatFloat(float64(bytesSent)/1024/1024, 'f', 4, 64) + " MB"
 	BytesReceived := strconv.FormatFloat(float64(bytesReceived)/1024/1024, 'f', 4, 64) + " MB"

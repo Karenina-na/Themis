@@ -13,11 +13,9 @@ type CenterStatusModel struct {
 	CenterStatusInfoLock sync.RWMutex
 }
 
-//
 // NewCenterStatusModel
 // @Description: 生成CenterStatusModel
 // @return       *CenterStatusModel 返回CenterStatusModel
-//
 func NewCenterStatusModel() *CenterStatusModel {
 	return &CenterStatusModel{
 		CenterStatusInfo:     entity.NewComputerInfoModel(),

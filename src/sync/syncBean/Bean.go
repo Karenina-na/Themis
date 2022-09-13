@@ -1,6 +1,9 @@
 package syncBean
 
-import "Themis/src/util"
+import (
+	"Themis/src/entity"
+	"Themis/src/util"
+)
 
 var (
 	//Name	该服务集群名
@@ -19,4 +22,11 @@ var (
 	UdpReceiveMessage chan MessageModel
 	// UdpSendMessage UDP发送消息队列
 	UdpSendMessage chan MessageModel
+	// SectionMessage	同步通道
+	SectionMessage struct {
+		RegisterChan     chan entity.ServerModel
+		DeleteChan       chan entity.ServerModel
+		CancelDeleteChan chan entity.ServerModel
+		LeaderChan       chan entity.ServerModel
+	}
 )

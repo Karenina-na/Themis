@@ -6,11 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//
 // OperatorAPI
 // @Description: OperatorAPI
 // @param        r *gin.Engine
-//
 func OperatorAPI(r *gin.Engine) {
 	tx := r.Group("/api/v1/operator")
 	{

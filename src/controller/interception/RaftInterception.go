@@ -9,11 +9,9 @@ import (
 	"net/http"
 )
 
-//
 // ClusterFollowInterception
 // @Description: 拦截不属于Follow的请求
 // @return       gin.HandlerFunc 返回拦截器
-//
 func ClusterFollowInterception() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if config.Cluster.ClusterEnable {
@@ -29,11 +27,9 @@ func ClusterFollowInterception() gin.HandlerFunc {
 	}
 }
 
-//
 // ClusterLeaderInterception
 // @Description: 拦截不属于Leader的请求
 // @return       gin.HandlerFunc 返回拦截器
-//
 func ClusterLeaderInterception() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if config.Cluster.ClusterEnable {
@@ -45,11 +41,9 @@ func ClusterLeaderInterception() gin.HandlerFunc {
 	}
 }
 
-//
 // ClusterCandidateInterception
 // @Description: Candidate节点拦截器
 // @return       gin.HandlerFunc 返回拦截器
-//
 func ClusterCandidateInterception() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if config.Cluster.ClusterEnable {

@@ -16,11 +16,9 @@ type ServerModel struct {
 	Namespace string `json:"namespace" gorm:"column:namespace"`
 }
 
-//
 // NewServerModel
 // @Description: Create a new server model
 // @return       *ServerModel : The new server model
-//
 func NewServerModel() *ServerModel {
 	return &ServerModel{}
 }

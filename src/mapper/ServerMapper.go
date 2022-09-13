@@ -15,7 +15,6 @@ const (
 	LEADER
 )
 
-//
 // StorageList
 // @Description: 存储服务列表
 // @param        List 服务列表
@@ -23,7 +22,6 @@ const (
 // @param        tx   事务
 // @return       B    是否成功
 // @return       E    错误信息
-//
 func StorageList(List *util.LinkList[entity.ServerModel], Type int, tx *gorm.DB) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -71,7 +69,6 @@ func StorageList(List *util.LinkList[entity.ServerModel], Type int, tx *gorm.DB)
 	return true, nil
 }
 
-//
 // Storage
 // @Description: 存储服务
 // @param        model 服务
@@ -79,7 +76,6 @@ func StorageList(List *util.LinkList[entity.ServerModel], Type int, tx *gorm.DB)
 // @param        tx    事务
 // @return       B     是否成功
 // @return       E     错误信息
-//
 func Storage(model *entity.ServerModel, Type int, tx *gorm.DB) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -116,14 +112,12 @@ func Storage(model *entity.ServerModel, Type int, tx *gorm.DB) (B bool, E error)
 	return true, nil
 }
 
-//
 // SelectAllServers
 // @Description: 查询所有服务
 // @return       S1 所有服务列表
 // @return       S2 黑名单服务列表
 // @return       S3 领导者服务列表
 // @return       E  错误信息
-//
 func SelectAllServers() (S1 []entity.ServerModel, S2 []entity.ServerModel, S3 []entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -168,14 +162,12 @@ func SelectAllServers() (S1 []entity.ServerModel, S2 []entity.ServerModel, S3 []
 	return List, DeleteList, LeaderList, nil
 }
 
-//
 // DeleteServer
 // @Description: 删除服务
 // @param        model 服务
 // @param        tx    事务
 // @return       B     是否成功
 // @return       E     错误信息
-//
 func DeleteServer(model *entity.ServerModel, tx *gorm.DB) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -200,13 +192,11 @@ func DeleteServer(model *entity.ServerModel, tx *gorm.DB) (B bool, E error) {
 	return true, nil
 }
 
-//
 // DeleteAllServer
 // @Description: 删除所有服务
 // @param        tx 事务
 // @return       B  是否成功
 // @return       E  错误信息
-//
 func DeleteAllServer(tx *gorm.DB) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -231,13 +221,11 @@ func DeleteAllServer(tx *gorm.DB) (B bool, E error) {
 	return true, nil
 }
 
-//
 // Transaction
 // @Description: 事务
 // @param        List 服务列表
 // @return       B    是否成功
 // @return       E    错误信息
-//
 func Transaction(List ...func(tx *gorm.DB) error) (B bool, E error) {
 	defer func() {
 		r := recover()

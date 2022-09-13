@@ -10,11 +10,9 @@ import (
 	"time"
 )
 
-//
 // Register
 // @Description: 注册服务
 // @return       E error
-//
 func Register() (E error) {
 	defer func() {
 		r := recover()
@@ -68,14 +66,12 @@ func Register() (E error) {
 	}
 }
 
-//
 // ServerBeat
 // @Description: 服务心跳
 // @param        model     服务模型
 // @param        namespace 命名空间
 // @param        name      服务名称
 // @return       E         error
-//
 func ServerBeat(model entity.ServerModel, namespace string, name string) (E error) {
 	defer func() {
 		r := recover()
@@ -122,11 +118,9 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 	}
 }
 
-//
 // CenterStatusRoutine
 // @Description: 中心状态协程
 // @return       E error
-//
 func CenterStatusRoutine() (E error) {
 	defer func() {
 		r := recover()

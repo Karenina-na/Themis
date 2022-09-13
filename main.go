@@ -39,7 +39,6 @@ import (
 ~ limitations under the License.
 */
 
-//
 // @title          Themis
 // @version        1.0
 // @description    分布式记账系统调度中心
@@ -52,7 +51,6 @@ import (
 //
 // main
 // @Description:   主函数
-//
 func main() {
 	arg := flag.String("mode", "debug", "debug / release /test 环境")
 	flag.Parse()

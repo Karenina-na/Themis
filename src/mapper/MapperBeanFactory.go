@@ -14,11 +14,9 @@ import (
 // DB 数据库连接
 var DB *gorm.DB
 
-//
 // InitMapper
 // @Description: 初始化数据库
 // @return       E error
-//
 func InitMapper() (E error) {
 	defer func() {
 		r := recover()
@@ -43,11 +41,9 @@ func InitMapper() (E error) {
 	return nil
 }
 
-//
 // CloseMapper
 // @Description: 关闭数据库
 // @return       E error
-//
 func CloseMapper() (E error) {
 	defer func() {
 		r := recover()
@@ -63,11 +59,9 @@ func CloseMapper() (E error) {
 	return nil
 }
 
-//
 // MysqlInit
 // @Description: 初始化mysql数据库
 // @return       E error
-//
 func MysqlInit() (E error) {
 	defer func() {
 		r := recover()
@@ -94,11 +88,9 @@ func MysqlInit() (E error) {
 	return nil
 }
 
-//
 // SqlLitInit
 // @Description: 初始化sqlite数据库
 // @return       E error
-//
 func SqlLitInit() (E error) {
 	defer func() {
 		r := recover()

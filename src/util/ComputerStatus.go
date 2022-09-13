@@ -13,20 +13,16 @@ import (
 // F is a function to handle error
 var F func(err error)
 
-//
 // SetStatusErrorHandle
 // @Description: Set the error handler for the status module
 // @param        f : the error handler
-//
 func SetStatusErrorHandle(f func(err error)) {
 	F = f
 }
 
-//
 // GetCpuInfo
 // @Description: Get the CPU information
 // @return       []entity.CpuInfoModel : the CPU information
-//
 func GetCpuInfo() []entity.CpuInfoModel {
 	cpuInfos, err1 := cpu.Info()
 	if err1 != nil {
@@ -46,11 +42,9 @@ func GetCpuInfo() []entity.CpuInfoModel {
 	return Infos
 }
 
-//
 // GetMemInfo
 // @Description: Get the memory information
 // @return       *entity.MemInfoModel : the memory information
-//
 func GetMemInfo() *entity.MemInfoModel {
 	memInfo, err := mem.VirtualMemory()
 	if err != nil {
@@ -60,11 +54,9 @@ func GetMemInfo() *entity.MemInfoModel {
 	return MemInfo
 }
 
-//
 // GetHostInfo
 // @Description: Get the host information
 // @return       *entity.HostInfoModel : the host information
-//
 func GetHostInfo() *entity.HostInfoModel {
 	hostInfo, err := host.Info()
 	if err != nil {
@@ -76,11 +68,9 @@ func GetHostInfo() *entity.HostInfoModel {
 	return HostInfo
 }
 
-//
 // GetDiskInfo
 // @Description: Get the disk information
 // @return       []entity.DiskInfoModel : the disk information
-//
 func GetDiskInfo() []entity.DiskInfoModel {
 	parts, err := disk.Partitions(true)
 	if err != nil {
@@ -98,11 +88,9 @@ func GetDiskInfo() []entity.DiskInfoModel {
 	return Infos
 }
 
-//
 // GetNetInfo
 // @Description: Get the network information
 // @return       []entity.NetInfoModel : the network information
-//
 func GetNetInfo() []entity.NetInfoModel {
 	netIOs, err := net.IOCounters(true)
 	if err != nil {

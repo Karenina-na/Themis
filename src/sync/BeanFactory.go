@@ -2,17 +2,17 @@ package sync
 
 import (
 	"Themis/src/config"
+	"Themis/src/entity"
 	"Themis/src/exception"
 	"Themis/src/service/Bean"
+	"Themis/src/sync/common"
 	"Themis/src/sync/syncBean"
 	"Themis/src/util"
 )
 
-//
 // InitSync
 // @Description: 初始化同步
 // @return       E error
-//
 func InitSync() (E error) {
 	defer func() {
 		r := recover()
@@ -40,7 +40,7 @@ func InitSync() (E error) {
 			}
 		}()
 		util.Loglevel(util.Debug, "UDPReceive-sync-goroutine", "UDP接收协程启动")
-		err := UDPReceive()
+		err := common.UDPReceive()
 		if err != nil {
 			return err
 		}
@@ -56,7 +56,7 @@ func InitSync() (E error) {
 			}
 		}()
 		util.Loglevel(util.Debug, "UDPSend-sync-goroutine", "UDP发送协程启动")
-		err := UDPSend()
+		err := common.UDPSend()
 		if err != nil {
 			return err
 		}
@@ -64,18 +64,34 @@ func InitSync() (E error) {
 	}, func(Message error) {
 		exception.HandleException(Message)
 	})
-	E = ChangeToFollow()
-	if E != nil {
-		return E
+
+	syncBean.SectionMessage = struct {
+		RegisterChan     chan entity.ServerModel
+		DeleteChan       chan entity.ServerModel
+		CancelDeleteChan chan entity.ServerModel
+		LeaderChan       chan entity.ServerModel
+	}{
+		RegisterChan:     make(chan entity.ServerModel, 10),
+		DeleteChan:       make(chan entity.ServerModel, 10),
+		CancelDeleteChan: make(chan entity.ServerModel, 10),
+		LeaderChan:       make(chan entity.ServerModel, 10),
 	}
+
+	Bean.RoutinePool.CreateWork(func() (E error) {
+		util.Loglevel(util.Debug, "StatusController-sync-goroutine", "状态控制器启动")
+		if err := StatusController(); err != nil {
+			return err
+		}
+		return nil
+	}, func(Message error) {
+		exception.HandleException(Message)
+	})
 	return nil
 }
 
-//
 // Close
 // @Description: 关闭同步
 // @return       E error
-//
 func Close() (E error) {
 	defer func() {
 		r := recover()

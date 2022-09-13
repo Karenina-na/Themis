@@ -6,18 +6,17 @@ import (
 	"Themis/src/exception"
 	"Themis/src/service/Bean"
 	"Themis/src/service/LeaderAlgorithm"
+	"Themis/src/sync/syncBean"
 	"Themis/src/util"
 	"strings"
 	"time"
 )
 
-//
 // RegisterServer
 // @Description: 注册服务器
 // @param        S 服务器模型
 // @return       B 是否成功
 // @return       E 错误
-//
 func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -32,17 +31,18 @@ func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 		S.Colony = "default"
 	}
 	Bean.ServersQueue <- *S
+	if config.Cluster.ClusterEnable {
+		syncBean.SectionMessage.RegisterChan <- *S
+	}
 	util.Loglevel(util.Debug, "RegisterServer", "注册服务-"+util.Strval(*S))
 	return true, nil
 }
 
-//
 // FlashHeartBeat
 // @Description: 心跳
 // @param        model 服务器模型
 // @return       B     是否成功
 // @return       E     错误
-//
 func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -68,13 +68,11 @@ func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 	return false, nil
 }
 
-//
 // Election
 // @Description: 选举
 // @param        model 服务器模型
 // @return       B     是否成功
 // @return       E     错误
-//
 func Election(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
@@ -96,6 +94,9 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 	}
 	Bean.Servers.ServerModelsListRWLock.RUnlock()
 	leader := LeaderAlgorithm.CreateLeader(ChoiceList)
+	if config.Cluster.ClusterEnable {
+		syncBean.SectionMessage.LeaderChan <- leader
+	}
 	Bean.Leaders.LeaderModelsListRWLock.Lock()
 	Bean.Leaders.LeaderModelsList[model.Namespace][model.Colony] = leader
 	Bean.Leaders.LeaderModelsListRWLock.Unlock()
@@ -117,13 +118,11 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
-//
 // GetLeader
 // @Description: 获取leader
 // @param        model 服务器模型
 // @return       m     leader
 // @return       E     错误
-//
 func GetLeader(model *entity.ServerModel) (m entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -137,13 +136,11 @@ func GetLeader(model *entity.ServerModel) (m entity.ServerModel, E error) {
 	return leader, nil
 }
 
-//
 // GetServers
 // @Description: 获取服务器列表
 // @param        model 服务器模型
 // @return       m     服务器列表
 // @return       E     错误
-//
 func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 	defer func() {
 		r := recover()
@@ -164,13 +161,11 @@ func GetServers(model *entity.ServerModel) (m []entity.ServerModel, E error) {
 	return list, nil
 }
 
-//
 // GetServersNumber
 // @Description: 获取服务器数量
 // @param        model 服务器模型
 // @return       num   服务器数量
 // @return       E     错误
-//
 func GetServersNumber(model *entity.ServerModel) (num int, E error) {
 	defer func() {
 		r := recover()

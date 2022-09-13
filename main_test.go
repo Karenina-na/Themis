@@ -57,7 +57,8 @@ func Test(t *testing.T) {
 	test5()
 }
 
-/**
+/*
+*
 注册-选举-拉入黑名单-拉出黑名单
 */
 func test1(router *gin.Engine) {
@@ -73,7 +74,8 @@ func test1(router *gin.Engine) {
 	ServerTest.GetDeleteInstances(router)
 }
 
-/**
+/*
+*
 注册-选举-获取leader领导的实例-拉入黑名单-拉出黑名单
 */
 func test2(router *gin.Engine) {
@@ -87,7 +89,8 @@ func test2(router *gin.Engine) {
 	ServerTest.GetDeleteInstances(router)
 }
 
-/**
+/*
+*
 注册-获取指定条件下服务器列表-拉入黑名单-拉出黑名单
 */
 func test3(router *gin.Engine) {
@@ -98,7 +101,8 @@ func test3(router *gin.Engine) {
 	ServerTest.CancelDeleteInstance(router)
 }
 
-/**
+/*
+*
 注册-心跳-拉入黑名单-拉出黑名单
 */
 func test4(router *gin.Engine) {

@@ -16,13 +16,11 @@ const PortReg = "^([0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{
 // PositiveReg 验证正数正则表达式
 const PositiveReg = "^[1-9]\\d*$"
 
-//
 // VerifyReg
 // @Description: 验证正则表达式
 // @param        reg   正则表达式
 // @param        value 验证值
 // @return       bool  验证结果
-//
 func VerifyReg(reg, value string) bool {
 	res, _ := regexp.Match(reg, []byte(value))
 	return res

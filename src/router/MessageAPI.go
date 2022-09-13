@@ -6,11 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//
 // MessageAPI
 // @Description: MessageAPI
 // @param        r *gin.Engine
-//
 func MessageAPI(r *gin.Engine) {
 	tx := r.Group("/api/v1/message")
 	tx.Use(interception.ClusterCandidateInterception())

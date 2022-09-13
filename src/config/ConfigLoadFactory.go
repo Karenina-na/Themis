@@ -8,11 +8,9 @@ import (
 	"strconv"
 )
 
-//
 // InitConfig
 // @Description: 初始化配置文件
 // @return       E error
-//
 func InitConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -53,11 +51,9 @@ func InitConfig() (E error) {
 	return nil
 }
 
-//
 // LoadRoutineConfig
 // @Description: 加载协程配置
 // @return       E error
-//
 func LoadRoutineConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -84,11 +80,9 @@ func LoadRoutineConfig() (E error) {
 	return nil
 }
 
-//
 // LoadPortConfig
 // @Description: 加载端口配置
 // @return       E error
-//
 func LoadPortConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -115,11 +109,9 @@ func LoadPortConfig() (E error) {
 	return nil
 }
 
-//
 // LoadServerConfig
 // @Description: 加载服务相关配置
 // @return       E error
-//
 func LoadServerConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -155,11 +147,9 @@ func LoadServerConfig() (E error) {
 	return nil
 }
 
-//
 // LoadDatabaseConfig
 // @Description: 加载数据库配置
 // @return       E error
-//
 func LoadDatabaseConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -211,11 +201,9 @@ func LoadDatabaseConfig() (E error) {
 	return nil
 }
 
-//
 // LoadListenConfig
 // @Description: 加载监听配置
 // @return       E error
-//
 func LoadListenConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -230,11 +218,9 @@ func LoadListenConfig() (E error) {
 	return nil
 }
 
-//
 // LoadClusterConfig
 // @Description: 加载集群配置
 // @return       E error
-//
 func LoadClusterConfig() (E error) {
 	defer func() {
 		r := recover()
@@ -256,11 +242,11 @@ func LoadClusterConfig() (E error) {
 		}
 		Cluster.MaxFollowTimeOut = int64(viper.GetInt(`Themis.cluster.max-follow-timeout`))
 		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MaxFollowTimeOut))) {
-			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.max-timeout非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.max-follow-timeout非法")
 		}
 		Cluster.MinFollowTimeOut = int64(viper.GetInt(`Themis.cluster.min-follow-timeout`))
 		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MinFollowTimeOut))) {
-			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.min-timeout非法")
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.min-follow-timeout非法")
 		}
 		Cluster.MaxCandidateTimeOut = int64(viper.GetInt(`Themis.cluster.max-candidate-timeout`))
 		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.MaxCandidateTimeOut))) {
@@ -278,9 +264,13 @@ func LoadClusterConfig() (E error) {
 		if !VerifyReg(PositiveReg, strconv.Itoa(Cluster.UDPQueueNum)) {
 			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.udp-queue-num非法")
 		}
-		Cluster.LeaderSyncTime = int64(viper.GetInt(`Themis.cluster.leader-sync-time`))
-		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.LeaderSyncTime))) {
-			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.leader-sync-time非法")
+		Cluster.LeaderSnapshotSyncTime = int64(viper.GetInt(`Themis.cluster.leader-snapshot-sync-time`))
+		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.LeaderSnapshotSyncTime))) {
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.leader-snapshot-sync-time非法")
+		}
+		Cluster.LeaderHeartbeatTime = int64(viper.GetInt(`Themis.cluster.leader-heartbeat-time`))
+		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.LeaderHeartbeatTime))) {
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.leader-heartbeat-time非法")
 		}
 		Cluster.Clusters = make([]map[string]string, 0)
 		clusters := viper.Get(`Themis.cluster.clusters`)

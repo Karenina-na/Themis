@@ -13,11 +13,9 @@ type LeadersModel struct {
 	LeaderModelsListRWLock sync.RWMutex
 }
 
-//
 // NewLeadersModel
 // @Description: 创建一个新的记账人模型
 // @return       *LeadersModel 返回一个新的记账人模型
-//
 func NewLeadersModel() *LeadersModel {
 	return &LeadersModel{
 		LeaderModelsList:       make(map[string]map[string]entity.ServerModel),

@@ -1,4 +1,4 @@
-package sync
+package common
 
 import (
 	"Themis/src/config"
@@ -12,16 +12,14 @@ import (
 	"time"
 )
 
-//
 // UDPSend
 // @Description: 发送udp消息
 // @return       E error
-//
 func UDPSend() (E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			E = exception.NewSystemError("UDPSend-sync", util.Strval(r))
+			E = exception.NewSystemError("UDPSend-common", util.Strval(r))
 		}
 	}()
 	for {
@@ -31,22 +29,22 @@ func UDPSend() (E error) {
 			conn, err := net.DialTimeout("udp", msg.UDPTargetAddress.IP+":"+msg.UDPTargetAddress.Port,
 				time.Duration(config.Cluster.UDPTimeOut)*time.Second)
 			if err != nil {
-				return exception.NewUserError("UDPSend-sync-goroutine", "UDP连接错误-"+err.Error())
+				return exception.NewUserError("UDPSend-common", "UDP连接错误-"+err.Error())
 			}
 			data, err := json.Marshal(msg)
 			if err != nil {
-				return exception.NewUserError("UDPSend-sync-goroutine", "json转换错误"+err.Error())
+				return exception.NewUserError("UDPSend-common", "json转换错误"+err.Error())
 			}
 			if config.Cluster.EnableEncryption {
 				data = []byte(encryption.AESEncrypt(string(data), config.Cluster.EncryptionKey))
 			}
 			_, err = conn.Write(data)
 			if err != nil {
-				return exception.NewUserError("UDPSend-sync-goroutine", "UDP发送错误-"+err.Error())
+				return exception.NewUserError("UDPSend-common", "UDP发送错误-"+err.Error())
 			}
 			err = conn.Close()
 			if err != nil {
-				return exception.NewUserError("UDPSend-sync-goroutine", "UDP关闭错误-"+err.Error())
+				return exception.NewUserError("UDPSend-common", "UDP关闭错误-"+err.Error())
 			}
 		case <-syncBean.CloseChan:
 			util.Loglevel(util.Debug, "UDPSend", "UDP发送协程退出")
@@ -56,32 +54,30 @@ func UDPSend() (E error) {
 	}
 }
 
-//
 // UDPReceive
 // @Description: 接收udp消息
 // @return       E error
-//
 func UDPReceive() (E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			E = exception.NewSystemError("UDPReceive-sync", util.Strval(r))
+			E = exception.NewSystemError("UDPReceive-common", util.Strval(r))
 		}
 	}()
 	udpAddr, err := net.ResolveUDPAddr("udp", ":"+config.Cluster.Port)
 	if err != nil {
-		return exception.NewUserError("UDPReceive-sync", "创建udp服务错误"+err.Error())
+		return exception.NewUserError("UDPReceive-common", "创建udp服务错误"+err.Error())
 	}
 	serverConn, err := net.ListenUDP("udp", udpAddr)
 	if err != nil {
-		return exception.NewUserError("UDPReceive-sync", "监听udp服务错误-"+err.Error())
+		return exception.NewUserError("UDPReceive-common", "监听udp服务错误-"+err.Error())
 	}
 	Bean.RoutinePool.CreateWork(func() (E error) {
 		for {
 			buf := make([]byte, 4096)
 			n, _, err := serverConn.ReadFromUDP(buf)
 			if err != nil {
-				util.Loglevel(util.Debug, "UDPReceive", "UDP接收协程退出")
+				util.Loglevel(util.Debug, "UDPReceive-common", "UDP接收协程退出")
 				return nil
 			}
 			var msg syncBean.MessageModel
@@ -92,12 +88,12 @@ func UDPReceive() (E error) {
 			}
 			err = json.Unmarshal(buf, &msg)
 			if err != nil {
-				return exception.NewUserError("UDPReceive-sync-goroutine", "json转换错误"+err.Error())
+				return exception.NewUserError("UDPReceive-common", "json转换错误"+err.Error())
 			}
 			if msg.VerifySign() {
 				syncBean.UdpReceiveMessage <- msg
 			} else {
-				util.Loglevel(util.Info, "UDPReceive-sync-goroutine", "签名错误")
+				util.Loglevel(util.Info, "UDPReceive-common", "签名错误")
 			}
 		}
 	}, func(Message error) {
@@ -106,7 +102,7 @@ func UDPReceive() (E error) {
 	<-syncBean.CloseChan
 	err = serverConn.Close()
 	if err != nil {
-		return exception.NewUserError("UDPReceive-sync", "关闭udp服务错误-"+err.Error())
+		return exception.NewUserError("UDPReceive-common", "关闭udp服务错误-"+err.Error())
 	}
 	return
 }
