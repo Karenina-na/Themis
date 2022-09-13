@@ -39,7 +39,7 @@ Themis:
 
   #集群配置
   cluster:
-    enable: true #是否开启集群
+    enable: false #是否开启集群
     track-enable: true #是否开启集群数据跟踪
     name: themis-A #集群名称
     ip: localhost #ip地址

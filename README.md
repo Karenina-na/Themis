@@ -56,8 +56,12 @@ Themis:.
 │  │  ├─controller  //swagger控制器
 │  │  ├─entity    //swagger数据模型
 │  │  └─syncBean    //swagger数据模型
-│  ├─sync           //集群同步器
-│  │  └─syncBean    //同步状态Bean
+│  ├─sync           //集群同步包
+│  │  ├─candidate   //candidate状态
+│  │  ├─common      //公共代码
+│  │  ├─follow      //follow状态
+│  │  ├─leader      //leader状态  
+│  │  └─syncBean    //同步数据模型
 │  └─util            //工具类  
 │     └─encryption  //加密控制器
 └─test              //测试
