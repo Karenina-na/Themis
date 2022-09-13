@@ -46,7 +46,7 @@ func Leader() (E error) {
 
 	Bean.RoutinePool.CreateWork(func() (E error) {
 		util.Loglevel(util.Debug, "Leader-leader", "leader-心跳发送协程启动")
-		if err := SendHeartBeatGoroutine(); err != nil {
+		if err := SendHeartBeatGoroutine(SyncRoutineBool); err != nil {
 			return err
 		}
 		return nil
@@ -88,7 +88,7 @@ func SendDataGoroutineSnapshot(SyncRoutineBool chan bool) (E error) {
 	}()
 	for {
 		select {
-		case <-time.After(time.Millisecond * time.Duration(config.Cluster.LeaderSnapshotSyncTime)):
+		case <-time.After(time.Second * time.Duration(config.Cluster.LeaderSnapshotSyncTime)):
 			instances, deleteInstances, leaderInstances, e := CreateSendSyncDataSnapshot()
 			if e != nil {
 				return e
@@ -188,7 +188,7 @@ func SendDataGoroutine(SyncRoutineBool chan bool) (E error) {
 //
 //	@Description: leader 心跳发送协程
 //	@return E	异常
-func SendHeartBeatGoroutine() (E error) {
+func SendHeartBeatGoroutine(SyncRoutineBool chan bool) (E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
@@ -207,6 +207,12 @@ func SendHeartBeatGoroutine() (E error) {
 						"leader心跳发送协程发送数据"+util.Strval(m.UDPTargetAddress))
 				}
 			})
+		case <-SyncRoutineBool:
+			util.Loglevel(util.Info, "SendDataGoroutine-leader", "leader心跳发送协程关闭")
+			return nil
+		case <-syncBean.CloseChan:
+			util.Loglevel(util.Info, "SendDataGoroutine-leader", "leader心跳发送协程关闭")
+			return nil
 		}
 	}
 }

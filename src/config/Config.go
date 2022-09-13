@@ -131,6 +131,9 @@ var (
 		//LeaderHeartbeatTime		心跳间隔
 		LeaderHeartbeatTime int64
 
+		//LeaderQueueNum	leader队列
+		LeaderQueueNum int
+
 		//Clusters	集群
 		Clusters []map[string]string
 

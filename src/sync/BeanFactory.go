@@ -71,10 +71,10 @@ func InitSync() (E error) {
 		CancelDeleteChan chan entity.ServerModel
 		LeaderChan       chan entity.ServerModel
 	}{
-		RegisterChan:     make(chan entity.ServerModel, 10),
-		DeleteChan:       make(chan entity.ServerModel, 10),
-		CancelDeleteChan: make(chan entity.ServerModel, 10),
-		LeaderChan:       make(chan entity.ServerModel, 10),
+		RegisterChan:     make(chan entity.ServerModel, config.Cluster.LeaderQueueNum),
+		DeleteChan:       make(chan entity.ServerModel, config.Cluster.LeaderQueueNum),
+		CancelDeleteChan: make(chan entity.ServerModel, config.Cluster.LeaderQueueNum),
+		LeaderChan:       make(chan entity.ServerModel, config.Cluster.LeaderQueueNum),
 	}
 
 	Bean.RoutinePool.CreateWork(func() (E error) {

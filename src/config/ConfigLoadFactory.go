@@ -272,6 +272,10 @@ func LoadClusterConfig() (E error) {
 		if !VerifyReg(PositiveReg, strconv.Itoa(int(Cluster.LeaderHeartbeatTime))) {
 			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.leader-heartbeat-time非法")
 		}
+		Cluster.LeaderQueueNum = viper.GetInt(`Themis.cluster.leader-queue`)
+		if !VerifyReg(PositiveReg, strconv.Itoa(Cluster.LeaderQueueNum)) {
+			return exception.NewConfigurationError("LoadClusterConfig-config", "Themis.cluster.leader-queue非法")
+		}
 		Cluster.Clusters = make([]map[string]string, 0)
 		clusters := viper.Get(`Themis.cluster.clusters`)
 		for _, cluster := range clusters.([]interface{}) {
