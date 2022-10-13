@@ -41,6 +41,7 @@ func InitServer() (E error) {
 
 	Bean.Leaders = Bean.NewLeadersModel()
 	Bean.Leaders.LeaderModelsList["default"] = make(map[string]entity.ServerModel)
+	Bean.Leaders.ElectionServers["default"] = make(map[string]*util.LinkList[entity.ServerModel])
 	Bean.Leaders.LeaderModelsListRWLock = sync.RWMutex{}
 
 	for i := 0; i < config.ServerRegister.ServerModelHandleNum; i++ {

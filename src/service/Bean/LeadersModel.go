@@ -2,6 +2,7 @@ package Bean
 
 import (
 	"Themis/src/entity"
+	"Themis/src/util"
 	"sync"
 )
 
@@ -9,6 +10,8 @@ import (
 type LeadersModel struct {
 	// LeaderModelsList 记账人
 	LeaderModelsList map[string]map[string]entity.ServerModel
+	// ElectionServers 提出选举的服务器
+	ElectionServers map[string]map[string]*util.LinkList[entity.ServerModel]
 	// LeaderModelsListRWLock 记账人读写锁
 	LeaderModelsListRWLock sync.RWMutex
 }
@@ -19,6 +22,7 @@ type LeadersModel struct {
 func NewLeadersModel() *LeadersModel {
 	return &LeadersModel{
 		LeaderModelsList:       make(map[string]map[string]entity.ServerModel),
+		ElectionServers:        make(map[string]map[string]*util.LinkList[entity.ServerModel]),
 		LeaderModelsListRWLock: sync.RWMutex{},
 	}
 }

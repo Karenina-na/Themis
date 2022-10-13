@@ -33,6 +33,11 @@ func Register() (E error) {
 			Bean.Leaders.LeaderModelsListRWLock.Lock()
 			if Bean.Leaders.LeaderModelsList[namespace] == nil {
 				Bean.Leaders.LeaderModelsList[namespace] = make(map[string]entity.ServerModel)
+				Bean.Leaders.ElectionServers[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
+				Bean.Leaders.ElectionServers[namespace][data.Colony] = util.NewLinkList[entity.ServerModel]()
+			}
+			if Bean.Leaders.ElectionServers[namespace][data.Colony] == nil {
+				Bean.Leaders.ElectionServers[namespace][data.Colony] = util.NewLinkList[entity.ServerModel]()
 			}
 			Bean.Leaders.LeaderModelsListRWLock.Unlock()
 			Bean.Servers.ServerModelsListRWLock.Lock()

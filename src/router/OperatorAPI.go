@@ -38,9 +38,9 @@ func OperatorAPI(r *gin.Engine) {
 			controller.CancelDeleteInstanceController)
 		// /api/v1/operator/getStatus				获取当前中心状态
 		tx.GET("/getStatus", controller.GetStatusController)
-		// /api/v1/operator/getColony				获取当前集群Leader
+		// /api/v1/operator/getClusterLeader				获取当前集群Leader
 		tx.GET("/getClusterLeader", controller.GetClusterLeaderController)
-		// /api/v1/operator/getColony				获取当前集群服务身份
+		// /api/v1/operator/getClusterStatus				获取当前集群服务身份
 		tx.GET("/getClusterStatus", controller.GetClusterStatusController)
 	}
 }

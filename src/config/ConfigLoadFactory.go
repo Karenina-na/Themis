@@ -144,6 +144,10 @@ func LoadServerConfig() (E error) {
 		ServerBeat.ServerBeatTime = math.MaxInt
 	}
 	CreateLeaderAlgorithm = viper.GetString(`Themis.leader-algorithm`)
+	ElectionTimeOut = int64(viper.GetInt(`Themis.election-timeout`))
+	if !VerifyReg(PositiveReg, strconv.Itoa(int(ElectionTimeOut))) {
+		return exception.NewConfigurationError("LoadServerConfig-config", "Themis.election-timeout非法")
+	}
 	return nil
 }
 

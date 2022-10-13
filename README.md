@@ -23,8 +23,8 @@
 * GET /api/v1/operator/getDeleteInstances 获取黑名单内的实例
 * DELETE /api/v1/operator/cancelDeleteInstance 将服务从黑名单删除  
 * GET /api/v1/operator/getStatus 获取调度中心服务状态
-* GET /api/v1/operator/getColony 获取当前集群Leader
-* GET /api/v1/operator/getColony 获取当前集群服务身份
+* GET /api/v1/operator/getClusterLeader 获取当前集群Leader
+* GET /api/v1/operator/getClusterStatus 获取当前集群服务身份
 
 ### 具体API请运行项目并访问http://localhost:8080/swagger/index.html   查看swagger文档
 ```

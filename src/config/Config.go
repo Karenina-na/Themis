@@ -45,6 +45,9 @@ var (
 	// CreateLeaderAlgorithm 记账人选举算法
 	CreateLeaderAlgorithm string
 
+	// ElectionTimeOut 选举超时时间
+	ElectionTimeOut int64
+
 	// Database 数据库参数
 	Database struct {
 		// DatabaseType 数据库类型

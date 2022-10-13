@@ -80,6 +80,21 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("Election-service", util.Strval(r))
 		}
 	}()
+	Bean.Leaders.LeaderModelsListRWLock.Lock()
+	if Bean.Leaders.ElectionServers[model.Namespace][model.Colony].IsEmpty() {
+		Bean.Leaders.ElectionServers[model.Namespace][model.Colony].Append(*model)
+	}
+	ServerNum, err := GetServersNumber(model)
+	if err != nil {
+		Bean.Leaders.LeaderModelsListRWLock.Unlock()
+		return false, err
+	}
+	if Bean.Leaders.ElectionServers[model.Namespace][model.Colony].Length() <= ServerNum/2 {
+		Bean.Leaders.LeaderModelsListRWLock.Unlock()
+		return true, nil
+	}
+	Bean.Leaders.ElectionServers[model.Namespace][model.Colony].Clear()
+	Bean.Leaders.LeaderModelsListRWLock.Unlock()
 	util.Loglevel(util.Debug, "Election", "选举开始")
 	Bean.Servers.ServerModelsListRWLock.RLock()
 	ChoiceList := util.NewLinkList[entity.ServerModel]()
