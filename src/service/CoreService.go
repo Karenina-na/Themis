@@ -33,8 +33,9 @@ func Register() (E error) {
 			Bean.Leaders.LeaderModelsListRWLock.Lock()
 			if Bean.Leaders.LeaderModelsList[namespace] == nil {
 				Bean.Leaders.LeaderModelsList[namespace] = make(map[string]entity.ServerModel)
+			}
+			if Bean.Leaders.ElectionServers[namespace] == nil {
 				Bean.Leaders.ElectionServers[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
-				Bean.Leaders.ElectionServers[namespace][data.Colony] = util.NewLinkList[entity.ServerModel]()
 			}
 			if Bean.Leaders.ElectionServers[namespace][data.Colony] == nil {
 				Bean.Leaders.ElectionServers[namespace][data.Colony] = util.NewLinkList[entity.ServerModel]()
@@ -48,6 +49,7 @@ func Register() (E error) {
 				Bean.Servers.ServerModelsList[namespace][name] = util.NewLinkList[entity.ServerModel]()
 			}
 			Bean.Servers.ServerModelsList[namespace][name].Append(data)
+			Bean.Servers.ServerModelsListRWLock.Unlock()
 			Bean.InstanceList.Append(data)
 			if config.ServerBeat.ServerModelBeatEnable {
 				Bean.RoutinePool.CreateWork(func() (E error) {
@@ -66,7 +68,6 @@ func Register() (E error) {
 					exception.HandleException(Message)
 				})
 			}
-			Bean.Servers.ServerModelsListRWLock.Unlock()
 		}
 	}
 }

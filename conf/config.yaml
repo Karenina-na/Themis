@@ -5,7 +5,7 @@ goroutine:
 
 Themis:
   port: 50000  #注册中心http端口
-  UDP-port: 12345 #UDP服务端口
+  UDP-port: 12345 #UDP服务端口  -- 与客户端需要对应
   UDP-timeout: 5 #UDP服务超时时间 单位秒
 
   server:
@@ -14,22 +14,22 @@ Themis:
 
     beat-enable: true #是否开启心跳
     beat-queue: 200 #服务心跳处理队列容量
-    beat-time: 30  #服务心跳超时时间   单位秒
+    beat-time: 15  #服务心跳超时时间   单位秒
 
   leader-algorithm: RandomAlgorithmCreateLeader #记账人选举算法
-  election-timeout: 5 #选举超时时间 单位秒
+  election-timeout: 10 #选举超时时间 单位秒
 
   database:
     enable: false  #是否开启持久化
     persistence-time: 10 #持久化间隔 单位秒
-    soft-delete-enable: false #是否开启软删除
-    type: sqllit #数据库选型  mysql/sqllit
+    soft-delete-enable: true #是否开启软删除
+    type: mysql #数据库选型  mysql/sqllit
 
     mysql:
       host: 192.168.71.128 #数据库地址
       port: 3306 #数据库端口
       user: root #数据库用户名
-      password: root #数据库密码
+      password: 2167137570legacy #数据库密码
       name: themis #数据库名称
       max-open-conns: 10 #数据库最大连接数
       max-idle-conns: 10 #数据库最大空闲连接数
@@ -41,7 +41,7 @@ Themis:
   #集群配置
   cluster:
     enable: false #是否开启集群
-    track-enable: true #是否开启集群数据跟踪
+    track-enable: false #是否开启集群数据跟踪
     name: themis-A #集群名称
     ip: localhost #ip地址
     port: 8080 #集群端口

@@ -13,14 +13,20 @@ import (
 // @param        model 服务模型
 // @return       B     是否存在
 // @return       E     错误
-func CheckServer(model *entity.ServerModel) (B bool, E error) {
+func CheckServer(m *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
 			E = exception.NewUserError("CheckServer-service", util.Strval(r))
 		}
 	}()
-	return Bean.InstanceList.Contain(*model), nil
+	flag := false
+	Bean.InstanceList.Iterator(func(index int, model entity.ServerModel) {
+		if m.IP == model.IP && m.Port == model.Port {
+			flag = true
+		}
+	})
+	return flag, nil
 }
 
 // CheckDeleteServer
@@ -28,14 +34,20 @@ func CheckServer(model *entity.ServerModel) (B bool, E error) {
 // @param        model 服务模型
 // @return       B     是否存在
 // @return       E     错误
-func CheckDeleteServer(model *entity.ServerModel) (B bool, E error) {
+func CheckDeleteServer(m *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
 			E = exception.NewUserError("CheckDeleteServer-service", util.Strval(r))
 		}
 	}()
-	return Bean.DeleteInstanceList.Contain(*model), nil
+	flag := false
+	Bean.DeleteInstanceList.Iterator(func(index int, model entity.ServerModel) {
+		if m.IP == model.IP && m.Port == model.Port {
+			flag = true
+		}
+	})
+	return flag, nil
 }
 
 // CheckLeader

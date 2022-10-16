@@ -20,7 +20,6 @@ import (
 // @Success     200   {object} entity.ResultModel "返回true或false"
 // @Router      /message/register [post]
 func RegisterController(c *gin.Context) {
-
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
