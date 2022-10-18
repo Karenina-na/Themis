@@ -8,7 +8,6 @@ import (
 	"Themis/src/service/LeaderAlgorithm"
 	"Themis/src/sync/syncBean"
 	"Themis/src/util"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -135,7 +134,6 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 	Bean.Leaders.LeaderModelsListRWLock.Unlock()
 	util.Loglevel(util.Debug, "Election", "选举完成，发起通信-leader:"+leader.IP)
 	ChoiceList.Iterator(func(index int, m entity.ServerModel) {
-		util.Loglevel(util.Error, "Election", util.Strval(m))
 		Bean.RoutinePool.CreateWork(func() (E error) {
 			defer func() {
 				r := recover()
@@ -143,10 +141,7 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 					E = exception.NewSystemError("udp-message-goroutine", util.Strval(r))
 				}
 			}()
-			//return m.SendMessageUDP(leader, config.Port.UDPPort, config.Port.UDPTimeOut)	//暂时注释
-
-			port, _ := strconv.Atoi(m.Port)                                                //不要的
-			return m.SendMessageUDP(leader, strconv.Itoa(port+10), config.Port.UDPTimeOut) //不要的
+			return m.SendMessageUDP(leader, config.Port.UDPTimeOut)
 
 		}, func(err error) {
 			exception.HandleException(exception.NewUserError("udp-message", " UDP通信错误 "+err.Error()+" "+util.Strval(model)))

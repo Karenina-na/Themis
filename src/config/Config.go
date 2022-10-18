@@ -15,8 +15,6 @@ var (
 	Port struct {
 		// CenterPort 注册中心http端口
 		CenterPort string
-		// UDPPort UDP服务端口
-		UDPPort string
 		// UDPTimeOut UDP超时时间
 		UDPTimeOut int
 	}

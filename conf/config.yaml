@@ -5,7 +5,6 @@ goroutine:
 
 Themis:
   port: 50000  #注册中心http端口
-  UDP-port: 12345 #UDP服务端口  -- 与客户端需要对应
   UDP-timeout: 5 #UDP服务超时时间 单位秒
 
   server:

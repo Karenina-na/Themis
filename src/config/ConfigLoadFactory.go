@@ -94,13 +94,6 @@ func LoadPortConfig() (E error) {
 	if !VerifyReg(PortReg, Port.CenterPort) {
 		return exception.NewConfigurationError("LoadPortConfig-config", "Themis.port端口非法")
 	}
-	Port.UDPPort = viper.GetString(`Themis.UDP-port`)
-	if !VerifyReg(PortReg, Port.UDPPort) {
-		return exception.NewConfigurationError("LoadPortConfig-config", "Themis.UDP-port端口非法")
-	} else if Port.UDPPort == Port.CenterPort {
-		return exception.NewConfigurationError("LoadPortConfig-config",
-			"Themis.UDP-port端口不能与Themis.port端口相同")
-	}
 	udpTimeOut := viper.GetString(`Themis.UDP-timeout`)
 	if !VerifyReg(PositiveReg, udpTimeOut) {
 		return exception.NewConfigurationError("LoadPortConfig-config", "Themis.UDP-timeout非法")

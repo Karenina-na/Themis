@@ -10,6 +10,7 @@ import (
 type ServerModel struct {
 	IP        string `json:"IP" gorm:"column:ip"`
 	Port      string `json:"port" gorm:"column:port"`
+	UDPPort   string `json:"udp_port" gorm:"column:udp_port"`
 	Name      string `json:"name" gorm:"column:name"`
 	Time      string `json:"time" gorm:"column:time"`
 	Colony    string `json:"colony" gorm:"column:colony"`
@@ -34,6 +35,7 @@ func (server ServerModel) Clone() *ServerModel {
 	return &ServerModel{
 		IP:        server.IP,
 		Port:      server.Port,
+		UDPPort:   server.UDPPort,
 		Name:      server.Name,
 		Time:      server.Time,
 		Colony:    server.Colony,
@@ -51,8 +53,8 @@ func (server ServerModel) Clone() *ServerModel {
 // @return       error   : The error if there is one
 //
 
-func (server ServerModel) SendMessageUDP(leader ServerModel, port string, timeout int) error {
-	conn, err := net.DialTimeout("udp", server.IP+":"+port,
+func (server ServerModel) SendMessageUDP(leader ServerModel, timeout int) error {
+	conn, err := net.DialTimeout("udp", server.IP+":"+server.UDPPort,
 		time.Duration(timeout)*time.Second)
 	if err != nil {
 		return err
