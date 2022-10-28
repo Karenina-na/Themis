@@ -41,6 +41,9 @@ func InitConfig() (E error) {
 		if err := LoadClusterConfig(); err != nil {
 			return err
 		}
+		if err := LoadRootConfig(); err != nil {
+			return err
+		}
 	} else {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			return exception.NewConfigurationError("InitConfig-config", "配置文件不存在")
@@ -291,6 +294,39 @@ func LoadClusterConfig() (E error) {
 		if Cluster.EnableEncryption {
 			key := viper.GetString(`Themis.cluster.encryption-key`)
 			Cluster.EncryptionKey = []byte(key)
+		}
+	}
+	return nil
+}
+
+// LoadRootConfig
+//
+//	@Description: 加载管理员信息
+//	@return E	error
+func LoadRootConfig() (E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewSystemError("LoadRootConfig-config", util.Strval(r))
+		}
+	}()
+	Root.RootAccount = viper.GetString(`root.account`)
+	if Root.RootAccount == "" {
+		Root.RootAccount = "root"
+	}
+	Root.RootPassword = viper.GetString(`root.password`)
+	if Root.RootPassword == "" {
+		Root.RootPassword = "root"
+	}
+	Root.TokenEnable = viper.GetBool(`root.token-enable`)
+	if Root.TokenEnable {
+		Root.TokenExpireTime = viper.GetInt(`root.token-expire`)
+		if !VerifyReg(PositiveReg, strconv.Itoa(Root.TokenExpireTime)) {
+			return exception.NewConfigurationError("LoadRootConfig-config", "root.token-expire非法")
+		}
+		Root.TokenSignKey = viper.GetString(`root.token-sign`)
+		if Root.TokenSignKey == "" {
+			Root.TokenSignKey = "root"
 		}
 	}
 	return nil

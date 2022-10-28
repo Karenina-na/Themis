@@ -6,7 +6,6 @@ import (
 	"Themis/src/exception"
 	"Themis/src/service/Bean"
 	"Themis/src/util"
-	"reflect"
 	"time"
 )
 
@@ -30,6 +29,15 @@ func Register() (E error) {
 		case data := <-Bean.ServersQueue:
 			namespace := data.Namespace
 			name := data.Colony + "::" + data.Name
+			Bean.Servers.ServerModelsListRWLock.Lock()
+			if Bean.Servers.ServerModelsList[namespace] == nil {
+				Bean.Servers.ServerModelsList[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
+			}
+			if Bean.Servers.ServerModelsList[namespace][name] == nil {
+				Bean.Servers.ServerModelsList[namespace][name] = util.NewLinkList[entity.ServerModel]()
+			}
+			Bean.Servers.ServerModelsList[namespace][name].Append(data)
+			Bean.Servers.ServerModelsListRWLock.Unlock()
 			Bean.Leaders.LeaderModelsListRWLock.Lock()
 			if Bean.Leaders.LeaderModelsList[namespace] == nil {
 				Bean.Leaders.LeaderModelsList[namespace] = make(map[string]entity.ServerModel)
@@ -41,16 +49,6 @@ func Register() (E error) {
 				Bean.Leaders.ElectionServers[namespace][data.Colony] = util.NewLinkList[entity.ServerModel]()
 			}
 			Bean.Leaders.LeaderModelsListRWLock.Unlock()
-			Bean.Servers.ServerModelsListRWLock.Lock()
-			if Bean.Servers.ServerModelsList[namespace] == nil {
-				Bean.Servers.ServerModelsList[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
-			}
-			if Bean.Servers.ServerModelsList[namespace][name] == nil {
-				Bean.Servers.ServerModelsList[namespace][name] = util.NewLinkList[entity.ServerModel]()
-			}
-			Bean.Servers.ServerModelsList[namespace][name].Append(data)
-			Bean.Servers.ServerModelsListRWLock.Unlock()
-			Bean.InstanceList.Append(data)
 			if config.ServerBeat.ServerModelBeatEnable {
 				Bean.RoutinePool.CreateWork(func() (E error) {
 					defer func() {
@@ -113,7 +111,7 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 			}
 			select {
 			case data := <-Bean.ServersBeatQueue:
-				if reflect.DeepEqual(model, data) {
+				if model.Equal(&data) {
 					start = time.Now().Unix()
 				} else {
 					Bean.ServersBeatQueue <- data

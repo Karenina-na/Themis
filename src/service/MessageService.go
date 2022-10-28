@@ -30,6 +30,7 @@ func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 	if S.Colony == "" {
 		S.Colony = "default"
 	}
+	Bean.InstanceList.Append(*S)
 	Bean.ServersQueue <- *S
 	if config.Cluster.ClusterEnable {
 		syncBean.SectionMessage.RegisterChan <- *S

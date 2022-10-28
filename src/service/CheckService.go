@@ -5,7 +5,6 @@ import (
 	"Themis/src/exception"
 	"Themis/src/service/Bean"
 	"Themis/src/util"
-	"reflect"
 )
 
 // CheckServer
@@ -22,8 +21,9 @@ func CheckServer(m *entity.ServerModel) (B bool, E error) {
 	}()
 	flag := false
 	Bean.InstanceList.Iterator(func(index int, model entity.ServerModel) {
-		if m.IP == model.IP && m.Port == model.Port {
-			flag = true
+		flag = m.Equal(&model)
+		if flag {
+			return
 		}
 	})
 	return flag, nil
@@ -43,8 +43,9 @@ func CheckDeleteServer(m *entity.ServerModel) (B bool, E error) {
 	}()
 	flag := false
 	Bean.DeleteInstanceList.Iterator(func(index int, model entity.ServerModel) {
-		if m.IP == model.IP && m.Port == model.Port {
-			flag = true
+		flag = m.Equal(&model)
+		if flag {
+			return
 		}
 	})
 	return flag, nil
@@ -63,7 +64,8 @@ func CheckLeader(model *entity.ServerModel) (B bool, E error) {
 		}
 	}()
 	Bean.Leaders.LeaderModelsListRWLock.RLock()
-	Assert := reflect.DeepEqual(*model, Bean.Leaders.LeaderModelsList[model.Namespace][model.Colony])
+	serverModel := Bean.Leaders.LeaderModelsList[model.Namespace][model.Colony].Clone()
+	Assert := serverModel.Equal(model)
 	Bean.Leaders.LeaderModelsListRWLock.RUnlock()
 	return Assert, nil
 }

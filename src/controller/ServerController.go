@@ -16,7 +16,7 @@ import (
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model body     entity.ServerModel true "服务实例信息"
+// @Param       Model body     entity.RequestModel true "服务实例信息"
 // @Success     200   {object} entity.ResultModel "返回true或false"
 // @Router      /message/register [post]
 func RegisterController(c *gin.Context) {
@@ -87,12 +87,12 @@ func HeartBeatController(c *gin.Context) {
 		}
 		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert3))
 	} else if !Assert2 {
-		Assert4, err4 := service.RegisterServer(Server)
-		if err4 != nil {
-			util.Handle(err4, c)
-			return
-		}
-		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert4))
+		//Assert4, err4 := service.RegisterServer(Server)
+		//if err4 != nil {
+		//	util.Handle(err4, c)
+		//	return
+		//}
+		//c.JSON(http.StatusOK, entity.NewSuccessResult(Assert4))
 	} else {
 		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已被删除"))
 	}

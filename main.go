@@ -8,7 +8,6 @@ import (
 	"flag"
 	swaggerFile "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
@@ -75,7 +74,6 @@ func main() {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	r.Use(cors.Default())
-	r.StaticFS("/static", http.Dir("./static"))
 	r.Use(interception.Interception())
 	if *arg == "debug" {
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFile.Handler))

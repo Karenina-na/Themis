@@ -1,10 +1,13 @@
 package controller
 
 import (
+	"Themis/src/config"
 	"Themis/src/controller/util"
 	"Themis/src/entity"
 	"Themis/src/exception"
 	"Themis/src/service"
+	"Themis/src/util/token"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -17,11 +20,23 @@ import (
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
-// @Router      /operator/getInstances [get]
+// @Router      /operator/getInstances [POST]
 func GetController(c *gin.Context) {
-	servers, err := service.GetInstances()
-	if err != nil {
-		util.Handle(err, c)
+	request := entity.NewRequestModel()
+	err1 := c.BindJSON(&request)
+	if err1 != nil {
+		exception.HandleException(exception.NewUserError("GetController", "参数绑定错误-"+err1.Error()))
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err1.Error()))
+		return
+	}
+	_, er2r := util.CheckToken(request)
+	if er2r != nil {
+		util.Handle(er2r, c)
+		return
+	}
+	servers, err3 := service.GetInstances()
+	if err3 != nil {
+		util.Handle(err3, c)
 		return
 	}
 	c.JSON(http.StatusOK, entity.NewSuccessResult(servers))
@@ -36,7 +51,7 @@ func GetController(c *gin.Context) {
 // @Security    ApiKeyAuth
 // @Param       Model body     entity.ServerModel                            true "封装的条件参数"
 // @Success     200 {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
-// @Router      /operator/getInstances [POST]
+// @Router      /operator/getInstancesByCondition [POST]
 func GetPostController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
@@ -128,7 +143,7 @@ func DeleteColonyController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=[]entity.ServerModel} "返回黑名单中服务实例切片数组"
-// @Router      /operator/getDeleteInstance [get]
+// @Router      /operator/getDeleteInstance [POST]
 func GetDeleteInstanceController(c *gin.Context) {
 	servers, err := service.GetBlacklistServer()
 	if err != nil {
@@ -181,7 +196,7 @@ func CancelDeleteInstanceController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=entity.ComputerInfoModel} "返回电脑状态"
-// @Router      /operator/getStatus [get]
+// @Router      /operator/getStatus [POST]
 func GetStatusController(c *gin.Context) {
 	computer, err := service.GetCenterStatus()
 	if err != nil {
@@ -199,7 +214,7 @@ func GetStatusController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{} "返回中心集群领导者名称"
-// @Router      /operator/getClusterLeader [get]
+// @Router      /operator/getClusterLeader [POST]
 func GetClusterLeaderController(c *gin.Context) {
 	leader, err := service.GetClusterLeader()
 	if err != nil {
@@ -217,7 +232,7 @@ func GetClusterLeaderController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=syncBean.StatusLevel} "返回集群状态"
-// @Router      /operator/getClusterStatus [get]
+// @Router      /operator/getClusterStatus [POST]
 func GetClusterStatusController(c *gin.Context) {
 	leader, err := service.GetClusterStatus()
 	if err != nil {
@@ -225,4 +240,37 @@ func GetClusterStatusController(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, entity.NewSuccessResult(leader))
+}
+
+// RootController
+// @Summary     管理员登录
+// @Description 管理员登录接口。
+// @Tags        服务层
+// @Accept      application/json
+// @Produce     application/json
+// @Security    ApiKeyAuth
+// @Param       Model body     entity.ServerModel true "服务实例信息"
+// @Success     200   {object} entity.ResultModel "返回集群服务数量"
+// @Router      /message/getServersNum [POST]
+func RootController(c *gin.Context) {
+	root := entity.NewRootModel()
+	err := c.BindJSON(&root)
+	if err != nil {
+		exception.HandleException(exception.NewUserError("GetServersController", "参数绑定错误-"+err.Error()))
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
+		return
+	}
+	fmt.Println(config.Root)
+	if (root.Account == config.Root.RootAccount) && (root.Password == config.Root.RootPassword) {
+		t, err := token.GenerateToken(config.Root.RootAccount, config.Root.RootPassword)
+		if err != nil {
+			util.Handle(err, c)
+			return
+		}
+		c.JSON(http.StatusOK, entity.NewSuccessResult(struct {
+			Token string `json:"token"`
+		}{Token: t}))
+		return
+	}
+	c.JSON(http.StatusOK, entity.NewFalseResult("false", "密码错误"))
 }

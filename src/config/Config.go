@@ -11,6 +11,20 @@ var (
 		RoutineTimeOut int
 	}
 
+	// Root root用户信息
+	Root struct {
+		// RootAccount 超级管理员账号
+		RootAccount string
+		// RootPassword 超级管理员密码
+		RootPassword string
+		// TokenEnable 是否开启token验证
+		TokenEnable bool
+		// TokenExpireTime 超级管理员token过期时间
+		TokenExpireTime int
+		// TokenSignKey 超级管理员token签名密钥
+		TokenSignKey string
+	}
+
 	// Port 端口参数
 	Port struct {
 		// CenterPort 注册中心http端口

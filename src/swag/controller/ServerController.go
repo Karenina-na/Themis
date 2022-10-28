@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"Themis/src/config"
 	"Themis/src/controller/util"
 	"Themis/src/entity"
 	"Themis/src/exception"
 	"Themis/src/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -20,7 +22,6 @@ import (
 // @Success     200   {object} entity.ResultModel "返回true或false"
 // @Router      /message/register [post]
 func RegisterController(c *gin.Context) {
-
 	Server := entity.NewServerModel()
 	err := c.BindJSON(Server)
 	if err != nil {
@@ -88,12 +89,12 @@ func HeartBeatController(c *gin.Context) {
 		}
 		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert3))
 	} else if !Assert2 {
-		Assert4, err4 := service.RegisterServer(Server)
-		if err4 != nil {
-			util.Handle(err4, c)
-			return
-		}
-		c.JSON(http.StatusOK, entity.NewSuccessResult(Assert4))
+		//Assert4, err4 := service.RegisterServer(Server)
+		//if err4 != nil {
+		//	util.Handle(err4, c)
+		//	return
+		//}
+		//c.JSON(http.StatusOK, entity.NewSuccessResult(Assert4))
 	} else {
 		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已被删除"))
 	}
@@ -236,5 +237,31 @@ func GetServersNumController(c *gin.Context) {
 		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例未注册"))
 	} else {
 		c.JSON(http.StatusOK, entity.NewFalseResult("False", "实例已被删除"))
+	}
+}
+
+// RootController
+// @Summary     管理员登录
+// @Description 管理员登录接口。
+// @Tags        服务层
+// @Accept      application/json
+// @Produce     application/json
+// @Security    ApiKeyAuth
+// @Param       Model body     entity.ServerModel true "服务实例信息"
+// @Success     200   {object} entity.ResultModel "返回集群服务数量"
+// @Router      /message/getServersNum [POST]
+func RootController(c *gin.Context) {
+	root := entity.NewRootModel()
+	err := c.BindJSON(&root)
+	if err != nil {
+		exception.HandleException(exception.NewUserError("GetServersController", "参数绑定错误-"+err.Error()))
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
+		return
+	}
+	fmt.Println(config.Root)
+	if (root.Account == config.Root.RootAccount) && (root.Password == config.Root.RootPassword) {
+		c.JSON(http.StatusOK, entity.NewSuccessResult("登录成功"))
+	} else {
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "密码错误"))
 	}
 }
