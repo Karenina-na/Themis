@@ -16,6 +16,8 @@
 * POST /api/v1/message/getServersNum	获取当前集群服务数量
 
 ### OperatorAPI  操作api
+* GET /api/v1/operator/gerNamespaces 获取全部命名空间
+* * GET /api/v1/operator/getColonys 获取全部命名空间
 * GET /api/v1/operator/getInstances 获取全部服务实例
 * POST /api/v1/operator/getInstances 获取指定命名空间和区域的服务实例
 * DELETE /api/v1/operator/deleteInstance 将指定服务拉入黑名单

@@ -12,6 +12,56 @@ import (
 	"net/http"
 )
 
+// GerNamespacesController
+// @Summary     获取全部命名空间
+// @Description 由管理者调用的获取当前所有服务信息。
+// @Tags        管理层
+// @Accept      application/json
+// @Produce     application/json
+// @Security    ApiKeyAuth
+// @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
+// @Router      /operator/gerNamespaces [GET]
+func GerNamespacesController(c *gin.Context) {
+	if b, err := util.CheckToken(c); err != nil || !b {
+		util.TokenError(err, c)
+		return
+	}
+	namespaces, err := service.GetNamespaces()
+	if err != nil {
+		util.Handle(err, c)
+		return
+	}
+	c.JSON(http.StatusOK, entity.NewSuccessResult(namespaces))
+}
+
+// GetColonyController
+// @Summary     获取指定命名空间下的集群
+// @Tags        管理层
+// @Accept      application/json
+// @Produce     application/json
+// @Security    ApiKeyAuth
+// @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
+// @Router      /operator/getColonys [GET]
+
+func GetColonyController(c *gin.Context) {
+	if b, err := util.CheckToken(c); err != nil || !b {
+		util.TokenError(err, c)
+		return
+	}
+	Server := entity.NewServerModel()
+	if err := c.BindJSON(Server); err != nil {
+		exception.HandleException(exception.NewUserError("GetColonyController", "参数绑定错误-"+err.Error()))
+		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
+		return
+	}
+	colony, err2 := service.GetColonyByNamespace(Server.Namespace)
+	if err2 != nil {
+		util.Handle(err2, c)
+		return
+	}
+	c.JSON(http.StatusOK, entity.NewSuccessResult(colony))
+}
+
 // GetController
 // @Summary     获取全部服务实例
 // @Description 由管理者调用的获取当前所有服务信息。
@@ -22,14 +72,13 @@ import (
 // @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
 // @Router      /operator/getInstances [GET]
 func GetController(c *gin.Context) {
-	b, err := util.CheckToken(c)
-	if err != nil || !b {
+	if b, err := util.CheckToken(c); err != nil || !b {
 		util.TokenError(err, c)
 		return
 	}
-	servers, err2 := service.GetInstances()
-	if err2 != nil {
-		util.Handle(err2, c)
+	servers, err := service.GetInstances()
+	if err != nil {
+		util.Handle(err, c)
 		return
 	}
 	c.JSON(http.StatusOK, entity.NewSuccessResult(servers))
@@ -46,9 +95,12 @@ func GetController(c *gin.Context) {
 // @Success     200 {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
 // @Router      /operator/getInstancesByCondition [POST]
 func GetPostController(c *gin.Context) {
+	if b, err := util.CheckToken(c); err != nil || !b {
+		util.TokenError(err, c)
+		return
+	}
 	Server := entity.NewServerModel()
-	err := c.BindJSON(Server)
-	if err != nil {
+	if err := c.BindJSON(Server); err != nil {
 		exception.HandleException(exception.NewUserError("DeleteInstanceController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
@@ -72,9 +124,12 @@ func GetPostController(c *gin.Context) {
 // @Success     200   {object} entity.ResultModel "返回true或false"
 // @Router      /operator/deleteInstance [delete]
 func DeleteInstanceController(c *gin.Context) {
+	if b, err := util.CheckToken(c); err != nil || !b {
+		util.TokenError(err, c)
+		return
+	}
 	Server := entity.NewServerModel()
-	err := c.BindJSON(Server)
-	if err != nil {
+	if err := c.BindJSON(Server); err != nil {
 		exception.HandleException(exception.NewUserError("DeleteInstanceController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
@@ -109,9 +164,12 @@ func DeleteInstanceController(c *gin.Context) {
 // @Success     200   {object} entity.ResultModel "返回true或false"
 // @Router      /operator/deleteColony [delete]
 func DeleteColonyController(c *gin.Context) {
+	if b, err := util.CheckToken(c); err != nil || !b {
+		util.TokenError(err, c)
+		return
+	}
 	Server := entity.NewServerModel()
-	err := c.BindJSON(Server)
-	if err != nil {
+	if err := c.BindJSON(Server); err != nil {
 		exception.HandleException(exception.NewUserError("DeleteColonyController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
@@ -138,6 +196,10 @@ func DeleteColonyController(c *gin.Context) {
 // @Success     200 {object} entity.ResultModel{data=[]entity.ServerModel} "返回黑名单中服务实例切片数组"
 // @Router      /operator/getDeleteInstance [GET]
 func GetDeleteInstanceController(c *gin.Context) {
+	if b, err := util.CheckToken(c); err != nil || !b {
+		util.TokenError(err, c)
+		return
+	}
 	servers, err := service.GetBlacklistServer()
 	if err != nil {
 		util.Handle(err, c)
@@ -157,9 +219,12 @@ func GetDeleteInstanceController(c *gin.Context) {
 // @Success     200   {object} entity.ResultModel "返回true或false"
 // @Router      /operator/cancelDeleteInstance [delete]
 func CancelDeleteInstanceController(c *gin.Context) {
+	if b, err := util.CheckToken(c); err != nil || !b {
+		util.TokenError(err, c)
+		return
+	}
 	Server := entity.NewServerModel()
-	err := c.BindJSON(Server)
-	if err != nil {
+	if err := c.BindJSON(Server); err != nil {
 		exception.HandleException(exception.NewUserError("CancelDeleteInstanceController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
@@ -191,6 +256,10 @@ func CancelDeleteInstanceController(c *gin.Context) {
 // @Success     200 {object} entity.ResultModel{data=entity.ComputerInfoModel} "返回电脑状态"
 // @Router      /operator/getStatus [GET]
 func GetStatusController(c *gin.Context) {
+	if b, err := util.CheckToken(c); err != nil || !b {
+		util.TokenError(err, c)
+		return
+	}
 	computer, err := service.GetCenterStatus()
 	if err != nil {
 		util.Handle(err, c)
@@ -209,6 +278,10 @@ func GetStatusController(c *gin.Context) {
 // @Success     200 {object} entity.ResultModel{} "返回中心集群领导者名称"
 // @Router      /operator/getClusterLeader [GET]
 func GetClusterLeaderController(c *gin.Context) {
+	if b, err := util.CheckToken(c); err != nil || !b {
+		util.TokenError(err, c)
+		return
+	}
 	leader, err := service.GetClusterLeader()
 	if err != nil {
 		util.Handle(err, c)
@@ -227,6 +300,10 @@ func GetClusterLeaderController(c *gin.Context) {
 // @Success     200 {object} entity.ResultModel{data=syncBean.StatusLevel} "返回集群状态"
 // @Router      /operator/getClusterStatus [GET]
 func GetClusterStatusController(c *gin.Context) {
+	if b, err := util.CheckToken(c); err != nil || !b {
+		util.TokenError(err, c)
+		return
+	}
 	leader, err := service.GetClusterStatus()
 	if err != nil {
 		util.Handle(err, c)

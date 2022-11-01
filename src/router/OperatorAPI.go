@@ -12,6 +12,14 @@ import (
 func OperatorAPI(r *gin.Engine) {
 	tx := r.Group("/v1/operator")
 	{
+		//  /v1/operator/gerNamespaces	获取全部命名空间
+		tx.GET("/gerNamespaces",
+			interception.ClusterLeaderInterception(), interception.ClusterCandidateInterception(),
+			controller.GerNamespacesController)
+		//  /v1/operator/getColonys	  获取指定命名空间下的集群
+		tx.GET("/getColonys",
+			interception.ClusterLeaderInterception(), interception.ClusterCandidateInterception(),
+			controller.GetColonyController)
 		//	/v1/operator/getInstances			获取全部服务实例
 		tx.GET("/getInstances",
 			interception.ClusterLeaderInterception(), interception.ClusterCandidateInterception(),

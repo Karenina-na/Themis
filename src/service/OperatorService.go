@@ -143,6 +143,53 @@ func DeleteInstanceFromBlacklist(model *entity.ServerModel) (B bool, E error) {
 	return true, nil
 }
 
+// GetNamespaces
+//
+//	@Description: 获取命名空间
+//	@return n	命名空间
+//	@return E	错误
+func GetNamespaces() (n []string, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetNamespaces-service", util.Strval(r))
+		}
+	}()
+	list := make([]string, 0, 100)
+	Bean.Servers.ServerModelsListRWLock.RLock()
+	for name := range Bean.Servers.ServerModelsList {
+		list = append(list, name)
+	}
+	Bean.Servers.ServerModelsListRWLock.RUnlock()
+	return list, nil
+}
+
+// GetColonyByNamespace
+//
+//	@Description: 获取集群
+//	@param namespace 命名空间
+//	@return c	集群
+//	@return E	错误
+func GetColonyByNamespace(namespace string) (c []string, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetColonyByNamespace-service", util.Strval(r))
+		}
+	}()
+	list := make([]string, 0, 100)
+	Bean.Servers.ServerModelsListRWLock.RLock()
+	if Bean.Servers.ServerModelsList[namespace] == nil {
+		Bean.Servers.ServerModelsListRWLock.RUnlock()
+		return list, nil
+	}
+	for name := range Bean.Servers.ServerModelsList[namespace] {
+		list = append(list, name)
+	}
+	Bean.Servers.ServerModelsListRWLock.RUnlock()
+	return list, nil
+}
+
 // GetInstances
 // @Description: 获取所有服务实例
 // @return       m 服务实例
