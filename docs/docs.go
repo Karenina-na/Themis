@@ -25,85 +25,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/message/beat": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "服务心跳重置倒计时",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "服务层"
-                ],
-                "summary": "服务心跳",
-                "parameters": [
-                    {
-                        "description": "服务实例信息",
-                        "name": "Model",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.ServerModel"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回true或false",
-                        "schema": {
-                            "$ref": "#/definitions/entity.ResultModel"
-                        }
-                    }
-                }
-            }
-        },
-        "/message/election": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "由领导者调用的新一轮选举接口。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "服务层"
-                ],
-                "summary": "选举",
-                "parameters": [
-                    {
-                        "description": "领导者或非领导者服务实例信息",
-                        "name": "Model",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.ServerModel"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回true或false",
-                        "schema": {
-                            "$ref": "#/definitions/entity.ResultModel"
-                        }
-                    }
-                }
-            }
-        },
-        "/message/getLeader": {
+        "/message/follow/getLeader": {
             "post": {
                 "security": [
                     {
@@ -154,7 +76,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/message/getServers": {
+        "/message/follow/getServers": {
             "post": {
                 "security": [
                     {
@@ -208,7 +130,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/message/getServersNum": {
+        "/message/follow/getServersNum": {
             "post": {
                 "security": [
                     {
@@ -247,7 +169,85 @@ const docTemplate = `{
                 }
             }
         },
-        "/message/register": {
+        "/message/leader/beat": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "服务心跳重置倒计时",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "服务层"
+                ],
+                "summary": "服务心跳",
+                "parameters": [
+                    {
+                        "description": "服务实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回true或false",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ResultModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/message/leader/election": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "由领导者调用的新一轮选举接口。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "服务层"
+                ],
+                "summary": "选举",
+                "parameters": [
+                    {
+                        "description": "领导者或非领导者服务实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回true或false",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ResultModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/message/leader/register": {
             "post": {
                 "security": [
                     {
@@ -272,7 +272,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.ServerModel"
+                            "$ref": "#/definitions/entity.RequestModel"
                         }
                     }
                 ],
@@ -286,7 +286,46 @@ const docTemplate = `{
                 }
             }
         },
-        "/operator/cancelDeleteInstance": {
+        "/message/manager/login": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员登录接口。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "服务层"
+                ],
+                "summary": "管理员登录",
+                "parameters": [
+                    {
+                        "description": "管理员账号密码",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.Root"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回token",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ResultModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/operator/CURD/cancelDeleteInstance": {
             "delete": {
                 "security": [
                     {
@@ -325,7 +364,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/operator/deleteColony": {
+        "/operator/CURD/deleteColony": {
             "delete": {
                 "security": [
                     {
@@ -364,7 +403,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/operator/deleteInstance": {
+        "/operator/CURD/deleteInstance": {
             "delete": {
                 "security": [
                     {
@@ -403,14 +442,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/operator/getClusterLeader": {
+        "/operator/CURD/gerNamespaces": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "由管理员调用获取中心集群领导者",
+                "description": "由管理者调用的获取当前所有服务信息。",
                 "consumes": [
                     "application/json"
                 ],
@@ -420,38 +459,10 @@ const docTemplate = `{
                 "tags": [
                     "管理层"
                 ],
-                "summary": "获取中心集群领导者",
+                "summary": "获取全部命名空间",
                 "responses": {
                     "200": {
-                        "description": "返回中心集群领导者名称",
-                        "schema": {
-                            "$ref": "#/definitions/entity.ResultModel"
-                        }
-                    }
-                }
-            }
-        },
-        "/operator/getClusterStatus": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "由管理员调用获取中心当前身份状态",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "管理层"
-                ],
-                "summary": "获取中心当前身份状态",
-                "responses": {
-                    "200": {
-                        "description": "返回集群状态",
+                        "description": "返回命名空间列表名称",
                         "schema": {
                             "allOf": [
                                 {
@@ -461,7 +472,10 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "integer"
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
                                         }
                                     }
                                 }
@@ -471,7 +485,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/operator/getDeleteInstance": {
+        "/operator/CURD/getDeleteInstances": {
             "get": {
                 "security": [
                     {
@@ -514,7 +528,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/operator/getInstances": {
+        "/operator/CURD/getInstances": {
             "get": {
                 "security": [
                     {
@@ -534,24 +548,9 @@ const docTemplate = `{
                 "summary": "获取全部服务实例",
                 "responses": {
                     "200": {
-                        "description": "返回服务实例切片数组",
+                        "description": "返回服务全体封装",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entity.ResultModel"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/entity.ServerModel"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/entity.ResultModel"
                         }
                     }
                 }
@@ -609,7 +608,75 @@ const docTemplate = `{
                 }
             }
         },
-        "/operator/getStatus": {
+        "/operator/cluster/getClusterLeader": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "由管理员调用获取中心集群领导者",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取中心集群领导者",
+                "responses": {
+                    "200": {
+                        "description": "返回中心集群领导者名称",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ResultModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/operator/cluster/getClusterStatus": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "由管理员调用获取中心当前身份状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取中心当前身份状态",
+                "responses": {
+                    "200": {
+                        "description": "返回集群状态",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/operator/cluster/getStatus": {
             "get": {
                 "security": [
                     {
@@ -795,6 +862,15 @@ const docTemplate = `{
                 }
             }
         },
+        "entity.RequestModel": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "root": {
+                    "$ref": "#/definitions/entity.Root"
+                }
+            }
+        },
         "entity.ResultModel": {
             "type": "object",
             "properties": {
@@ -803,6 +879,20 @@ const docTemplate = `{
                 },
                 "data": {},
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Root": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }
@@ -826,6 +916,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "time": {
+                    "type": "string"
+                },
+                "udp_port": {
                     "type": "string"
                 }
             }

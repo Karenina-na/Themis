@@ -8,25 +8,29 @@
 
 ## API
 ### MessageAPI  通信api
-* POST /api/v1/message/register  服务注册
-* PUT /api/v1/message/beat  服务心跳
-* PUT /api/v1/message/election  新一轮选举发起，以Leader身份发起
-* POST /api/v1/message/getLeader  获取当前Leader，以非Leader身份发起
-* POST /api/v1/message/getServers  获取Leader领导的服务集群，以Leader身份发起
-* POST /api/v1/message/getServersNum	获取当前集群服务数量
+* POST /api/v1/message/leader/register  服务注册
+* PUT /api/v1/message/leader/beat  服务心跳
+* PUT /api/v1/message/leader/election  新一轮选举发起，以Leader身份发起
+* 
+* POST /api/v1/message/follow/getLeader  获取当前Leader，以非Leader身份发起
+* POST /api/v1/message/follow/getServers  获取Leader领导的服务集群，以Leader身份发起
+* POST /api/v1/message/follow/getServersNum	获取当前集群服务数量
 
 ### OperatorAPI  操作api
-* GET /api/v1/operator/gerNamespaces 获取全部命名空间
-* * GET /api/v1/operator/getColonys 获取全部命名空间
-* GET /api/v1/operator/getInstances 获取全部服务实例
-* POST /api/v1/operator/getInstances 获取指定命名空间和区域的服务实例
-* DELETE /api/v1/operator/deleteInstance 将指定服务拉入黑名单
-* DELETE /api/v1/operator/deleteColony 将指定集群内所有服务拉入黑名单
-* GET /api/v1/operator/getDeleteInstances 获取黑名单内的实例
-* DELETE /api/v1/operator/cancelDeleteInstance 将服务从黑名单删除  
-* GET /api/v1/operator/getStatus 获取调度中心服务状态
-* GET /api/v1/operator/getClusterLeader 获取当前集群Leader
-* GET /api/v1/operator/getClusterStatus 获取当前集群服务身份
+* GET /api/v1/operator/CURD/gerNamespaces 获取全部命名空间
+* GET /api/v1/operator/CURD/getColonys 获取全部命名空间
+* GET /api/v1/operator/CURD/getInstances 获取全部服务实例
+* POST /api/v1/operator/CURD/getInstances 获取指定命名空间和区域的服务实例
+* DELETE /api/v1/operator/CURD/deleteInstance 将指定服务拉入黑名单
+* DELETE /api/v1/operator/CURD/deleteColony 将指定集群内所有服务拉入黑名单
+* GET /api/v1/operator/CURD/getDeleteInstances 获取黑名单内的实例
+* DELETE /api/v1/operator/CURD/cancelDeleteInstance 将服务从黑名单删除  
+
+* GET /api/v1/operator/cluster/getStatus 获取调度中心服务状态
+* GET /api/v1/operator/cluster/getClusterLeader 获取当前集群Leader
+* GET /api/v1/operator/cluster/getClusterStatus 获取当前集群服务身份
+
+* GET /api/v1/operator/manager/login 管理员登录
 
 ### 具体API请运行项目并访问http://localhost:8080/swagger/index.html   查看swagger文档
 ```

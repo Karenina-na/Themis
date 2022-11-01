@@ -73,11 +73,11 @@ func NewComputerInfoModel() *ComputerInfoModel {
 // SetComputerInfoModel
 // @Description: set the ComputerInfoModel
 // @receiver     com         *ComputerInfoModel
-// @param        c           []CpuInfoModel
+// @param        c           CpuInfoModel[]
 // @param        m           MemInfoModel
 // @param        h           HostInfoModel
-// @param        d           []DiskInfoModel
-// @param        n           []NetInfoModel
+// @param        d           DiskInfoModel[]
+// @param        n           NetInfoModel[]
 // @param        activateNum int
 // @param        jobNum      int
 func (com *ComputerInfoModel) SetComputerInfoModel(c []CpuInfoModel, m MemInfoModel,

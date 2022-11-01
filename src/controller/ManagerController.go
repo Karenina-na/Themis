@@ -19,8 +19,8 @@ import (
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
-// @Router      /operator/gerNamespaces [GET]
+// @Success     200   {object} entity.ResultModel{data=[]string} "返回命名空间列表名称"
+// @Router      /operator/CURD/gerNamespaces [GET]
 func GerNamespacesController(c *gin.Context) {
 	namespaces, err := service.GetNamespaces()
 	if err != nil {
@@ -36,8 +36,8 @@ func GerNamespacesController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
-// @Router      /operator/getColonys [GET]
+// @Success     200   {object} entity.ResultModel{data=[]string} "返回集群列表名称"
+// @Router      /operator/CURD/getColonys [GET]
 
 func GetColonyController(c *gin.Context) {
 	Server := entity.NewServerModel()
@@ -61,8 +61,8 @@ func GetColonyController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
-// @Router      /operator/getInstances [GET]
+// @Success     200   {object} entity.ResultModel{} "返回服务全体封装"
+// @Router      /operator/CURD/getInstances [GET]
 func GetController(c *gin.Context) {
 	servers, err := service.GetInstances()
 	if err != nil {
@@ -81,7 +81,7 @@ func GetController(c *gin.Context) {
 // @Security    ApiKeyAuth
 // @Param       Model body     entity.ServerModel                            true "封装的条件参数"
 // @Success     200 {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
-// @Router      /operator/getInstancesByCondition [POST]
+// @Router      /operator/CURD/getInstances [POST]
 func GetPostController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	if err := c.BindJSON(Server); err != nil {
@@ -106,7 +106,7 @@ func GetPostController(c *gin.Context) {
 // @Security    ApiKeyAuth
 // @Param       Model body     entity.ServerModel true "被删除的服务实例信息"
 // @Success     200   {object} entity.ResultModel "返回true或false"
-// @Router      /operator/deleteInstance [delete]
+// @Router      /operator/CURD/deleteInstance [delete]
 func DeleteInstanceController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	if err := c.BindJSON(Server); err != nil {
@@ -142,7 +142,7 @@ func DeleteInstanceController(c *gin.Context) {
 // @Security    ApiKeyAuth
 // @Param       Model body     entity.ServerModel true "被删除的服务地区信息（用服务实例信息包装）"
 // @Success     200   {object} entity.ResultModel "返回true或false"
-// @Router      /operator/deleteColony [delete]
+// @Router      /operator/CURD/deleteColony [delete]
 func DeleteColonyController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	if err := c.BindJSON(Server); err != nil {
@@ -170,7 +170,7 @@ func DeleteColonyController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=[]entity.ServerModel} "返回黑名单中服务实例切片数组"
-// @Router      /operator/getDeleteInstance [GET]
+// @Router      /operator/CURD/getDeleteInstances [GET]
 func GetDeleteInstanceController(c *gin.Context) {
 	servers, err := service.GetBlacklistServer()
 	if err != nil {
@@ -189,7 +189,7 @@ func GetDeleteInstanceController(c *gin.Context) {
 // @Security    ApiKeyAuth
 // @Param       Model body     entity.ServerModel true "从黑名单中清除的实例信息"
 // @Success     200   {object} entity.ResultModel "返回true或false"
-// @Router      /operator/cancelDeleteInstance [delete]
+// @Router      /operator/CURD/cancelDeleteInstance [delete]
 func CancelDeleteInstanceController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	if err := c.BindJSON(Server); err != nil {
@@ -222,7 +222,7 @@ func CancelDeleteInstanceController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=entity.ComputerInfoModel} "返回电脑状态"
-// @Router      /operator/getStatus [GET]
+// @Router      /operator/cluster/getStatus [GET]
 func GetStatusController(c *gin.Context) {
 	computer, err := service.GetCenterStatus()
 	if err != nil {
@@ -240,7 +240,7 @@ func GetStatusController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{} "返回中心集群领导者名称"
-// @Router      /operator/getClusterLeader [GET]
+// @Router      /operator/cluster/getClusterLeader [GET]
 func GetClusterLeaderController(c *gin.Context) {
 	leader, err := service.GetClusterLeader()
 	if err != nil {
@@ -258,7 +258,7 @@ func GetClusterLeaderController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=syncBean.StatusLevel} "返回集群状态"
-// @Router      /operator/getClusterStatus [GET]
+// @Router      /operator/cluster/getClusterStatus [GET]
 func GetClusterStatusController(c *gin.Context) {
 	leader, err := service.GetClusterStatus()
 	if err != nil {
@@ -275,9 +275,9 @@ func GetClusterStatusController(c *gin.Context) {
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model body     entity.ServerModel true "服务实例信息"
-// @Success     200   {object} entity.ResultModel "返回集群服务数量"
-// @Router      /message/getServersNum [POST]
+// @Param       Model body     entity.Root true "管理员账号密码"
+// @Success     200   {object} entity.ResultModel "返回token"
+// @Router      /message/manager/login [POST]
 func RootController(c *gin.Context) {
 	root := entity.NewRootModel()
 	err := c.BindJSON(&root)
