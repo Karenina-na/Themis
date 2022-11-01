@@ -10,39 +10,39 @@ import (
 // @Description: OperatorAPI
 // @param        r *gin.Engine
 func OperatorAPI(r *gin.Engine) {
-	tx := r.Group("/api/v1/operator")
+	tx := r.Group("/v1/operator")
 	{
-		//	/api/v1/operator/getInstances			获取全部服务实例
-		tx.POST("/getInstances",
+		//	/v1/operator/getInstances			获取全部服务实例
+		tx.GET("/getInstances",
 			interception.ClusterLeaderInterception(), interception.ClusterCandidateInterception(),
 			controller.GetController)
-		//  /api/v1/operator/getInstancesByCondition			获取指定条件下的服务信息
+		//  /v1/operator/getInstancesByCondition			获取指定条件下的服务信息
 		tx.POST("/getInstancesByCondition",
 			interception.ClusterLeaderInterception(), interception.ClusterCandidateInterception(),
 			controller.GetPostController)
-		// /api/v1/operator/deleteInstance			删除服务实例并拉入黑名单
+		// /v1/operator/deleteInstance			删除服务实例并拉入黑名单
 		tx.DELETE("/deleteInstance",
 			interception.ClusterFollowInterception(), interception.ClusterCandidateInterception(),
 			controller.DeleteInstanceController)
-		// /api/v1/operator/deleteColony			删除地区集群实例并拉入黑名单
+		// /v1/operator/deleteColony			删除地区集群实例并拉入黑名单
 		tx.DELETE("/deleteColony",
 			interception.ClusterFollowInterception(), interception.ClusterCandidateInterception(),
 			controller.DeleteColonyController)
-		// /api/v1/operator/getDeleteInstance		获取被拉入黑名单的实例
-		tx.POST("/getDeleteInstance",
+		// /v1/operator/getDeleteInstance		获取被拉入黑名单的实例
+		tx.GET("/getDeleteInstance",
 			interception.ClusterLeaderInterception(), interception.ClusterCandidateInterception(),
 			controller.GetDeleteInstanceController)
-		// /api/v1/operator/cancelDeleteInstance	删除实例的黑名单
+		// /v1/operator/cancelDeleteInstance	删除实例的黑名单
 		tx.DELETE("/cancelDeleteInstance",
 			interception.ClusterFollowInterception(), interception.ClusterCandidateInterception(),
 			controller.CancelDeleteInstanceController)
-		// /api/v1/operator/getStatus				获取当前中心状态
-		tx.POST("/getStatus", controller.GetStatusController)
-		// /api/v1/operator/getClusterLeader				获取当前集群Leader
-		tx.POST("/getClusterLeader", controller.GetClusterLeaderController)
-		// /api/v1/operator/getClusterStatus				获取当前集群服务身份
-		tx.POST("/getClusterStatus", controller.GetClusterStatusController)
-		// /api/v1/operator/login				登录
+		// /v1/operator/getStatus				获取当前中心状态
+		tx.GET("/getStatus", controller.GetStatusController)
+		// /v1/operator/getClusterLeader				获取当前集群Leader
+		tx.GET("/getClusterLeader", controller.GetClusterLeaderController)
+		// /v1/operator/getClusterStatus				获取当前集群服务身份
+		tx.GET("/getClusterStatus", controller.GetClusterStatusController)
+		// /v1/operator/login				登录
 		tx.POST("/login", controller.RootController)
 	}
 }

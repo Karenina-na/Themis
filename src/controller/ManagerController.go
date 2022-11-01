@@ -6,8 +6,8 @@ import (
 	"Themis/src/entity"
 	"Themis/src/exception"
 	"Themis/src/service"
+	"Themis/src/util/encryption"
 	"Themis/src/util/token"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -20,23 +20,16 @@ import (
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200   {object} entity.ResultModel{data=[]entity.ServerModel} "返回服务实例切片数组"
-// @Router      /operator/getInstances [POST]
+// @Router      /operator/getInstances [GET]
 func GetController(c *gin.Context) {
-	request := entity.NewRequestModel()
-	err1 := c.BindJSON(&request)
-	if err1 != nil {
-		exception.HandleException(exception.NewUserError("GetController", "参数绑定错误-"+err1.Error()))
-		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err1.Error()))
+	b, err := util.CheckToken(c)
+	if err != nil || !b {
+		util.TokenError(err, c)
 		return
 	}
-	_, er2r := util.CheckToken(request)
-	if er2r != nil {
-		util.Handle(er2r, c)
-		return
-	}
-	servers, err3 := service.GetInstances()
-	if err3 != nil {
-		util.Handle(err3, c)
+	servers, err2 := service.GetInstances()
+	if err2 != nil {
+		util.Handle(err2, c)
 		return
 	}
 	c.JSON(http.StatusOK, entity.NewSuccessResult(servers))
@@ -143,7 +136,7 @@ func DeleteColonyController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=[]entity.ServerModel} "返回黑名单中服务实例切片数组"
-// @Router      /operator/getDeleteInstance [POST]
+// @Router      /operator/getDeleteInstance [GET]
 func GetDeleteInstanceController(c *gin.Context) {
 	servers, err := service.GetBlacklistServer()
 	if err != nil {
@@ -196,7 +189,7 @@ func CancelDeleteInstanceController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=entity.ComputerInfoModel} "返回电脑状态"
-// @Router      /operator/getStatus [POST]
+// @Router      /operator/getStatus [GET]
 func GetStatusController(c *gin.Context) {
 	computer, err := service.GetCenterStatus()
 	if err != nil {
@@ -214,7 +207,7 @@ func GetStatusController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{} "返回中心集群领导者名称"
-// @Router      /operator/getClusterLeader [POST]
+// @Router      /operator/getClusterLeader [GET]
 func GetClusterLeaderController(c *gin.Context) {
 	leader, err := service.GetClusterLeader()
 	if err != nil {
@@ -232,7 +225,7 @@ func GetClusterLeaderController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200 {object} entity.ResultModel{data=syncBean.StatusLevel} "返回集群状态"
-// @Router      /operator/getClusterStatus [POST]
+// @Router      /operator/getClusterStatus [GET]
 func GetClusterStatusController(c *gin.Context) {
 	leader, err := service.GetClusterStatus()
 	if err != nil {
@@ -260,8 +253,9 @@ func RootController(c *gin.Context) {
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
 	}
-	fmt.Println(config.Root)
-	if (root.Account == config.Root.RootAccount) && (root.Password == config.Root.RootPassword) {
+	account := encryption.Base64Decode(root.Account)
+	password := encryption.Base64Decode(root.Password)
+	if (account == config.Root.RootAccount) && (password == config.Root.RootPassword) {
 		t, err := token.GenerateToken(config.Root.RootAccount, config.Root.RootPassword)
 		if err != nil {
 			util.Handle(err, c)

@@ -5,6 +5,7 @@ import (
 	"Themis/src/entity"
 	"Themis/src/exception"
 	"Themis/src/util"
+	"Themis/src/util/encryption"
 	"Themis/src/util/token"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -19,13 +20,22 @@ func Handle(err error, c *gin.Context) {
 	exception.HandleException(err)
 }
 
+// TokenError
+//
+//	@Description: Token error
+//	@param c	: gin.Context
+func TokenError(err error, c *gin.Context) {
+	c.JSON(http.StatusUnauthorized, entity.NewFalseResult("false", "token-error"))
+	exception.HandleException(err)
+}
+
 // CheckToken
 //
 //	@Description: Check the token
 //	@param request	: *http.Request
 //	@return Data	: *entity.Root
 //	@return E	: error
-func CheckToken(request *entity.RequestModel) (Data *interface{}, E error) {
+func CheckToken(c *gin.Context) (B bool, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
@@ -33,22 +43,20 @@ func CheckToken(request *entity.RequestModel) (Data *interface{}, E error) {
 		}
 	}()
 	if !config.Root.TokenEnable {
-		return &request.Data, nil
+		return true, nil
 	}
-	account, password, err := token.ParseToken(request.Root.Token)
+	tokenStr := c.GetHeader("token")
+	accountStr := c.GetHeader("account")
+	passwordStr := c.GetHeader("password")
+	account, password, err := token.ParseToken(tokenStr)
 	if err != nil {
-		return nil, exception.NewUserError("CheckToken-util", "Token解析错误")
+		return false, exception.NewUserError("CheckToken-util", "Token解析错误")
 	}
-	//if account != encryption.Base64Decode(request.Root.Account) ||
-	//	password != encryption.Base64Decode(request.Root.Password) {
-	//	return nil, exception.NewUserError("CheckToken-util", "token错误与用户数据不匹配")
-	//}
-	if account != request.Root.Account ||
-		password != request.Root.Password {
-		return nil, exception.NewUserError("CheckToken-util", "token错误与用户数据不匹配")
+	if account != encryption.Base64Decode(accountStr) || password != encryption.Base64Decode(passwordStr) {
+		return false, exception.NewUserError("CheckToken-util", "token与用户数据不匹配")
 	}
 	if account != config.Root.RootAccount || password != config.Root.RootPassword {
-		return nil, exception.NewUserError("CheckToken-util", "token验证失败")
+		return false, exception.NewUserError("CheckToken-util", "账号验证失败")
 	}
-	return &request.Data, nil
+	return false, nil
 }

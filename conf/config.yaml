@@ -6,7 +6,7 @@ goroutine:
 root: #默认值均为root
   account: root #root账号
   password: root #root密码
-  token-enable: true #是否开启token验证
+  token-enable: false #是否开启token验证
   token-expire: 36005 #token过期时间 单位秒
   token-sign: themis-root #token签名
 
@@ -18,7 +18,7 @@ Themis:
     model-queue: 100  #服务注册处理队列容量
     model-handle-number: 2 #服务注册处理协程数量
 
-    beat-enable: true #是否开启心跳
+    beat-enable: false #是否开启心跳
     beat-queue: 200 #服务心跳处理队列容量
     beat-time: 15  #服务心跳超时时间   单位秒
 
