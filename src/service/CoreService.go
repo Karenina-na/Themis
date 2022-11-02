@@ -22,11 +22,22 @@ func Register() (E error) {
 	util.Loglevel(util.Debug, "Register", "创建注册协程")
 	for {
 		select {
-		case <-time.After(time.Second):
 		case <-Bean.ServiceCloseChan:
 			util.Loglevel(util.Debug, "Register", "注册协程退出")
 			return nil
-		case data := <-Bean.ServersQueue:
+		default:
+			var data *entity.ServerModel
+			flag := false
+			Bean.ServersQueue.Operate(func() {
+				if !Bean.ServersQueue.IsEmpty() {
+					data = Bean.ServersQueue.Dequeue()
+					flag = true
+				}
+			})
+			if !flag {
+				time.After(time.Millisecond)
+				continue
+			}
 			namespace := data.Namespace
 			name := data.Colony + "::" + data.Name
 			Bean.Servers.ServerModelsListRWLock.Lock()
@@ -36,7 +47,7 @@ func Register() (E error) {
 			if Bean.Servers.ServerModelsList[namespace][name] == nil {
 				Bean.Servers.ServerModelsList[namespace][name] = util.NewLinkList[entity.ServerModel]()
 			}
-			Bean.Servers.ServerModelsList[namespace][name].Append(data)
+			Bean.Servers.ServerModelsList[namespace][name].Append(*data)
 			Bean.Servers.ServerModelsListRWLock.Unlock()
 			Bean.Leaders.LeaderModelsListRWLock.Lock()
 			if Bean.Leaders.LeaderModelsList[namespace] == nil {
@@ -57,7 +68,7 @@ func Register() (E error) {
 							E = exception.NewUserError("BeatServer-goroutine-service", util.Strval(r))
 						}
 					}()
-					E = ServerBeat(data, namespace, name)
+					E = ServerBeat(*data, namespace, name)
 					if E != nil {
 						return E
 					}
@@ -109,15 +120,13 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 				util.Loglevel(util.Info, "ServerBeat", "因心跳停止而删除-"+util.Strval(model))
 				return nil
 			}
-			select {
-			case data := <-Bean.ServersBeatQueue:
+			Bean.ServersBeatQueue.Operate(func() {
+				data := Bean.ServersBeatQueue.Head()
 				if model.Equal(&data) {
 					start = time.Now().Unix()
-				} else {
-					Bean.ServersBeatQueue <- data
 				}
-			default:
-			}
+				Bean.ServersBeatQueue.Dequeue()
+			})
 		}
 	}
 }

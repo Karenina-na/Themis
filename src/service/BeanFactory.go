@@ -35,9 +35,8 @@ func InitServer() (E error) {
 	Bean.Servers = Bean.NewServersModel()
 	Bean.Servers.ServerModelsList["default"] = make(map[string]*util.LinkList[entity.ServerModel])
 
-	Bean.ServersQueue = make(chan entity.ServerModel, config.ServerRegister.ServerModelQueueNum)
-
-	Bean.ServersBeatQueue = make(chan entity.ServerModel, config.ServerBeat.ServerModelBeatQueue)
+	Bean.ServersQueue = util.NewChanQueue[entity.ServerModel](config.ServerRegister.ServerModelQueueNum)
+	Bean.ServersBeatQueue = util.NewChanQueue[entity.ServerModel](config.ServerBeat.ServerModelBeatQueue)
 
 	Bean.Leaders = Bean.NewLeadersModel()
 	Bean.Leaders.LeaderModelsList["default"] = make(map[string]entity.ServerModel)
@@ -76,6 +75,10 @@ func Close() (E error) {
 		}
 	}()
 	close(Bean.ServiceCloseChan)
+	Bean.ServersQueue.Destroy()
+	Bean.ServersBeatQueue.Destroy()
+	Bean.InstanceList.Clear()
+	Bean.DeleteInstanceList.Clear()
 	Bean.RoutinePool.Close()
 	return nil
 }

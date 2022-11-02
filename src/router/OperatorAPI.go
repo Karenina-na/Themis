@@ -19,7 +19,7 @@ func OperatorAPI(r *gin.Engine) {
 		//  /v1/operator/gerNamespaces	获取全部命名空间
 		txOperator.GET("/gerNamespaces", controller.GerNamespacesController)
 		//  /v1/operator/getColonys	  获取指定命名空间下的集群
-		txOperator.GET("/getColonys",
+		txOperator.POST("/getColonys",
 			interception.ClusterLeaderInterception(), controller.GetColonyController)
 		//	/v1/operator/getInstances			获取全部服务实例
 		txOperator.GET("/getInstances",

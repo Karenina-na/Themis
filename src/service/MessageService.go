@@ -31,7 +31,7 @@ func RegisterServer(S *entity.ServerModel) (B bool, E error) {
 		S.Colony = "default"
 	}
 	Bean.InstanceList.Append(*S)
-	Bean.ServersQueue <- *S
+	Bean.ServersQueue.Enqueue(S)
 	if config.Cluster.ClusterEnable {
 		syncBean.SectionMessage.RegisterChan <- *S
 	}
@@ -55,13 +55,13 @@ func FlashHeartBeat(model *entity.ServerModel) (B bool, E error) {
 		util.Loglevel(util.Debug, "FlashHeartBeat", "刷新心跳-"+util.Strval(*model))
 		flag := false
 		for flag == false {
-			select {
-			case Bean.ServersBeatQueue <- *model:
-				flag = true
-				break
-			default:
-				time.Sleep(time.Millisecond)
-			}
+			Bean.ServersBeatQueue.Operate(func() {
+				if !Bean.ServersBeatQueue.IsFull() {
+					Bean.ServersBeatQueue.Enqueue(model)
+					flag = true
+				}
+			})
+			time.Sleep(time.Millisecond)
 		}
 		return true, nil
 	}

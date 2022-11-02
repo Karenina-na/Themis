@@ -37,7 +37,7 @@ func GerNamespacesController(c *gin.Context) {
 // @Produce     application/json
 // @Security    ApiKeyAuth
 // @Success     200   {object} entity.ResultModel{data=[]string} "返回集群列表名称"
-// @Router      /operator/CURD/getColonys [GET]
+// @Router      /operator/CURD/getColonys [POST]
 
 func GetColonyController(c *gin.Context) {
 	Server := entity.NewServerModel()

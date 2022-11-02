@@ -17,10 +17,10 @@ var (
 var Servers *ServersModel
 
 // ServersQueue	服务注册通道
-var ServersQueue chan entity.ServerModel
+var ServersQueue *util.ChanQueue[entity.ServerModel]
 
 // ServersBeatQueue 服务心跳通道
-var ServersBeatQueue chan entity.ServerModel
+var ServersBeatQueue *util.ChanQueue[entity.ServerModel]
 
 // Leaders 记账人
 var Leaders *LeadersModel

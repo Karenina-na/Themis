@@ -15,7 +15,7 @@ type LinkList[T any] struct {
 	iteRWLock *sync.Mutex
 }
 
-// NewLinkList creates a new linked list
+// linkListNode is a node of linked list
 type linkListNode[T any] struct {
 	object T
 	next   *linkListNode[T]
@@ -62,7 +62,7 @@ func (L *LinkList[T]) Append(data T) {
 // @Description: convert the linked list to string
 // @receiver     L      : the linked list
 // @return       string : the string of the linked list
-func (L LinkList[T]) ToString() string {
+func (L *LinkList[T]) ToString() string {
 	L.rwLock.RLock()
 	var S string
 	S += "[ "
@@ -80,7 +80,7 @@ func (L LinkList[T]) ToString() string {
 // @Description: convert the linked list to string in reverse order
 // @receiver     L      : the linked list
 // @return       string : the string of the linked list
-func (L LinkList[T]) ToStringBack() string {
+func (L *LinkList[T]) ToStringBack() string {
 	L.rwLock.RLock()
 	var S string
 	S += "[ "
@@ -98,7 +98,7 @@ func (L LinkList[T]) ToStringBack() string {
 // @Description: get the length of the linked list
 // @receiver     L   : the linked list
 // @return       int : the length of the linked list
-func (L LinkList[T]) Length() int {
+func (L *LinkList[T]) Length() int {
 	L.rwLock.RLock()
 	defer L.rwLock.RUnlock()
 	return L.len
@@ -109,7 +109,7 @@ func (L LinkList[T]) Length() int {
 // @receiver     L   : the linked list
 // @param        num : the index
 // @return       T   : the object at the index
-func (L LinkList[T]) Get(num int) T {
+func (L *LinkList[T]) Get(num int) T {
 	L.rwLock.RLock()
 	defer L.rwLock.RUnlock()
 	if num >= L.len {
@@ -340,7 +340,7 @@ func (L *LinkList[T]) UpdateValue(num int, v T) bool {
 // @receiver     L    : the linked list
 // @param        v : the value
 // @return       bool : true if the value is contained
-func (L LinkList[T]) Contain(v T) bool {
+func (L *LinkList[T]) Contain(v T) bool {
 	L.rwLock.RLock()
 	defer L.rwLock.RUnlock()
 	t := L.head
@@ -357,7 +357,7 @@ func (L LinkList[T]) Contain(v T) bool {
 // @Description: check if the linked list is empty
 // @receiver     L    : the linked list
 // @return       bool : true if the linked list is empty
-func (L LinkList[T]) IsEmpty() bool {
+func (L *LinkList[T]) IsEmpty() bool {
 	L.rwLock.RLock()
 	defer L.rwLock.RUnlock()
 	if L.head == L.tail {
@@ -370,7 +370,7 @@ func (L LinkList[T]) IsEmpty() bool {
 // @Description: iterator the linked list
 // @receiver     L : the linked list
 // @param        f : the function
-func (L LinkList[T]) Iterator(f func(index int, value T)) {
+func (L *LinkList[T]) Iterator(f func(index int, value T)) {
 	L.iteRWLock.Lock()
 	next := L.head
 	index := 0

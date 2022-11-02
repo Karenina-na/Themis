@@ -72,22 +72,10 @@ func (server ServerModel) SendMessageUDP(leader ServerModel, timeout int) error 
 //	@param s
 //	@return bool
 func (serverModel *ServerModel) Equal(s *ServerModel) bool {
-	if serverModel.Name != s.Name {
-		return false
-	}
 	if serverModel.IP != s.IP {
 		return false
 	}
 	if serverModel.Port != s.Port {
-		return false
-	}
-	if serverModel.UDPPort != s.UDPPort {
-		return false
-	}
-	if serverModel.Colony != s.Colony {
-		return false
-	}
-	if serverModel.Namespace != s.Namespace {
 		return false
 	}
 	return true

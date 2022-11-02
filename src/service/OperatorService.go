@@ -184,7 +184,8 @@ func GetColonyByNamespace(namespace string) (c []string, E error) {
 		return list, nil
 	}
 	for name := range Bean.Servers.ServerModelsList[namespace] {
-		list = append(list, name)
+		colonyName := strings.Split(name, "::")[0]
+		list = append(list, colonyName)
 	}
 	Bean.Servers.ServerModelsListRWLock.RUnlock()
 	return list, nil

@@ -21,9 +21,8 @@ func CheckServer(m *entity.ServerModel) (B bool, E error) {
 	}()
 	flag := false
 	Bean.InstanceList.Iterator(func(index int, model entity.ServerModel) {
-		flag = m.Equal(&model)
-		if flag {
-			return
+		if !flag {
+			flag = m.Equal(&model)
 		}
 	})
 	return flag, nil
@@ -43,9 +42,8 @@ func CheckDeleteServer(m *entity.ServerModel) (B bool, E error) {
 	}()
 	flag := false
 	Bean.DeleteInstanceList.Iterator(func(index int, model entity.ServerModel) {
-		flag = m.Equal(&model)
-		if flag {
-			return
+		if !flag {
+			flag = m.Equal(&model)
 		}
 	})
 	return flag, nil

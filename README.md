@@ -8,23 +8,23 @@
 
 ## API
 ### MessageAPI  通信api
-* POST /api/v1/message/leader/register  服务注册
-* PUT /api/v1/message/leader/beat  服务心跳
-* PUT /api/v1/message/leader/election  新一轮选举发起，以Leader身份发起
+* POST /v1/message/leader/register  服务注册
+* PUT /v1/message/leader/beat  服务心跳
+* PUT /v1/message/leader/election  新一轮选举发起，以Leader身份发起
 * 
-* POST /api/v1/message/follow/getLeader  获取当前Leader，以非Leader身份发起
-* POST /api/v1/message/follow/getServers  获取Leader领导的服务集群，以Leader身份发起
-* POST /api/v1/message/follow/getServersNum	获取当前集群服务数量
+* POST /v1/message/follow/getLeader  获取当前Leader，以非Leader身份发起
+* POST /v1/message/follow/getServers  获取Leader领导的服务集群，以Leader身份发起
+* POST /v1/message/follow/getServersNum	获取当前集群服务数量
 
 ### OperatorAPI  操作api
-* GET /api/v1/operator/CURD/gerNamespaces 获取全部命名空间
-* GET /api/v1/operator/CURD/getColonys 获取全部命名空间
-* GET /api/v1/operator/CURD/getInstances 获取全部服务实例
-* POST /api/v1/operator/CURD/getInstances 获取指定命名空间和区域的服务实例
-* DELETE /api/v1/operator/CURD/deleteInstance 将指定服务拉入黑名单
-* DELETE /api/v1/operator/CURD/deleteColony 将指定集群内所有服务拉入黑名单
-* GET /api/v1/operator/CURD/getDeleteInstances 获取黑名单内的实例
-* DELETE /api/v1/operator/CURD/cancelDeleteInstance 将服务从黑名单删除  
+* GET /v1/operator/CURD/gerNamespaces 获取全部命名空间
+* GET /v1/operator/CURD/getColonys 获取指定命名空间全部集群
+* GET /v1/operator/CURD/getInstances 获取全部服务实例
+* POST /v1/operator/CURD/getInstances 获取指定命名空间和区域的服务实例
+* DELETE /v1/operator/CURD/deleteInstance 将指定服务拉入黑名单
+* DELETE /v1/operator/CURD/deleteColony 将指定集群内所有服务拉入黑名单
+* GET /v1/operator/CURD/getDeleteInstances 获取黑名单内的实例
+* DELETE /v1/operator/CURD/cancelDeleteInstance 将服务从黑名单删除  
 
 * GET /api/v1/operator/cluster/getStatus 获取调度中心服务状态
 * GET /api/v1/operator/cluster/getClusterLeader 获取当前集群Leader
@@ -68,7 +68,8 @@ Themis:.
 │  │  ├─follow      //follow状态
 │  │  ├─leader      //leader状态  
 │  │  └─syncBean    //同步数据模型
-│  └─util            //工具类  
+│  └─util           //工具类  
+│     ├─token       //token工具  
 │     └─encryption  //加密控制器
 └─test              //测试
     ├─Base          //测试初始化加载器
@@ -105,4 +106,5 @@ gorm : v1.3.6
 sqllit : v1.3.6
 mysql : v8.0.13
 gowatch : v1.5.2
+jwt-go : v3.2.0+incompatible
 ```

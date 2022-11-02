@@ -21,8 +21,7 @@ import (
 // @Router      /message/leader/register [post]
 func RegisterController(c *gin.Context) {
 	Server := entity.NewServerModel()
-	err := c.BindJSON(Server)
-	if err != nil {
+	if err := c.BindJSON(Server); err != nil {
 		exception.HandleException(exception.NewUserError("RegisterController", "参数绑定错误"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误"+err.Error()))
 		return
