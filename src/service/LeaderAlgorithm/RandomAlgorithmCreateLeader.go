@@ -14,10 +14,5 @@ import (
 func RandomAlgorithmCreateLeader(List *util.LinkList[entity.ServerModel]) entity.ServerModel {
 	rand.Seed(time.Now().Unix())
 	num := rand.Int() % List.Length()
-	for i := 0; ; i++ {
-		if num == 0 {
-			return *List.Get(i).Clone()
-		}
-		num--
-	}
+	return List.Get(num)
 }

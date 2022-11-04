@@ -24,9 +24,9 @@ var (
 	UdpSendMessage chan MessageModel
 	// SectionMessage	同步通道
 	SectionMessage struct {
-		RegisterChan     chan entity.ServerModel
-		DeleteChan       chan entity.ServerModel
-		CancelDeleteChan chan entity.ServerModel
-		LeaderChan       chan entity.ServerModel
+		RegisterChan     *util.ChanQueue[entity.ServerModel]
+		DeleteChan       *util.ChanQueue[entity.ServerModel]
+		CancelDeleteChan *util.ChanQueue[entity.ServerModel]
+		LeaderChan       *util.ChanQueue[entity.ServerModel]
 	}
 )

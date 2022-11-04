@@ -4,7 +4,7 @@ import (
 	"Themis/src/config"
 	"Themis/src/entity"
 	"Themis/src/exception"
-	"Themis/src/service/Bean"
+	Factory "Themis/src/pool"
 	"Themis/src/sync/common"
 	"Themis/src/sync/syncBean"
 	"Themis/src/util"
@@ -20,19 +20,26 @@ func InitSync() (E error) {
 			E = exception.NewSystemError("InitSync-sync", util.Strval(r))
 		}
 	}()
+
+	//初始化本地服务集群标志
 	syncBean.Name = config.Cluster.ClusterName
 	syncBean.CloseChan = make(chan bool)
 	syncBean.Status = syncBean.FOLLOW
 	syncBean.Term = 1
 	syncBean.Leader = *syncBean.NewLeaderModel()
 	syncBean.SyncAddress = util.NewLinkList[syncBean.SyncAddressModel]()
+
+	//添加本地服务集群地址
 	for _, value := range config.Cluster.Clusters {
 		syncBean.SyncAddress.Append(syncBean.SyncAddressModel{IP: value["ip"], Port: value["port"]})
 	}
+
+	//初始化udp服务
 	syncBean.UdpReceiveMessage = make(chan syncBean.MessageModel, config.Cluster.UDPQueueNum)
 	syncBean.UdpSendMessage = make(chan syncBean.MessageModel, config.Cluster.UDPQueueNum)
 
-	Bean.RoutinePool.CreateWork(func() (E error) {
+	//创建udp接收服务
+	Factory.RoutinePool.CreateWork(func() (E error) {
 		defer func() {
 			r := recover()
 			if r != nil {
@@ -48,7 +55,9 @@ func InitSync() (E error) {
 	}, func(Message error) {
 		exception.HandleException(Message)
 	})
-	Bean.RoutinePool.CreateWork(func() (E error) {
+
+	//创建udp发送服务
+	Factory.RoutinePool.CreateWork(func() (E error) {
 		defer func() {
 			r := recover()
 			if r != nil {
@@ -65,19 +74,21 @@ func InitSync() (E error) {
 		exception.HandleException(Message)
 	})
 
+	//创建数据同步通道
 	syncBean.SectionMessage = struct {
-		RegisterChan     chan entity.ServerModel
-		DeleteChan       chan entity.ServerModel
-		CancelDeleteChan chan entity.ServerModel
-		LeaderChan       chan entity.ServerModel
+		RegisterChan     *util.ChanQueue[entity.ServerModel]
+		DeleteChan       *util.ChanQueue[entity.ServerModel]
+		CancelDeleteChan *util.ChanQueue[entity.ServerModel]
+		LeaderChan       *util.ChanQueue[entity.ServerModel]
 	}{
-		RegisterChan:     make(chan entity.ServerModel, config.Cluster.LeaderQueueNum),
-		DeleteChan:       make(chan entity.ServerModel, config.Cluster.LeaderQueueNum),
-		CancelDeleteChan: make(chan entity.ServerModel, config.Cluster.LeaderQueueNum),
-		LeaderChan:       make(chan entity.ServerModel, config.Cluster.LeaderQueueNum),
+		RegisterChan:     util.NewChanQueue[entity.ServerModel](config.Cluster.LeaderQueueNum),
+		DeleteChan:       util.NewChanQueue[entity.ServerModel](config.Cluster.LeaderQueueNum),
+		CancelDeleteChan: util.NewChanQueue[entity.ServerModel](config.Cluster.LeaderQueueNum),
+		LeaderChan:       util.NewChanQueue[entity.ServerModel](config.Cluster.LeaderQueueNum),
 	}
 
-	Bean.RoutinePool.CreateWork(func() (E error) {
+	//创建状态控制器
+	Factory.RoutinePool.CreateWork(func() (E error) {
 		util.Loglevel(util.Debug, "StatusController-sync-goroutine", "状态控制器启动")
 		if err := StatusController(); err != nil {
 			return err
@@ -99,6 +110,10 @@ func Close() (E error) {
 			E = exception.NewSystemError("Close-sync", util.Strval(r))
 		}
 	}()
+	syncBean.SectionMessage.DeleteChan.Destroy()
+	syncBean.SectionMessage.CancelDeleteChan.Destroy()
+	syncBean.SectionMessage.LeaderChan.Destroy()
+	syncBean.SectionMessage.RegisterChan.Destroy()
 	close(syncBean.CloseChan)
 	return nil
 }

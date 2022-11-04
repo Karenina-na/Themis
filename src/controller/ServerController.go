@@ -16,7 +16,7 @@ import (
 // @Accept      application/json
 // @Produce     application/json
 // @Security    ApiKeyAuth
-// @Param       Model body     entity.RequestModel true "服务实例信息"
+// @Param       Model body     entity.ServerModel true "服务实例信息"
 // @Success     200   {object} entity.ResultModel "返回true或false"
 // @Router      /message/leader/register [post]
 func RegisterController(c *gin.Context) {

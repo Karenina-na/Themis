@@ -4,6 +4,7 @@ import (
 	"Themis/src/config"
 	"Themis/src/exception"
 	"Themis/src/mapper"
+	"Themis/src/pool"
 	"Themis/src/service"
 	"Themis/src/sync"
 )
@@ -23,9 +24,10 @@ func ThemisCloseFactory() {
 			exception.HandleException(err)
 		}
 	}
-	err := service.Close()
-	if err != nil {
+	if err := service.Close(); err != nil {
 		exception.HandleException(err)
 	}
-
+	if err := pool.CloseRoutinePool(); err != nil {
+		exception.HandleException(err)
+	}
 }

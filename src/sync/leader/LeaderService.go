@@ -22,6 +22,8 @@ func StatusOperatorLeader(m *syncBean.MessageModel, SyncRoutineBool chan bool) (
 	}()
 	switch m.Status {
 	case syncBean.LEADER:
+
+		// 处理LEADER信息
 		b, err := leaderMessageOperator(m, SyncRoutineBool)
 		if err != nil {
 			return false, err
@@ -30,6 +32,8 @@ func StatusOperatorLeader(m *syncBean.MessageModel, SyncRoutineBool chan bool) (
 			return true, nil
 		}
 	case syncBean.CANDIDATE:
+
+		// 处理CANDIDATE信息
 		b, err := candidateMessageOperator(m, SyncRoutineBool)
 		if err != nil {
 			return false, err
@@ -38,6 +42,8 @@ func StatusOperatorLeader(m *syncBean.MessageModel, SyncRoutineBool chan bool) (
 			return true, nil
 		}
 	case syncBean.FOLLOW:
+
+		// 处理FOLLOW信息
 		b, err := followMessageOperator(m, SyncRoutineBool)
 		if err != nil {
 			return false, err
@@ -63,6 +69,8 @@ func leaderMessageOperator(m *syncBean.MessageModel, SyncRoutineBool chan bool) 
 			E = exception.NewSystemError("leaderMessageOperator-leader", util.Strval(r))
 		}
 	}()
+
+	// 如果收到的任期大于当前任期，卸任
 	if m.Term > syncBean.Term {
 		syncBean.Term = m.Term
 		syncBean.Leader.SetLeaderModel(m.Name, m.UDPAddress.IP, m.UDPAddress.Port, m.ServicePort)
@@ -72,6 +80,8 @@ func leaderMessageOperator(m *syncBean.MessageModel, SyncRoutineBool chan bool) 
 		syncBean.Status = syncBean.FOLLOW
 		return true, nil
 	}
+
+	// 如果收到的任期等于当前任期，卸任
 	if m.Term == syncBean.Term {
 		close(SyncRoutineBool)
 		util.Loglevel(util.Info, "leaderMessageOperator-leader",
@@ -96,6 +106,8 @@ func candidateMessageOperator(m *syncBean.MessageModel, SyncRoutineBool chan boo
 			E = exception.NewSystemError("candidateMessageOperator-leader", util.Strval(r))
 		}
 	}()
+
+	// 如果收到的任期大于当前任期，投票并卸任
 	if m.Term > syncBean.Term {
 		message := syncBean.NewMessageModel()
 		message.SetMessageModeForVoteResponse(syncBean.Term, syncBean.Status,
@@ -124,6 +136,8 @@ func followMessageOperator(m *syncBean.MessageModel, SyncRoutineBool chan bool) 
 			E = exception.NewSystemError("followMessageOperator-leader", util.Strval(r))
 		}
 	}()
+
+	// 如果收到的任期大于当前任期，卸任
 	if m.Term > syncBean.Term {
 		syncBean.Term = m.Term
 		close(SyncRoutineBool)

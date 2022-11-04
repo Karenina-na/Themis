@@ -3,7 +3,7 @@ package leader
 import (
 	"Themis/src/config"
 	"Themis/src/exception"
-	"Themis/src/service/Bean"
+	Factory "Themis/src/pool"
 	"Themis/src/sync/syncBean"
 	"Themis/src/util"
 	"time"
@@ -22,9 +22,12 @@ func Leader() (E error) {
 	util.Loglevel(util.Debug, "Leader-leader", "Leader状态")
 	syncBean.Status = syncBean.LEADER
 	syncBean.Leader.SetLeaderModel(syncBean.Name, config.Cluster.IP, config.Cluster.Port, config.Port.CenterPort)
+
+	//同步协程关闭标志
 	SyncRoutineBool := make(chan bool, 0)
 
-	Bean.RoutinePool.CreateWork(func() (E error) {
+	//创建发送全部数据snapshot协程
+	Factory.RoutinePool.CreateWork(func() (E error) {
 		util.Loglevel(util.Debug, "Leader-leader", "leader-snapshot数据发送协程启动")
 		if err := SendDataGoroutineSnapshot(SyncRoutineBool); err != nil {
 			return err
@@ -34,7 +37,8 @@ func Leader() (E error) {
 		exception.HandleException(Message)
 	})
 
-	Bean.RoutinePool.CreateWork(func() (E error) {
+	//创建发送单个数据包协程
+	Factory.RoutinePool.CreateWork(func() (E error) {
 		util.Loglevel(util.Debug, "Leader-leader", "leader-数据发送协程启动")
 		if err := SendDataGoroutine(SyncRoutineBool); err != nil {
 			return err
@@ -44,7 +48,8 @@ func Leader() (E error) {
 		exception.HandleException(Message)
 	})
 
-	Bean.RoutinePool.CreateWork(func() (E error) {
+	//创建心跳发送协程
+	Factory.RoutinePool.CreateWork(func() (E error) {
 		util.Loglevel(util.Debug, "Leader-leader", "leader-心跳发送协程启动")
 		if err := SendHeartBeatGoroutine(SyncRoutineBool); err != nil {
 			return err
@@ -54,6 +59,7 @@ func Leader() (E error) {
 		exception.HandleException(Message)
 	})
 
+	//监听信息
 	for {
 		select {
 		case m := <-syncBean.UdpReceiveMessage:
@@ -93,6 +99,8 @@ func SendDataGoroutineSnapshot(SyncRoutineBool chan bool) (E error) {
 			if e != nil {
 				return e
 			}
+
+			//迭代发送数据
 			m := syncBean.NewMessageModel()
 			syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
 				m.SetMessageModeForSyncSnapShot(syncBean.Term, syncBean.Status,
@@ -105,10 +113,14 @@ func SendDataGoroutineSnapshot(SyncRoutineBool chan bool) (E error) {
 				}
 			})
 		case <-SyncRoutineBool:
+
+			//卸任关闭
 			util.Loglevel(util.Info, "SendDataGoroutineSnapshot-leader",
 				"leader-snapshot数据发送协程关闭")
 			return nil
 		case <-syncBean.CloseChan:
+
+			//服务关闭
 			util.Loglevel(util.Info, "SendDataGoroutineSnapshot-leader",
 				"leader-snapshot数据发送协程关闭")
 			return nil
@@ -129,57 +141,85 @@ func SendDataGoroutine(SyncRoutineBool chan bool) (E error) {
 		}
 	}()
 	for {
-		select {
-		case model := <-syncBean.SectionMessage.RegisterChan:
+
+		//注册数据
+		{
+			if !syncBean.SectionMessage.RegisterChan.IsEmpty() {
+				model := syncBean.SectionMessage.RegisterChan.Dequeue()
+				m := syncBean.NewMessageModel()
+				syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
+					m.SetMessageModeForSyncAppend(syncBean.Term, syncBean.Status,
+						*model, value.IP, value.Port)
+					syncBean.UdpSendMessage <- *m
+					if config.Cluster.TrackEnable {
+						util.Loglevel(util.Debug, "SendDataGoroutineSnapshot-leader",
+							"leader数据同步-RegisterChan-发送数据"+util.Strval(m.UDPTargetAddress))
+					}
+				})
+			}
+		}
+
+		//删除数据
+		{
+			if !syncBean.SectionMessage.DeleteChan.IsEmpty() {
+				model := syncBean.SectionMessage.DeleteChan.Dequeue()
+				m := syncBean.NewMessageModel()
+				syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
+					m.SetMessageModeForSyncAppend(syncBean.Term, syncBean.Status,
+						*model, value.IP, value.Port)
+					syncBean.UdpSendMessage <- *m
+					if config.Cluster.TrackEnable {
+						util.Loglevel(util.Debug, "SendDataGoroutineSnapshot-leader",
+							"leader数据同步-DeleteChan-发送数据"+util.Strval(m.UDPTargetAddress))
+					}
+				})
+			}
+		}
+
+		//删除黑名单数据
+		{
+			model := syncBean.SectionMessage.CancelDeleteChan.Dequeue()
 			m := syncBean.NewMessageModel()
 			syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
 				m.SetMessageModeForSyncAppend(syncBean.Term, syncBean.Status,
-					model, value.IP, value.Port)
-				syncBean.UdpSendMessage <- *m
-				if config.Cluster.TrackEnable {
-					util.Loglevel(util.Debug, "SendDataGoroutineSnapshot-leader",
-						"leader数据同步-RegisterChan-发送数据"+util.Strval(m.UDPTargetAddress))
-				}
-			})
-		case model := <-syncBean.SectionMessage.DeleteChan:
-			m := syncBean.NewMessageModel()
-			syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
-				m.SetMessageModeForSyncAppend(syncBean.Term, syncBean.Status,
-					model, value.IP, value.Port)
-				syncBean.UdpSendMessage <- *m
-				if config.Cluster.TrackEnable {
-					util.Loglevel(util.Debug, "SendDataGoroutineSnapshot-leader",
-						"leader数据同步-DeleteChan-发送数据"+util.Strval(m.UDPTargetAddress))
-				}
-			})
-		case model := <-syncBean.SectionMessage.CancelDeleteChan:
-			m := syncBean.NewMessageModel()
-			syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
-				m.SetMessageModeForSyncAppend(syncBean.Term, syncBean.Status,
-					model, value.IP, value.Port)
+					*model, value.IP, value.Port)
 				syncBean.UdpSendMessage <- *m
 				if config.Cluster.TrackEnable {
 					util.Loglevel(util.Debug, "SendDataGoroutineSnapshot-leader",
 						"leader数据同步-CancelDeleteChan-发送数据"+util.Strval(m.UDPTargetAddress))
 				}
 			})
-		case model := <-syncBean.SectionMessage.LeaderChan:
-			m := syncBean.NewMessageModel()
-			syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
-				m.SetMessageModeForSyncAppend(syncBean.Term, syncBean.Status,
-					model, value.IP, value.Port)
-				syncBean.UdpSendMessage <- *m
-				if config.Cluster.TrackEnable {
-					util.Loglevel(util.Debug, "SendDataGoroutineSnapshot-leader",
-						"leader数据同步-LeaderChan-发送数据"+util.Strval(m.UDPTargetAddress))
-				}
-			})
+		}
+
+		//领导者数据
+		{
+			if !syncBean.SectionMessage.LeaderChan.IsEmpty() {
+				model := syncBean.SectionMessage.LeaderChan.Dequeue()
+				m := syncBean.NewMessageModel()
+				syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
+					m.SetMessageModeForSyncAppend(syncBean.Term, syncBean.Status,
+						*model, value.IP, value.Port)
+					syncBean.UdpSendMessage <- *m
+					if config.Cluster.TrackEnable {
+						util.Loglevel(util.Debug, "SendDataGoroutineSnapshot-leader",
+							"leader数据同步-LeaderChan-发送数据"+util.Strval(m.UDPTargetAddress))
+					}
+				})
+			}
+		}
+
+		select {
+		//卸任关闭
 		case <-SyncRoutineBool:
 			util.Loglevel(util.Info, "SendDataGoroutine-leader", "leader数据发送协程关闭")
 			return nil
+
+			//服务关闭
 		case <-syncBean.CloseChan:
 			util.Loglevel(util.Info, "SendDataGoroutine-leader", "leader数据发送协程关闭")
 			return nil
+		default:
+			time.Sleep(time.Millisecond)
 		}
 	}
 }
@@ -197,6 +237,8 @@ func SendHeartBeatGoroutine(SyncRoutineBool chan bool) (E error) {
 	}()
 	for {
 		select {
+
+		//心跳
 		case <-time.After(time.Duration(config.Cluster.LeaderHeartbeatTime) * time.Millisecond):
 			m := syncBean.NewMessageModel()
 			syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
@@ -207,9 +249,13 @@ func SendHeartBeatGoroutine(SyncRoutineBool chan bool) (E error) {
 						"leader心跳发送协程发送数据"+util.Strval(m.UDPTargetAddress))
 				}
 			})
+
+			//卸任关闭
 		case <-SyncRoutineBool:
 			util.Loglevel(util.Info, "SendDataGoroutine-leader", "leader心跳发送协程关闭")
 			return nil
+
+			//服务关闭
 		case <-syncBean.CloseChan:
 			util.Loglevel(util.Info, "SendDataGoroutine-leader", "leader心跳发送协程关闭")
 			return nil

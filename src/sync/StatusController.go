@@ -27,16 +27,22 @@ func StatusController() (E error) {
 			return nil
 		default:
 			switch syncBean.Status {
+
+			// 跟随者
 			case syncBean.FOLLOW:
 				err := follow.Follow()
 				if err != nil {
 					exception.HandleException(err)
 				}
+
+				// 候选者
 			case syncBean.CANDIDATE:
 				err := candidate.Candidate()
 				if err != nil {
 					exception.HandleException(err)
 				}
+
+				// 领导者
 			case syncBean.LEADER:
 				err := leader.Leader()
 				if err != nil {

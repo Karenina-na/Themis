@@ -93,12 +93,6 @@ definitions:
       packets_sent:
         type: string
     type: object
-  entity.RequestModel:
-    properties:
-      data: {}
-      root:
-        $ref: '#/definitions/entity.Root'
-    type: object
   entity.ResultModel:
     properties:
       code:
@@ -289,7 +283,7 @@ paths:
         name: Model
         required: true
         schema:
-          $ref: '#/definitions/entity.RequestModel'
+          $ref: '#/definitions/entity.ServerModel'
       produces:
       - application/json
       responses:

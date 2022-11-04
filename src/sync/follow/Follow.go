@@ -22,12 +22,16 @@ func Follow() (E error) {
 	util.Loglevel(util.Debug, "Follow-follow", "FOLLOW状态")
 	for {
 		select {
+
+		//超时，晋升为候选者
 		case <-time.After(time.Second * time.Duration(rand.Int()%
 			int(config.Cluster.MaxFollowTimeOut-config.Cluster.MinFollowTimeOut)+int(config.Cluster.MinFollowTimeOut))):
 			util.Loglevel(util.Debug, "Follow-follow", "FOLLOW超时，成为CANDIDATE")
 			syncBean.Status = syncBean.CANDIDATE
 			return nil
 		case m := <-syncBean.UdpReceiveMessage:
+
+			//处理数据
 			if err := StatusOperatorFollow(&m); err != nil {
 				return err
 			}

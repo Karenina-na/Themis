@@ -18,7 +18,7 @@ Themis:
     model-queue: 100  #服务注册处理队列容量
     model-handle-number: 2 #服务注册处理协程数量
 
-    beat-enable: false #是否开启心跳
+    beat-enable: true #是否开启心跳
     beat-queue: 200 #服务心跳处理队列容量
     beat-time: 15  #服务心跳超时时间   单位秒
 
@@ -26,16 +26,16 @@ Themis:
   election-timeout: 10 #选举超时时间 单位秒
 
   database:
-    enable: false  #是否开启持久化
-    persistence-time: 10 #持久化间隔 单位秒
+    enable: true  #是否开启持久化
+    persistence-time: 5 #持久化间隔 单位秒
     soft-delete-enable: true #是否开启软删除
-    type: mysql #数据库选型  mysql/sqllit
+    type: sqllit #数据库选型  mysql/sqllit
 
     mysql:
       host: 192.168.71.128 #数据库地址
       port: 3306 #数据库端口
       user: root #数据库用户名
-      password: 2167137570legacy #数据库密码
+      password: root #数据库密码
       name: themis #数据库名称
       max-open-conns: 10 #数据库最大连接数
       max-idle-conns: 10 #数据库最大空闲连接数
@@ -59,7 +59,7 @@ Themis:
     leader-heartbeat-time: 1000 #集群leader-heartbeat时间 单位毫秒
     leader-queue: 100 #集群leader-queue队列容量
     udp-timeout: 10 #UDP超时时间 单位秒
-    udp-queue-num: 100 #集群处理队列容量
+    udp-queue-num: 20 #集群通信处理队列容量
     clusters: #集群列表
       - ip: localhost
         port: 8081

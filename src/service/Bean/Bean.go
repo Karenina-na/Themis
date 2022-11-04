@@ -25,9 +25,6 @@ var ServersBeatQueue *util.ChanQueue[entity.ServerModel]
 // Leaders 记账人
 var Leaders *LeadersModel
 
-// RoutinePool goroutine池
-var RoutinePool *util.Pool
-
 // CenterStatus 服务状态
 var CenterStatus *CenterStatusModel
 

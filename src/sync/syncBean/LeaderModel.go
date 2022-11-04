@@ -10,6 +10,10 @@ type LeaderModel struct {
 	LeaderServicePort string
 }
 
+// NewLeaderModel
+//
+//	@Description: 创建LeaderModel
+//	@return *LeaderModel	LeaderModel
 func NewLeaderModel() *LeaderModel {
 	return &LeaderModel{
 		LeaderName:        "",
@@ -18,6 +22,14 @@ func NewLeaderModel() *LeaderModel {
 	}
 }
 
+// SetLeaderModel
+//
+//	@Description: 设置LeaderModel
+//	@receiver L	LeaderModel
+//	@param leaderName	leader名
+//	@param leaderIP	leaderIP
+//	@param leaderPort	leader端口
+//	@param leaderServicePort	leader服务端口
 func (L *LeaderModel) SetLeaderModel(leaderName string, leaderIP string,
 	leaderPort string, leaderServicePort string) {
 	L.LeaderName = leaderName

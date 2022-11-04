@@ -24,6 +24,8 @@ func InitMapper() (E error) {
 			E = exception.NewSystemError("InitMapper-mapper", util.Strval(r))
 		}
 	}()
+
+	// 选择不同类型的数据库
 	switch config.Database.DatabaseType {
 	case "sqlite":
 		if err := SqlLitInit(); err != nil {
@@ -51,6 +53,8 @@ func CloseMapper() (E error) {
 			E = exception.NewSystemError("CloseMapper-mapper", util.Strval(r))
 		}
 	}()
+
+	// 关闭数据库
 	sqlDB, err := DB.DB()
 	err = sqlDB.Close()
 	if err != nil {
@@ -71,6 +75,8 @@ func MysqlInit() (E error) {
 	}()
 	var err error
 	util.Loglevel(util.Debug, "MysqlInit", "连接数据库mysql")
+
+	// 连接数据库
 	dsn := config.Database.DatabaseUser + ":" + config.Database.DatabasePassword + "@tcp(" +
 		config.Database.DatabaseHost + ":" + config.Database.DatabasePort + ")/" +
 		config.Database.DatabaseName + "?charset=utf8mb4&parseTime=True&loc=Local"
@@ -78,6 +84,8 @@ func MysqlInit() (E error) {
 	if err != nil {
 		return exception.NewDataBaseError("MysqlInit-mapper", "mysql数据库初始化失败-"+err.Error())
 	}
+
+	// 设置连接池
 	sqlDB, err := DB.DB()
 	if err != nil {
 		return exception.NewDataBaseError("MysqlInit-mapper", "mysql数据库连接池初始化失败-"+err.Error())
@@ -98,6 +106,8 @@ func SqlLitInit() (E error) {
 			E = exception.NewSystemError("SqlLitInit-mapper", util.Strval(r))
 		}
 	}()
+
+	// 判断文件是否存在
 	var err error
 	_, err = os.Stat("./db")
 	if os.IsNotExist(err) {
@@ -106,6 +116,8 @@ func SqlLitInit() (E error) {
 			return exception.NewDataBaseError("SqlLitInit-mapper", "sqllit创建db文件夹错误"+err.Error())
 		}
 	}
+
+	// 连接数据库
 	util.Loglevel(util.Debug, "SqlLitInit", "连接数据库sqllit")
 	DB, err = gorm.Open(sqlite.Open("./db/Themis.db"), &gorm.Config{})
 	if err != nil {

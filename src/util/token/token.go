@@ -21,6 +21,8 @@ func GenerateToken(account string, password string) (s string, E error) {
 			E = exception.NewUserError("token-GetToken", util.Strval(r))
 		}
 	}()
+
+	// 生成令牌
 	claims := NewClaims(account, password)
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(config.Root.TokenSignKey))
 	if err != nil {
@@ -43,12 +45,16 @@ func ParseToken(token string) (account string, password string, E error) {
 			E = exception.NewUserError("token-ParseToken", util.Strval(r))
 		}
 	}()
+
+	// 解析令牌
 	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.Root.TokenSignKey), nil
 	})
 	if err != nil {
 		return "", "", err
 	}
+
+	// 获取令牌内容
 	if tokenClaims != nil {
 		if c, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
 			return c.Username, c.Password, nil

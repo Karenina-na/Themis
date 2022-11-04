@@ -1,6 +1,8 @@
 package entity
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 // ServerMapperMode 服务器映射表
 type ServerMapperMode struct {

@@ -7,7 +7,6 @@ import (
 	"Themis/src/service/Bean"
 	"Themis/src/sync/syncBean"
 	"Themis/src/util"
-	"reflect"
 	"strings"
 )
 
@@ -23,10 +22,13 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("DeleteServer-service", util.Strval(r))
 		}
 	}()
+	//将服务从服务列表中删除，加入黑名单
 	Bean.Servers.ServerModelsListRWLock.Lock()
 	Bean.DeleteInstanceList.Append(*model)
 	Bean.InstanceList.DeleteByValue(*model)
 	Bean.Servers.ServerModelsList[model.Namespace][model.Colony+"::"+model.Name].DeleteByValue(*model)
+
+	//如果服务列表为空了，则删除该服务列表
 	if Bean.Servers.ServerModelsList[model.Namespace][model.Colony+"::"+model.Name].IsEmpty() {
 		delete(Bean.Servers.ServerModelsList[model.Namespace], model.Colony+"::"+model.Name)
 	}
@@ -36,20 +38,23 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 		delete(Bean.Leaders.LeaderModelsList, model.Namespace)
 		Bean.Leaders.LeaderModelsListRWLock.Unlock()
 	}
+
+	//如果删除的服务是领导者，则重新选举
 	Bean.Leaders.LeaderModelsListRWLock.RLock()
-	if reflect.DeepEqual(*model, Bean.Leaders.LeaderModelsList[model.Namespace][model.Colony]) {
-		Bean.Leaders.LeaderModelsListRWLock.RUnlock()
-		Bean.Servers.ServerModelsListRWLock.Unlock()
-		_, E := Election(model)
-		if E != nil {
-			return false, E
+	leader := Bean.Leaders.LeaderModelsList[model.Namespace][model.Colony]
+	Bean.Leaders.LeaderModelsListRWLock.RUnlock()
+	if model.Equal(&leader) {
+		B, E := Election(model)
+		if E != nil || !B {
+			Bean.Servers.ServerModelsListRWLock.Unlock()
+			return B, E
 		}
-	} else {
-		Bean.Leaders.LeaderModelsListRWLock.RUnlock()
-		Bean.Servers.ServerModelsListRWLock.Unlock()
 	}
+	Bean.Servers.ServerModelsListRWLock.Unlock()
+
+	//集群同步
 	if config.Cluster.ClusterEnable {
-		syncBean.SectionMessage.DeleteChan <- *model
+		syncBean.SectionMessage.DeleteChan.Enqueue(model)
 	}
 	util.Loglevel(util.Debug, "DeleteServer", "删除服务-"+util.Strval(*model))
 	return true, nil
@@ -67,16 +72,20 @@ func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 			E = exception.NewUserError("DeleteColonyServer-service", util.Strval(r))
 		}
 	}()
-	list := make([]string, 0, 100)
+	//如果服务模型为空，返回错误
 	Bean.Servers.ServerModelsListRWLock.Lock()
 	if Bean.Servers.ServerModelsList[model.Namespace] == nil {
 		Bean.Servers.ServerModelsListRWLock.Unlock()
 		return false, nil
 	}
+
+	//迭代服务模型
+	list := make([]string, 0, 100)
 	for name, L := range Bean.Servers.ServerModelsList[model.Namespace] {
 		str := strings.Split(name, "::")
 		colony := str[0]
 		if colony == model.Colony {
+			//将服务从服务列表中删除，加入黑名单
 			L.Iterator(func(index int, server entity.ServerModel) {
 				Bean.DeleteInstanceList.Append(server)
 				Bean.InstanceList.DeleteByValue(server)
@@ -84,20 +93,26 @@ func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 				if Bean.Servers.ServerModelsList[server.Namespace][server.Colony+"::"+server.Name].IsEmpty() {
 					delete(Bean.Servers.ServerModelsList[server.Namespace], server.Colony+"::"+server.Name)
 				}
+
+				//集群同步
 				if config.Cluster.ClusterEnable {
-					syncBean.SectionMessage.DeleteChan <- server
+					syncBean.SectionMessage.DeleteChan.Enqueue(&server)
 				}
 			})
 			list = append(list, name)
 		}
 	}
+	//删除集群
 	for _, name := range list {
 		delete(Bean.Servers.ServerModelsList[model.Namespace], name)
 	}
+	//删除命名空间
 	if len(Bean.Servers.ServerModelsList[model.Namespace]) == 0 && model.Name != "default" {
 		delete(Bean.Servers.ServerModelsList, model.Namespace)
 	}
 	Bean.Servers.ServerModelsListRWLock.Unlock()
+
+	//删除领导者
 	Bean.Leaders.LeaderModelsListRWLock.Lock()
 	delete(Bean.Leaders.LeaderModelsList, model.Namespace)
 	Bean.Leaders.LeaderModelsListRWLock.Unlock()
@@ -136,8 +151,9 @@ func DeleteInstanceFromBlacklist(model *entity.ServerModel) (B bool, E error) {
 		}
 	}()
 	Bean.DeleteInstanceList.DeleteByValue(*model)
+	//集群同步
 	if config.Cluster.ClusterEnable {
-		syncBean.SectionMessage.CancelDeleteChan <- *model
+		syncBean.SectionMessage.CancelDeleteChan.Enqueue(model)
 	}
 	util.Loglevel(util.Debug, "DeleteInstanceFromBlacklist", "从黑名单恢复-"+util.Strval(*model))
 	return true, nil
@@ -179,10 +195,14 @@ func GetColonyByNamespace(namespace string) (c []string, E error) {
 	}()
 	list := make([]string, 0, 100)
 	Bean.Servers.ServerModelsListRWLock.RLock()
+
+	//判断命名空间是否存在
 	if Bean.Servers.ServerModelsList[namespace] == nil {
 		Bean.Servers.ServerModelsListRWLock.RUnlock()
 		return list, nil
 	}
+
+	//获取集群
 	for name := range Bean.Servers.ServerModelsList[namespace] {
 		colonyName := strings.Split(name, "::")[0]
 		list = append(list, colonyName)
@@ -204,10 +224,14 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 	}()
 	ServerLists := make(map[string]map[string]map[string][]entity.ServerModel)
 	Bean.Servers.ServerModelsListRWLock.RLock()
+
+	//迭代命名空间
 	for namespace, colonyMap := range Bean.Servers.ServerModelsList {
+		//如果命名空间不存在则创建
 		if ServerLists[namespace] == nil {
 			ServerLists[namespace] = make(map[string]map[string][]entity.ServerModel)
 		}
+		//迭代集群
 		for name, L := range colonyMap {
 			str := strings.Split(name, "::")
 			colony := str[0]
@@ -218,6 +242,7 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 			if ServerLists[namespace][colony][serverName] == nil {
 				ServerLists[namespace][colony][serverName] = make([]entity.ServerModel, 0, 100)
 			}
+			//迭代服务
 			L.Iterator(func(index int, server entity.ServerModel) {
 				ServerLists[namespace][colony][serverName] = append(ServerLists[namespace][colony][serverName], server)
 			})
@@ -240,30 +265,40 @@ func GetInstancesByNamespaceAndColony(model *entity.ServerModel) (m []entity.Ser
 		}
 	}()
 	Bean.Servers.ServerModelsListRWLock.RLock()
+
+	//如果命名空间为通配符则获取所有服务
 	if model.Namespace == "" {
 		var list []entity.ServerModel
 		for _, colonyMap := range Bean.Servers.ServerModelsList {
 			for _, L := range colonyMap {
+				//迭代服务
 				L.Iterator(func(index int, server entity.ServerModel) {
 					list = append(list, server)
 				})
 			}
 		}
+		Bean.Servers.ServerModelsListRWLock.RUnlock()
 		return list, nil
 	}
+
+	//如果集群空间为通配符，则获取指定命名空间下的所有服务
 	if model.Colony == "" {
 		var list []entity.ServerModel
 		for namespace, colonyMap := range Bean.Servers.ServerModelsList {
 			if namespace == model.Namespace {
 				for _, L := range colonyMap {
+					//迭代服务
 					L.Iterator(func(index int, server entity.ServerModel) {
 						list = append(list, server)
 					})
 				}
 			}
 		}
+		Bean.Servers.ServerModelsListRWLock.RUnlock()
 		return list, nil
 	}
+
+	//获取指定命名空间和集群的服务
 	var list []entity.ServerModel
 	for namespace, colonyMap := range Bean.Servers.ServerModelsList {
 		if namespace == model.Namespace {
@@ -271,6 +306,7 @@ func GetInstancesByNamespaceAndColony(model *entity.ServerModel) (m []entity.Ser
 				str := strings.Split(name, "::")
 				colony := str[0]
 				if colony == model.Colony {
+					//迭代服务
 					L.Iterator(func(index int, server entity.ServerModel) {
 						list = append(list, server)
 					})

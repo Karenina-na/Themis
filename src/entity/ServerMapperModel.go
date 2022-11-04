@@ -1,6 +1,8 @@
 package entity
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 // ServerMapperMode 服务器映射表
 type ServerMapperMode struct {
@@ -35,4 +37,20 @@ func NewServerMapperMode(model ServerModel, Type int) *ServerMapperMode {
 // @return       string 表名
 func (model ServerMapperMode) TableName() string {
 	return "tb_server_mapper"
+}
+
+// UnPack
+//
+//	@Description: 解包
+//	@receiver model	服务器映射表
+//	@return *entity.ServerModel	服务器模型
+func (model ServerMapperMode) UnPack() *ServerModel {
+	return &ServerModel{
+		IP:        model.IP,
+		Port:      model.Port,
+		Name:      model.Name,
+		Time:      model.Time,
+		Colony:    model.Colony,
+		Namespace: model.Namespace,
+	}
 }

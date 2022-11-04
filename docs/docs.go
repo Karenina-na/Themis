@@ -272,7 +272,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.RequestModel"
+                            "$ref": "#/definitions/entity.ServerModel"
                         }
                     }
                 ],
@@ -859,15 +859,6 @@ const docTemplate = `{
                 },
                 "packets_sent": {
                     "type": "string"
-                }
-            }
-        },
-        "entity.RequestModel": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "root": {
-                    "$ref": "#/definitions/entity.Root"
                 }
             }
         },

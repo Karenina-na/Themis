@@ -9,16 +9,16 @@ import (
 
 // Pool is a goroutine pool
 type Pool struct {
-	lock          sync.RWMutex
-	goChan        chan func()
-	coreNum       int
-	maxNum        int
-	activeNum     int
-	jobNum        int
-	timeout       int
-	exceptionFunc func(r any)
-	ctx           context.Context
-	cancelFunc    context.CancelFunc
+	lock          sync.RWMutex       // 锁
+	goChan        chan func()        // 任务队列
+	coreNum       int                // 核心协程数
+	maxNum        int                // 最大协程数
+	activeNum     int                // 活跃协程数
+	jobNum        int                // 任务数
+	timeout       int                // 超时时间
+	exceptionFunc func(r any)        // 异常处理
+	ctx           context.Context    // 上下文
+	cancelFunc    context.CancelFunc // 取消函数
 }
 
 // CreatePool
@@ -38,6 +38,8 @@ func CreatePool(coreNum int, maxNum int, timeout int) *Pool {
 		ctx:        ctx,
 		cancelFunc: cancelFunc,
 	}
+
+	// 初始化协程池核心协程
 	for i := 0; i < coreNum; i++ {
 		go P.work()
 	}
@@ -64,21 +66,27 @@ func (P *Pool) CheckStatus() (activeNum int, jobNum int) {
 // @param        f             任务函数
 // @param        exceptionFunc 异常处理函数
 func (P *Pool) CreateWork(f func() (E error), exceptionFunc func(Message error)) {
+
+	// 包装任务函数
 	F := func() {
 		if err := f(); err != nil {
 			exceptionFunc(err)
 			return
 		}
 	}
+
+	// 阻塞等待任务队列有空闲
 	select {
 	case P.goChan <- F:
 		P.lock.Lock()
 		P.jobNum++
 		P.lock.Unlock()
 	case <-time.After(time.Duration(P.timeout) * time.Second):
-		P.exceptionFunc(errors.New("goroutine超时"))
+		P.exceptionFunc(errors.New("goroutine队列溢出，超时"))
 		return
 	}
+
+	// 动态创建协程
 	P.lock.Lock()
 	if P.activeNum < P.maxNum && P.jobNum > P.activeNum {
 		P.activeNum++
@@ -97,6 +105,8 @@ func (P *Pool) work() {
 			P.exceptionFunc(r)
 		}
 	}()
+
+	// 从任务队列中获取任务
 	for {
 		select {
 		case <-P.ctx.Done():
@@ -106,6 +116,8 @@ func (P *Pool) work() {
 			return
 		case f := <-P.goChan:
 			f()
+
+			// 任务完成，任务数减一
 			P.lock.Lock()
 			P.jobNum--
 			if P.activeNum > P.coreNum && P.jobNum < P.activeNum {

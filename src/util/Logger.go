@@ -53,6 +53,8 @@ func Loglevel(level logLevel, name string, message string) {
 			f(r)
 		}
 	}()
+
+	// 创建日志对象
 	switch level {
 	case Debug:
 		logger = log.New(os.Stdout, name+" == "+" ["+"debug"+"] ", log.Ldate|log.Ltime)
@@ -63,6 +65,8 @@ func Loglevel(level logLevel, name string, message string) {
 	case Error:
 		logger = log.New(os.Stdout, name+" == "+" ["+"error"+"] ", log.Ldate|log.Ltime)
 	}
+
+	// 记录日志
 	switch level {
 	case Debug:
 		if flag {
@@ -101,17 +105,25 @@ func recordFile(message string, level logLevel, logger *log.Logger) {
 	case Error:
 		FileLevel = "Error"
 	}
+
+	// 获取当前时间，创建当日文件夹
 	year, month, day := time.Now().Date()
 	t := strconv.Itoa(year) + "." + strconv.Itoa(int(month)) + "." + strconv.Itoa(day)
 	filename := "./log/" + t
 	if !exists(filename) {
 		_ = os.Mkdir(filename, 0644)
 	}
+
+	// 创建当日日志文件
 	file, err := os.OpenFile(filename+"/"+FileLevel+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		f("打开日志文件异常")
 	}
+
+	// 设置日志输出到文件
 	logger.SetOutput(file)
+
+	// 记录日志
 	logger.Println(message)
 	err = file.Close()
 	if err != nil {

@@ -1,5 +1,6 @@
 # Themis: 分布式记账调度中心
 
+<img src="icon/png/logo-white.png" alt="Themis分布式记账调度中心" width="500" />
 
 ### [Author](https://www.wzxaugenstern.online/#/)
 #### [Themis](https://www.wzxaugenstern.online/#/Article?ArticleId=818427233)
@@ -53,7 +54,9 @@ Themis:.
 │  ├─entity         //数据模型
 │  ├─exception      //异常处理
 │  ├─factory        //服务加载器
+│  │  └─image       //图片生成器     
 │  ├─mapper         //数据持久层
+│  ├─pool           //线程池
 │  ├─router         //后端路由
 │  ├─service        //业务逻辑层层
 │  │  ├─Bean        //逻辑状态Bean

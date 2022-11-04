@@ -6,6 +6,10 @@ type SyncAddressModel struct {
 	Port string `json:"port"`
 }
 
+// NewSyncAddressModel
+//
+//	@Description: 创建地址模型
+//	@return *SyncAddressModel	地址模型
 func NewSyncAddressModel() *SyncAddressModel {
 	return &SyncAddressModel{
 		IP:   "",

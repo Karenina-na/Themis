@@ -19,6 +19,8 @@ func DataSyncInstances(list []entity.ServerModel) (E error) {
 			E = exception.NewUserError("DataSyncInstances-common", util.Strval(r))
 		}
 	}()
+
+	//同步实例数据
 	for _, v := range list {
 		if !Bean.InstanceList.Contain(v) {
 			B, err := service.RegisterServer(&v)
@@ -41,6 +43,8 @@ func DataSyncDelete(list []entity.ServerModel) (E error) {
 			E = exception.NewUserError("DataSyncDelete-common", util.Strval(r))
 		}
 	}()
+
+	//同步删除数据
 	for _, v := range list {
 		if !Bean.DeleteInstanceList.Contain(v) {
 			B, err := service.DeleteServer(&v)
@@ -64,6 +68,8 @@ func DataSyncCancelDelete(list []entity.ServerModel) (E error) {
 			E = exception.NewUserError("DataSyncCancelDelete-common", util.Strval(r))
 		}
 	}()
+
+	//同步取消删除数据
 	for _, v := range list {
 		if !Bean.DeleteInstanceList.Contain(v) {
 			B, err := service.DeleteInstanceFromBlacklist(&v)
@@ -86,6 +92,8 @@ func DataSyncLeader(list []entity.ServerModel) (E error) {
 			E = exception.NewUserError("DataSyncLeader-common", util.Strval(r))
 		}
 	}()
+
+	//同步leader数据
 	Bean.Leaders.LeaderModelsListRWLock.Lock()
 	for _, v := range list {
 		Bean.Leaders.LeaderModelsList[v.Namespace][v.Colony] = v

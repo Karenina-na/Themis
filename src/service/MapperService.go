@@ -22,21 +22,29 @@ func LoadDatabase() (E error) {
 		}
 	}()
 	util.Loglevel(util.Debug, "LoadDatabase", "加载数据库原有文件")
+
+	//加载数据库文件
 	serverModels, deleteServerModels, leaderServerModels, err := mapper.SelectAllServers()
 	if err != nil {
 		return err
 	}
+
+	//注册服务
 	for i := 0; i < len(serverModels); i++ {
 		model := serverModels[i].Clone()
-		_, e := RegisterServer(model)
-		if e != nil {
+		B, e := RegisterServer(model)
+		if e != nil || B != true {
 			return e
 		}
 	}
+
+	//注册黑名单服务
 	for i := 0; i < len(deleteServerModels); i++ {
 		model := deleteServerModels[i].Clone()
 		Bean.DeleteInstanceList.Append(*model)
 	}
+
+	//注册领导者服务
 	Bean.Leaders.LeaderModelsListRWLock.Lock()
 	for i := 0; i < len(leaderServerModels); i++ {
 		model := leaderServerModels[i].Clone()
@@ -66,25 +74,35 @@ func Persistence() (E error) {
 			util.Loglevel(util.Debug, "Persistence", "持久化数据协程退出")
 			return nil
 		case <-time.After(time.Second * time.Duration(config.Persistence.PersistenceTime)):
-			_, e := mapper.Transaction(func(tx *gorm.DB) error {
+
+			//事务
+			B, e := mapper.Transaction(func(tx *gorm.DB) error {
+
+				//删除所有已经持久化的数据信息
 				b, e := mapper.DeleteAllServer(tx)
 				if e != nil || b != true {
 					return e
 				}
 				return nil
 			}, func(tx *gorm.DB) error {
+
+				//持久化实例信息
 				b, e := mapper.StorageList(Bean.InstanceList, mapper.NORMAL, tx)
 				if e != nil || b != true {
 					return e
 				}
 				return nil
 			}, func(tx *gorm.DB) error {
+
+				//持久化黑名单信息
 				b, e := mapper.StorageList(Bean.DeleteInstanceList, mapper.DELETE, tx)
 				if e != nil || b != true {
 					return e
 				}
 				return nil
 			}, func(tx *gorm.DB) error {
+
+				//持久化领导者信息
 				list := util.NewLinkList[entity.ServerModel]()
 				Bean.Leaders.LeaderModelsListRWLock.RLock()
 				for _, v := range Bean.Leaders.LeaderModelsList {
@@ -99,7 +117,7 @@ func Persistence() (E error) {
 				Bean.Leaders.LeaderModelsListRWLock.RUnlock()
 				return nil
 			})
-			if e != nil {
+			if e != nil || B != true {
 				return e
 			}
 		}

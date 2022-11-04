@@ -21,6 +21,8 @@ func CreateSendSyncDataSnapshot() (instances []entity.ServerModel,
 			E = exception.NewSystemError("CreateSendSyncDataSnapshot-leader", util.Strval(r))
 		}
 	}()
+
+	//创建领导者数据
 	LeaderList := make([]entity.ServerModel, 0)
 	Bean.Leaders.LeaderModelsListRWLock.RLock()
 	for _, Namespace := range Bean.Leaders.LeaderModelsList {
@@ -28,14 +30,18 @@ func CreateSendSyncDataSnapshot() (instances []entity.ServerModel,
 			LeaderList = append(LeaderList, Leader)
 		}
 	}
+	Bean.Leaders.LeaderModelsListRWLock.RUnlock()
+
+	//创建实例数据
 	Instances := make([]entity.ServerModel, 0)
 	Bean.InstanceList.Iterator(func(index int, value entity.ServerModel) {
 		Instances = append(Instances, value)
 	})
+
+	//创建删除实例数据
 	DeleteInstancesList := make([]entity.ServerModel, 0)
 	Bean.DeleteInstanceList.Iterator(func(index int, value entity.ServerModel) {
 		DeleteInstancesList = append(DeleteInstancesList, value)
 	})
-	Bean.Leaders.LeaderModelsListRWLock.RUnlock()
 	return Instances, DeleteInstancesList, LeaderList, nil
 }
