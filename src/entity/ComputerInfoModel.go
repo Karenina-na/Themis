@@ -11,6 +11,8 @@ type ComputerInfoModel struct {
 	HostInfo        HostInfoModel   `json:"host_info"`
 	DiskInfo        []DiskInfoModel `json:"disk_info"`
 	NetInfo         []NetInfoModel  `json:"net_info"`
+	PoolCoreNum     int             `json:"pool_core_num"`
+	PoolMaxNum      int             `json:"pool_max_num"`
 	PoolActivateNum int             `json:"pool_activate_num"`
 	PoolJobNum      int             `json:"pool_job_num"`
 }
@@ -81,12 +83,14 @@ func NewComputerInfoModel() *ComputerInfoModel {
 // @param        activateNum int
 // @param        jobNum      int
 func (com *ComputerInfoModel) SetComputerInfoModel(c []CpuInfoModel, m MemInfoModel,
-	h HostInfoModel, d []DiskInfoModel, n []NetInfoModel, activateNum int, jobNum int) {
+	h HostInfoModel, d []DiskInfoModel, n []NetInfoModel, coreNum int, maxNum int, activateNum int, jobNum int) {
 	com.CpuInfo = c
 	com.MemInfo = m
 	com.HostInfo = h
 	com.DiskInfo = d
 	com.NetInfo = n
+	com.PoolCoreNum = coreNum
+	com.PoolMaxNum = maxNum
 	com.PoolActivateNum = activateNum
 	com.PoolJobNum = jobNum
 }

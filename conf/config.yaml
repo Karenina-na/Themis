@@ -18,7 +18,7 @@ Themis:
     model-queue: 100  #服务注册处理队列容量
     model-handle-number: 2 #服务注册处理协程数量
 
-    beat-enable: true #是否开启心跳
+    beat-enable: false #是否开启心跳
     beat-queue: 200 #服务心跳处理队列容量
     beat-time: 15  #服务心跳超时时间   单位秒
 
@@ -26,7 +26,7 @@ Themis:
   election-timeout: 10 #选举超时时间 单位秒
 
   database:
-    enable: true  #是否开启持久化
+    enable: false  #是否开启持久化
     persistence-time: 5 #持久化间隔 单位秒
     soft-delete-enable: true #是否开启软删除
     type: sqllit #数据库选型  mysql/sqllit

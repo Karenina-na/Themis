@@ -54,10 +54,10 @@ func CreatePool(coreNum int, maxNum int, timeout int) *Pool {
 // @receiver     P         协程池
 // @return       activeNum 活跃协程数
 // @return       jobNum    任务数
-func (P *Pool) CheckStatus() (activeNum int, jobNum int) {
+func (P *Pool) CheckStatus() (coreNum int, maxNum int, activeNum int, jobNum int) {
 	P.lock.RLock()
 	defer P.lock.RUnlock()
-	return P.activeNum, P.jobNum
+	return P.coreNum, P.maxNum, P.activeNum, P.jobNum
 }
 
 // CreateWork

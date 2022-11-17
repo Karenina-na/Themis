@@ -211,6 +211,41 @@ func GetColonyByNamespace(namespace string) (c []string, E error) {
 	return list, nil
 }
 
+// GetColonyAndServerByNamespace
+//
+//	@Description: 获取集群和服务
+//	@param namespace 命名空间
+//	@return c	集群
+//	@return E	错误
+func GetColonyAndServerByNamespace(namespace string) (c map[string][]string, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetColonyAndServerByNamespace-service", util.Strval(r))
+		}
+	}()
+	list := make(map[string][]string)
+	Bean.Servers.ServerModelsListRWLock.RLock()
+
+	//判断命名空间是否存在
+	if Bean.Servers.ServerModelsList[namespace] == nil {
+		Bean.Servers.ServerModelsListRWLock.RUnlock()
+		return list, nil
+	}
+
+	//获取集群和服务名
+	for name := range Bean.Servers.ServerModelsList[namespace] {
+		colonyName := strings.Split(name, "::")[0]
+		serverName := strings.Split(name, "::")[1]
+		if list[colonyName] == nil {
+			list[colonyName] = make([]string, 0)
+		}
+		list[colonyName] = append(list[colonyName], serverName)
+	}
+	Bean.Servers.ServerModelsListRWLock.RUnlock()
+	return list, nil
+}
+
 // GetInstances
 // @Description: 获取所有服务实例
 // @return       m 服务实例
@@ -253,7 +288,7 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 }
 
 // GetInstancesByNamespaceAndColony
-// @Description: 获取指定命名空间和集群的服务实例
+// @Description: 获取指定命名空间和集群的服务实例--返回列表
 // @param        model 服务模型
 // @return       m     服务实例
 // @return       E     错误
@@ -316,6 +351,38 @@ func GetInstancesByNamespaceAndColony(model *entity.ServerModel) (m []entity.Ser
 	}
 	Bean.Servers.ServerModelsListRWLock.RUnlock()
 	return list, nil
+}
+
+// GetInstanceByNamespaceAndColony
+//
+//	@Description: 获取指定命名空间和集群的服务实例--返回map
+//	@param model	服务模型
+//	@return m	服务实例
+//	@return E	错误
+func GetInstanceByNamespaceAndColony(model *entity.ServerModel) (m map[string][]entity.ServerModel, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetInstanceByNamespaceAndColony-service", util.Strval(r))
+		}
+	}()
+	ServerLists := make(map[string][]entity.ServerModel)
+	Bean.Servers.ServerModelsListRWLock.RLock()
+
+	//迭代集群
+	for name, L := range Bean.Servers.ServerModelsList[model.Namespace] {
+		str := strings.Split(name, "::")
+		colony := str[0]
+		serverName := str[1]
+		if colony == model.Colony {
+			//迭代服务
+			L.Iterator(func(index int, server entity.ServerModel) {
+				ServerLists[serverName] = append(ServerLists[serverName], server)
+			})
+		}
+	}
+	Bean.Servers.ServerModelsListRWLock.RUnlock()
+	return ServerLists, nil
 }
 
 // GetCenterStatus

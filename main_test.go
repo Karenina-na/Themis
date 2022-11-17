@@ -72,6 +72,7 @@ func test1(router *gin.Engine) {
 	ServerTest.GetDeleteInstances(router)
 	ServerTest.CancelDeleteInstance(router)
 	ServerTest.GetDeleteInstances(router)
+
 }
 
 /*

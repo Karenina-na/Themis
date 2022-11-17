@@ -170,9 +170,9 @@ func CenterStatusRoutine() (E error) {
 		case <-time.After(time.Second * time.Duration(config.ListenTime)):
 			//获取信息，设置全局信息状态
 			Bean.CenterStatus.CenterStatusInfoLock.Lock()
-			activeNum, jobNum := Factory.RoutinePool.CheckStatus()
+			coreNum, maxNum, activeNum, jobNum := Factory.RoutinePool.CheckStatus()
 			Bean.CenterStatus.CenterStatusInfo.SetComputerInfoModel(util.GetCpuInfo(), *util.GetMemInfo(), *util.GetHostInfo(),
-				util.GetDiskInfo(), util.GetNetInfo(), activeNum, jobNum)
+				util.GetDiskInfo(), util.GetNetInfo(), coreNum, maxNum, activeNum, jobNum)
 			Bean.CenterStatus.CenterStatusInfoLock.Unlock()
 		}
 	}

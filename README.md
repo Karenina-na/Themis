@@ -18,10 +18,12 @@
 * POST /v1/message/follow/getServersNum	获取当前集群服务数量
 
 ### OperatorAPI  操作api
-* GET /v1/operator/CURD/gerNamespaces 获取全部命名空间
-* GET /v1/operator/CURD/getColonys 获取指定命名空间全部集群
+* GET /v1/operator/CURD/getNamespaces 获取全部命名空间名称
+* GET /v1/operator/CURD/getColonies 获取指定命名空间全部集群名称
+* GEt /v1/operator/CURD/getColoniesInstances 获取指定命名空间全部集群名称和服务器名称
 * GET /v1/operator/CURD/getInstances 获取全部服务实例
-* POST /v1/operator/CURD/getInstances 获取指定命名空间和区域的服务实例
+* POST /v1/operator/CURD/getInstancesByCondition 获取指定命名空间和区域的服务实例--返回list  模糊查询
+* POST /v1/operator/CURD/getInstancesByConditionMap 获取指定命名空间和区域的服务实例--返回map  精确查询
 * DELETE /v1/operator/CURD/deleteInstance 将指定服务拉入黑名单
 * DELETE /v1/operator/CURD/deleteColony 将指定集群内所有服务拉入黑名单
 * GET /v1/operator/CURD/getDeleteInstances 获取黑名单内的实例
