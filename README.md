@@ -20,7 +20,7 @@
 ### OperatorAPI  操作api
 * GET /v1/operator/CURD/getNamespaces 获取全部命名空间名称
 * GET /v1/operator/CURD/getColonies 获取指定命名空间全部集群名称
-* GEt /v1/operator/CURD/getColoniesInstances 获取指定命名空间全部集群名称和服务器名称
+* GET /v1/operator/CURD/getColoniesInstances 获取指定命名空间全部集群名称和服务器名称
 * GET /v1/operator/CURD/getInstances 获取全部服务实例
 * POST /v1/operator/CURD/getInstancesByCondition 获取指定命名空间和区域的服务实例--返回list  模糊查询
 * POST /v1/operator/CURD/getInstancesByConditionMap 获取指定命名空间和区域的服务实例--返回map  精确查询
@@ -29,11 +29,11 @@
 * GET /v1/operator/CURD/getDeleteInstances 获取黑名单内的实例
 * DELETE /v1/operator/CURD/cancelDeleteInstance 将服务从黑名单删除  
 
-* GET /api/v1/operator/cluster/getStatus 获取调度中心服务状态
-* GET /api/v1/operator/cluster/getClusterLeader 获取当前集群Leader
-* GET /api/v1/operator/cluster/getClusterStatus 获取当前集群服务身份
+* GET /v1/operator/cluster/getStatus 获取调度中心服务状态
+* GET /v1/operator/cluster/getClusterLeader 获取当前集群Leader
+* GET /v1/operator/cluster/getClusterStatus 获取当前集群服务身份
 
-* GET /api/v1/operator/manager/login 管理员登录
+* GET /v1/operator/manager/login 管理员登录
 
 ### 具体API请运行项目并访问http://localhost:8080/swagger/index.html   查看swagger文档
 ```
