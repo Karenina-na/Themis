@@ -105,9 +105,9 @@ func (com *ComputerInfoModel) SetComputerInfoModel(c []CpuInfoModel, m MemInfoMo
 // @param        usage      float64
 // @return       *CpuInfoModel cpu info model
 func NewCpuInfoModel(cpuName string, coreNum int32, freq float64, VendorId string, physicalId string, usage float64) *CpuInfoModel {
-	frequency := strconv.FormatFloat(freq/1000, 'f', 4, 64) + " GHz"
+	frequency := strconv.FormatFloat(freq/1000, 'f', 4, 64)
 	coreNumber := strconv.Itoa(int(coreNum))
-	usagePercent := strconv.FormatFloat(usage, 'f', 4, 64) + " %"
+	usagePercent := strconv.FormatFloat(usage, 'f', 4, 64)
 	return &CpuInfoModel{
 		CpuName:       cpuName,
 		CpuCoreNum:    coreNumber,
@@ -126,10 +126,10 @@ func NewCpuInfoModel(cpuName string, coreNum int32, freq float64, VendorId strin
 // @param        memUsage float64
 // @return       *MemInfoModel memory info model
 func NewMemInfoModel(memTotal uint64, memAvi uint64, memUsed uint64, memUsage float64) *MemInfoModel {
-	MemTotal := strconv.FormatFloat(float64(memTotal)/1024/1024/1024, 'f', 4, 64) + " GB"
-	MemAvi := strconv.FormatFloat(float64(memAvi)/1024/1024/1024, 'f', 4, 64) + " GB"
-	MemUsed := strconv.FormatFloat(float64(memUsed)/1024/1024/1024, 'f', 4, 64) + " GB"
-	MemUsage := strconv.FormatFloat(memUsage, 'f', 4, 64) + " %"
+	MemTotal := strconv.FormatFloat(float64(memTotal)/1024/1024/1024, 'f', 4, 64)
+	MemAvi := strconv.FormatFloat(float64(memAvi)/1024/1024/1024, 'f', 4, 64)
+	MemUsed := strconv.FormatFloat(float64(memUsed)/1024/1024/1024, 'f', 4, 64)
+	MemUsage := strconv.FormatFloat(memUsage, 'f', 4, 64)
 	return &MemInfoModel{
 		MemTotal: MemTotal,
 		MemAvi:   MemAvi,
@@ -169,10 +169,10 @@ func NewHostInfoModel(hostName string, os string, osVersion string, kernelVersio
 // @param        opts      string
 // @return       *DiskInfoModel disk info model
 func NewDiskInfoModel(diskName string, diskSize uint64, diskUsed uint64, diskAvi uint64, diskUsage float64, fsType string, opts string) *DiskInfoModel {
-	DiskSize := strconv.FormatFloat(float64(diskSize)/1024/1024/1024, 'f', 4, 64) + " GB"
-	DiskUsed := strconv.FormatFloat(float64(diskUsed)/1024/1024/1024, 'f', 4, 64) + " GB"
-	DiskAvi := strconv.FormatFloat(float64(diskAvi)/1024/1024/1024, 'f', 4, 64) + " GB"
-	DiskUsage := strconv.FormatFloat(diskUsage, 'f', 4, 64) + " %"
+	DiskSize := strconv.FormatFloat(float64(diskSize)/1024/1024/1024, 'f', 4, 64)
+	DiskUsed := strconv.FormatFloat(float64(diskUsed)/1024/1024/1024, 'f', 4, 64)
+	DiskAvi := strconv.FormatFloat(float64(diskAvi)/1024/1024/1024, 'f', 4, 64)
+	DiskUsage := strconv.FormatFloat(diskUsage, 'f', 4, 64)
 	return &DiskInfoModel{
 		DiskName:  diskName,
 		DiskSize:  DiskSize,
@@ -193,10 +193,10 @@ func NewDiskInfoModel(diskName string, diskSize uint64, diskUsed uint64, diskAvi
 // @param        packetsReceived uint64
 // @return       *NetInfoModel   network info model
 func NewNetInfoModel(name string, bytesSent uint64, bytesReceived uint64, packetsSent uint64, packetsReceived uint64) *NetInfoModel {
-	BytesSent := strconv.FormatFloat(float64(bytesSent)/1024/1024, 'f', 4, 64) + " MB"
-	BytesReceived := strconv.FormatFloat(float64(bytesReceived)/1024/1024, 'f', 4, 64) + " MB"
-	PacketsSent := strconv.FormatFloat(float64(packetsSent)/1024/1024, 'f', 4, 64) + " MB"
-	PacketsReceived := strconv.FormatFloat(float64(packetsReceived)/1024/1024, 'f', 4, 64) + " MB"
+	BytesSent := strconv.FormatFloat(float64(bytesSent)/1024/1024, 'f', 4, 64)
+	BytesReceived := strconv.FormatFloat(float64(bytesReceived)/1024/1024, 'f', 4, 64)
+	PacketsSent := strconv.FormatFloat(float64(packetsSent)/1024/1024, 'f', 4, 64)
+	PacketsReceived := strconv.FormatFloat(float64(packetsReceived)/1024/1024, 'f', 4, 64)
 	return &NetInfoModel{
 		NetName:         name,
 		BytesSent:       BytesSent,
