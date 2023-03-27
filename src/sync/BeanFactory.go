@@ -27,7 +27,9 @@ func InitSync() (E error) {
 	syncBean.Status = syncBean.FOLLOW
 	syncBean.Term = 1
 	syncBean.Leader = *syncBean.NewLeaderModel()
-	syncBean.SyncAddress = util.NewLinkList[syncBean.SyncAddressModel]()
+	syncBean.SyncAddress = util.NewLinkList[syncBean.SyncAddressModel](func(a, b syncBean.SyncAddressModel) bool {
+		return a.IP == b.IP && a.Port == b.Port
+	})
 
 	//添加本地服务集群地址
 	for _, value := range config.Cluster.Clusters {

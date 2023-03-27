@@ -15,47 +15,56 @@ func OperatorAPI(r *gin.Engine) {
 	// CURD
 	txOperator := tx.Group("/CURD")
 	txOperator.Use(interception.ClusterCandidateInterception(), interception.RootInterception())
+	//获取
 	{
-		//  /v1/operator/gerNamespaces	获取全部命名空间
+		//  /v1/operator/CURD/gerNamespaces	获取全部命名空间
 		txOperator.GET("/getNamespaces", controller.GerNamespacesController)
-		//  /v1/operator/getColonies	  获取指定命名空间下的集群
+		//  /v1/operator/CURD/getColonies	  获取指定命名空间下的集群
 		txOperator.POST("/getColonies",
 			interception.ClusterLeaderInterception(), controller.GetColoniesController)
-		//  /v1/operator/getColoniesInstances	  获取指定命名空间下集群的节点
+		//  /v1/operator/CURD/getColoniesInstances	  获取指定命名空间下集群的节点
 		txOperator.POST("/getColoniesInstances",
 			interception.ClusterLeaderInterception(), controller.GetColoniesAndServerController)
-		//	/v1/operator/getInstances			获取全部服务实例
+		//	/v1/operator/CURD/getInstances			获取全部服务实例
 		txOperator.GET("/getInstances",
 			interception.ClusterLeaderInterception(), controller.GetAllServersController)
-		//  /v1/operator/getInstancesByCondition			获取指定条件下的服务信息--模糊查询
+		//	/v1/operator/CURD/getInstance			获取服务实例
+		txOperator.POST("/getInstance",
+			interception.ClusterLeaderInterception(), controller.GetServerController)
+		//  /v1/operator/CURD/getInstancesByCondition			获取指定条件下的服务信息--模糊查询
 		txOperator.POST("/getInstancesByCondition",
 			interception.ClusterLeaderInterception(), controller.GetInstancesByConditionListController)
-		// /v1/operator/getInstancesByConditionMap			获取指定条件下的服务信息--精确查询
+		// /v1/operator/CURD/getInstancesByConditionMap			获取指定条件下的服务信息--精确查询
 		txOperator.POST("/getInstancesByConditionMap",
 			interception.ClusterLeaderInterception(), controller.GetInstancesByConditionMapController)
-		// /v1/operator/deleteInstance			删除服务实例并拉入黑名单
-		txOperator.DELETE("/deleteInstance",
-			interception.ClusterFollowInterception(), controller.DeleteInstanceController)
-		// /v1/operator/deleteColony			删除地区集群实例并拉入黑名单
-		txOperator.DELETE("/deleteColony",
-			interception.ClusterFollowInterception(), controller.DeleteInstanceByColonyController)
-		// /v1/operator/getDeleteInstance		获取被拉入黑名单的实例
-		txOperator.GET("/getDeleteInstance",
-			interception.ClusterLeaderInterception(), controller.GetDeleteInstancesController)
-		// /v1/operator/cancelDeleteInstance	删除实例的黑名单
-		txOperator.DELETE("/cancelDeleteInstance",
-			interception.ClusterFollowInterception(), controller.CancelDeleteInstancesController)
+	}
+	//黑名单
+	{
+		// /v1/operator/CURD/blacklistInstance			删除服务实例并拉入黑名单
+		txOperator.DELETE("/blacklistInstance",
+			interception.ClusterFollowInterception(), controller.BlackInstanceController)
+		// /v1/operator/CURD/blacklistColony			删除地区集群实例并拉入黑名单
+		txOperator.DELETE("/blacklistColony",
+			interception.ClusterFollowInterception(), controller.BlackInstanceByColonyController)
+		txOperator.DELETE("/blacklistNamespace",
+			interception.ClusterFollowInterception(), controller.BlackInstanceByNamespaceController)
+		// /v1/operator/CURD/getBlacklist		获取被拉入黑名单的实例
+		txOperator.GET("/getBlacklist",
+			interception.ClusterLeaderInterception(), controller.GetBlacklistInstancesController)
+		// /v1/operator/CURD/deleteBlacklistInstance	删除实例的黑名单
+		txOperator.DELETE("/deleteBlacklistInstance",
+			interception.ClusterFollowInterception(), controller.DeleteBlacklistInstancesController)
 	}
 
 	//集群信息
 	txCluster := r.Group("/v1/operator/cluster")
 	txCluster.Use(interception.RootInterception())
 	{
-		// /v1/operator/getStatus				获取当前中心状态
+		// /v1/operator/cluster/getStatus				获取当前中心状态
 		txCluster.GET("/getStatus", controller.GetStatusController)
-		// /v1/operator/getClusterLeader				获取当前集群Leader
+		// /v1/operator/cluster/getClusterLeader				获取当前集群Leader
 		txCluster.GET("/getClusterLeader", controller.GetClusterLeaderController)
-		// /v1/operator/getClusterStatus				获取当前集群服务身份
+		// /v1/operator/cluster/getClusterStatus				获取当前集群服务身份
 		txCluster.GET("/getClusterStatus", controller.GetClusterStatusController)
 	}
 

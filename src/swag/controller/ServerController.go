@@ -147,7 +147,7 @@ func GetLeaderController(c *gin.Context) {
 	Server := entity.NewServerModel()
 	err := c.BindJSON(&Server)
 	if err != nil {
-		exception.HandleException(exception.NewUserError("ElectionController", "参数绑定错误-"+err.Error()))
+		exception.HandleException(exception.NewUserError("GetLeaderController", "参数绑定错误-"+err.Error()))
 		c.JSON(http.StatusOK, entity.NewFalseResult("false", "参数绑定错误-"+err.Error()))
 		return
 	}

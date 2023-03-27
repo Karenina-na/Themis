@@ -103,7 +103,9 @@ func Persistence() (E error) {
 			}, func(tx *gorm.DB) error {
 
 				//持久化领导者信息
-				list := util.NewLinkList[entity.ServerModel]()
+				list := util.NewLinkList[entity.ServerModel](func(a, b entity.ServerModel) bool {
+					return a.IP == b.IP && a.Port == b.Port
+				})
 				Bean.Leaders.LeaderModelsListRWLock.RLock()
 				for _, v := range Bean.Leaders.LeaderModelsList {
 					for _, s := range v {

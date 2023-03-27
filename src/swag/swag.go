@@ -9,12 +9,12 @@ import (
 )
 
 // @title          Themis
-// @version        1.0
+// @version        2.0
 // @description    分布式记账系统调度中心
 // @termsOfService https://www.wzxaugenstern.online/#/
-// @contact.name   CYCLEWW
+// @contact.name   Karenina-na
 // @contact.url    https://www.wzxaugenstern.online/#/
-// @contact.email  1539989223@qq.com
+// @contact.email  weizixiang0@outlook.com
 // @license.name   Apache 2.0
 // @license.url    http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {

@@ -12,9 +12,9 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "termsOfService": "https://www.wzxaugenstern.online/#/",
         "contact": {
-            "name": "CYCLEWW",
+            "name": "Karenina-na",
             "url": "https://www.wzxaugenstern.online/#/",
-            "email": "1539989223@qq.com"
+            "email": "weizixiang0@outlook.com"
         },
         "license": {
             "name": "Apache 2.0",
@@ -325,46 +325,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/operator/CURD/cancelDeleteInstance": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "由管理者调用删除黑名单中的实例信息。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "管理层"
-                ],
-                "summary": "删除黑名单中的实例信息",
-                "parameters": [
-                    {
-                        "description": "从黑名单中清除的实例信息",
-                        "name": "Model",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.ServerModel"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回true或false",
-                        "schema": {
-                            "$ref": "#/definitions/entity.ResultModel"
-                        }
-                    }
-                }
-            }
-        },
-        "/operator/CURD/deleteColony": {
+        "/operator/CURD/blacklistColony": {
             "delete": {
                 "security": [
                     {
@@ -403,7 +364,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/operator/CURD/deleteInstance": {
+        "/operator/CURD/blacklistInstance": {
             "delete": {
                 "security": [
                     {
@@ -442,14 +403,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/operator/CURD/gerNamespaces": {
-            "get": {
+        "/operator/CURD/blacklistNamespace": {
+            "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "由管理者调用的获取当前所有服务信息。",
+                "description": "由管理者调用删除地区集群实例并拉入黑名单。",
                 "consumes": [
                     "application/json"
                 ],
@@ -459,33 +420,68 @@ const docTemplate = `{
                 "tags": [
                     "管理层"
                 ],
-                "summary": "获取全部命名空间",
+                "summary": "删除命名空间集群实例并拉入黑名单",
+                "parameters": [
+                    {
+                        "description": "被删除的服务命名空间信息（用服务实例信息包装）",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "返回命名空间列表名称",
+                        "description": "返回true或false",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entity.ResultModel"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/entity.ResultModel"
                         }
                     }
                 }
             }
         },
-        "/operator/CURD/getDeleteInstances": {
+        "/operator/CURD/deleteBlacklistInstance": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "由管理者调用删除黑名单中的实例信息。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "删除黑名单中的实例信息",
+                "parameters": [
+                    {
+                        "description": "从黑名单中清除的实例信息",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回true或false",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ResultModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/operator/CURD/getBlacklist": {
             "get": {
                 "security": [
                     {
@@ -528,6 +524,121 @@ const docTemplate = `{
                 }
             }
         },
+        "/operator/CURD/getColonies": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取指定命名空间下的集群",
+                "responses": {
+                    "200": {
+                        "description": "返回集群列表名称",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/operator/CURD/getColoniesInstances": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取指定命名空间下的集群和服务名",
+                "responses": {
+                    "200": {
+                        "description": "返回集群服务列表名称",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/operator/CURD/getInstance": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "由管理者调用的获取指定服务信息。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取服务实例",
+                "responses": {
+                    "200": {
+                        "description": "返回服务封装",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ResultModel"
+                        }
+                    }
+                }
+            }
+        },
         "/operator/CURD/getInstances": {
             "get": {
                 "security": [
@@ -554,14 +665,16 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/operator/CURD/getInstancesByCondition": {
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "由获取命名空间与集群条件下的服务实例服务实例。",
+                "description": "获取命名空间与集群条件下的服务实例。",
                 "consumes": [
                     "application/json"
                 ],
@@ -571,7 +684,7 @@ const docTemplate = `{
                 "tags": [
                     "管理层"
                 ],
-                "summary": "获取指定条件下的服务实例服务实例",
+                "summary": "获取指定条件下的服务实例服务实例--模糊查询",
                 "parameters": [
                     {
                         "description": "封装的条件参数",
@@ -598,6 +711,106 @@ const docTemplate = `{
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/definitions/entity.ServerModel"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/operator/CURD/getInstancesByConditionMap": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取命名空间与集群条件下的服务实例。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取指定条件下的服务实例服务实例--精确查询",
+                "parameters": [
+                    {
+                        "description": "封装的条件参数",
+                        "name": "Model",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ServerModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回服务实例map切片数组",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/definitions/entity.ServerModel"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/operator/CURD/getNamespaces": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "由管理者调用的获取当前所有服务信息。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理层"
+                ],
+                "summary": "获取全部命名空间",
+                "responses": {
+                    "200": {
+                        "description": "返回命名空间列表名称",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entity.ResultModel"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
                                             }
                                         }
                                     }
@@ -683,7 +896,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "由管理员调用获取当前中心线程数",
+                "description": "由管理员调用获取当前中心服务器状态",
                 "consumes": [
                     "application/json"
                 ],
@@ -693,7 +906,7 @@ const docTemplate = `{
                 "tags": [
                     "管理层"
                 ],
-                "summary": "获取服务状态",
+                "summary": "获取服务器状态",
                 "responses": {
                     "200": {
                         "description": "返回电脑状态",
@@ -919,7 +1132,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "2.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},

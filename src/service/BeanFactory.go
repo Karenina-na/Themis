@@ -26,8 +26,12 @@ func InitServer() (E error) {
 	})
 
 	//初始化实例存储链表
-	Bean.InstanceList = util.NewLinkList[entity.ServerModel]()
-	Bean.DeleteInstanceList = util.NewLinkList[entity.ServerModel]()
+	Bean.InstanceList = util.NewLinkList[entity.ServerModel](func(a, b entity.ServerModel) bool {
+		return a.IP == b.IP && a.Port == b.Port
+	})
+	Bean.DeleteInstanceList = util.NewLinkList[entity.ServerModel](func(a, b entity.ServerModel) bool {
+		return a.IP == b.IP && a.Port == b.Port
+	})
 
 	//初始化服务器模型队列
 	Bean.Servers = Bean.NewServersModel()

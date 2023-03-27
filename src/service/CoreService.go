@@ -49,7 +49,9 @@ func Register() (E error) {
 				Bean.Servers.ServerModelsList[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
 			}
 			if Bean.Servers.ServerModelsList[namespace][name] == nil {
-				Bean.Servers.ServerModelsList[namespace][name] = util.NewLinkList[entity.ServerModel]()
+				Bean.Servers.ServerModelsList[namespace][name] = util.NewLinkList[entity.ServerModel](func(a, b entity.ServerModel) bool {
+					return a.IP == b.IP && a.Port == b.Port
+				})
 			}
 
 			//存储数据
@@ -65,7 +67,9 @@ func Register() (E error) {
 				Bean.Leaders.ElectionServers[namespace] = make(map[string]*util.LinkList[entity.ServerModel])
 			}
 			if Bean.Leaders.ElectionServers[namespace][data.Colony] == nil {
-				Bean.Leaders.ElectionServers[namespace][data.Colony] = util.NewLinkList[entity.ServerModel]()
+				Bean.Leaders.ElectionServers[namespace][data.Colony] = util.NewLinkList[entity.ServerModel](func(a, b entity.ServerModel) bool {
+					return a.IP == b.IP && a.Port == b.Port
+				})
 			}
 			Bean.Leaders.LeaderModelsListRWLock.Unlock()
 

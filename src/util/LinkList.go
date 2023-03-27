@@ -1,7 +1,6 @@
 package util
 
 import (
-	"reflect"
 	"strconv"
 	"sync"
 )
@@ -13,6 +12,7 @@ type LinkList[T any] struct {
 	len       int
 	rwLock    *sync.RWMutex
 	iteRWLock *sync.Mutex
+	equal     func(a, b T) bool
 }
 
 // linkListNode is a node of linked list
@@ -25,7 +25,7 @@ type linkListNode[T any] struct {
 // NewLinkList
 // @Description: create a new linked list
 // @return       *LinkList[T] : the new linked list
-func NewLinkList[T any]() *LinkList[T] {
+func NewLinkList[T any](f func(a, b T) bool) *LinkList[T] {
 	lock := &sync.RWMutex{}
 	iteLock := &sync.Mutex{}
 	Node := &linkListNode[T]{
@@ -38,6 +38,7 @@ func NewLinkList[T any]() *LinkList[T] {
 		len:       0,
 		rwLock:    lock,
 		iteRWLock: iteLock,
+		equal:     f,
 	}
 }
 
@@ -210,14 +211,14 @@ func (L *LinkList[T]) DeleteByValue(o T) bool {
 		return false
 	}
 	t := L.head
-	if reflect.DeepEqual(t.object, o) {
+	if L.equal(t.object, o) {
 		L.head.next.prev = nil
 		L.head = L.head.next
 		L.len--
 		return true
 	}
 	for t.next.next != nil {
-		if reflect.DeepEqual(t.object, o) {
+		if L.equal(t.object, o) {
 			t.prev.next = t.next
 			t.next.prev = t.prev
 			L.len--
@@ -225,7 +226,7 @@ func (L *LinkList[T]) DeleteByValue(o T) bool {
 		}
 		t = t.next
 	}
-	if reflect.DeepEqual(t.object, o) {
+	if L.equal(t.object, o) {
 		t.prev.next = L.tail
 		L.tail.prev = t.prev
 		L.len--
@@ -247,20 +248,20 @@ func (L *LinkList[T]) DeleteAllByValue(o T) bool {
 	}
 L1:
 	t := L.head
-	if reflect.DeepEqual(t.object, o) {
+	if L.equal(t.object, o) {
 		L.head.next.prev = nil
 		L.head = L.head.next
 		goto L1
 	}
 	for t != nil && t.next != nil && t.next.next != nil {
-		if reflect.DeepEqual(t.object, o) {
+		if L.equal(t.object, o) {
 			t.prev.next = t.next
 			t.next.prev = t.prev
 			L.len--
 		}
 		t = t.next
 	}
-	if reflect.DeepEqual(t.object, o) {
+	if L.equal(t.object, o) {
 		t.prev.next = L.tail
 		L.tail.prev = t.prev
 		L.len--
@@ -345,7 +346,7 @@ func (L *LinkList[T]) Contain(v T) bool {
 	defer L.rwLock.RUnlock()
 	t := L.head
 	for t.next != nil {
-		if reflect.DeepEqual(t.object, v) {
+		if L.equal(t.object, v) {
 			return true
 		}
 		t = t.next
