@@ -16,11 +16,11 @@ func MessageAPI(r *gin.Engine) {
 	txLeader := r.Group("/v1/message/leader")
 	txLeader.Use(interception.ClusterFollowInterception())
 	{
-		//	/v1/message/register		服务注册
+		//	/v1/message/leader/register		服务注册
 		txLeader.POST("/register", controller.RegisterController)
-		//  /v1/message/beat			心跳
+		//  /v1/message/leader/beat			心跳
 		txLeader.PUT("/beat", controller.HeartBeatController)
-		//  /v1/message/election		服务调用开启选举
+		//  /v1/message/leader/election		服务调用开启选举
 		txLeader.PUT("/election", controller.ElectionController)
 	}
 
@@ -28,11 +28,11 @@ func MessageAPI(r *gin.Engine) {
 	txFollow := r.Group("/v1/message/follow")
 	txFollow.Use(interception.ClusterLeaderInterception())
 	{
-		// /v1/message/getLeader		获取当前Leader
+		// /v1/message/follow/getLeader		获取当前Leader
 		txFollow.POST("/getLeader", controller.GetLeaderController)
-		// /v1/message/getServers		获取除Leader外其他服务
+		// /v1/message/follow/getServers		获取除Leader外其他服务
 		txFollow.POST("/getServers", controller.GetServersController)
-		// /v1/message/getServersNum	获取当前集群服务数量
+		// /v1/message/follow/getServersNum	获取当前集群服务数量
 		txFollow.POST("/getServersNum", controller.GetServersNumController)
 	}
 }

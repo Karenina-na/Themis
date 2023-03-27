@@ -47,7 +47,7 @@ func DataSyncDelete(list []entity.ServerModel) (E error) {
 	//同步删除数据
 	for _, v := range list {
 		if !Bean.DeleteInstanceList.Contain(v) {
-			B, err := service.DeleteServer(&v)
+			B, err := service.BlackInstance(&v)
 			if err != nil || !B {
 				return err
 			}

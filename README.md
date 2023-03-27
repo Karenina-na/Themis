@@ -22,12 +22,16 @@
 * GET /v1/operator/CURD/getColonies 获取指定命名空间全部集群名称
 * GET /v1/operator/CURD/getColoniesInstances 获取指定命名空间全部集群名称和服务器名称
 * GET /v1/operator/CURD/getInstances 获取全部服务实例
+* POST /v1/operator/CURD/getInstance 获取指定服务实例
 * POST /v1/operator/CURD/getInstancesByCondition 获取指定命名空间和区域的服务实例--返回list  模糊查询
 * POST /v1/operator/CURD/getInstancesByConditionMap 获取指定命名空间和区域的服务实例--返回map  精确查询
-* DELETE /v1/operator/CURD/deleteInstance 将指定服务拉入黑名单
-* DELETE /v1/operator/CURD/deleteColony 将指定集群内所有服务拉入黑名单
-* GET /v1/operator/CURD/getDeleteInstances 获取黑名单内的实例
-* DELETE /v1/operator/CURD/cancelDeleteInstance 将服务从黑名单删除  
+*
+* DELETE /v1/operator/CURD/blacklistInstance 将指定服务实例拉入黑名单
+* DELETE /v1/operator/CURD/blacklistColony 将指定集群内所有服务实例拉入黑名单
+* DELETE /v1/operator/CURD/blacklistNamespace 将指定命名空间内所有集群内所有服务实例拉入黑名单
+*
+* GET /v1/operator/CURD/getBlacklist 获取黑名单内的实例
+* DELETE /v1/operator/CURD/deleteBlacklistInstance 将服务从黑名单删除
 
 * GET /v1/operator/cluster/getStatus 获取调度中心服务状态
 * GET /v1/operator/cluster/getClusterLeader 获取当前集群Leader

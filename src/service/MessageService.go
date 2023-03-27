@@ -139,7 +139,9 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 
 	//获取参与选举的服务
 	Bean.Servers.ServerModelsListRWLock.RLock()
-	ChoiceList := util.NewLinkList[entity.ServerModel]()
+	ChoiceList := util.NewLinkList[entity.ServerModel](func(a, b entity.ServerModel) bool {
+		return a.IP == b.IP && a.Port == b.Port
+	})
 	for colonyMap, servers := range Bean.Servers.ServerModelsList[model.Namespace] {
 		str := strings.Split(colonyMap, "::")
 		colony := str[0]

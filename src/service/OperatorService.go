@@ -10,16 +10,16 @@ import (
 	"strings"
 )
 
-// DeleteServer
-// @Description: 删除服务
+// BlackInstance
+// @Description: 拉黑实例
 // @param        model 服务模型
 // @return       B     是否成功
 // @return       E     错误
-func DeleteServer(model *entity.ServerModel) (B bool, E error) {
+func BlackInstance(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			E = exception.NewUserError("DeleteServer-service", util.Strval(r))
+			E = exception.NewUserError("BlackInstance-service", util.Strval(r))
 		}
 	}()
 	//将服务从服务列表中删除，加入黑名单
@@ -32,7 +32,7 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 	if Bean.Servers.ServerModelsList[model.Namespace][model.Colony+"::"+model.Name].IsEmpty() {
 		delete(Bean.Servers.ServerModelsList[model.Namespace], model.Colony+"::"+model.Name)
 	}
-	if len(Bean.Servers.ServerModelsList[model.Namespace]) == 0 && model.Name != "default" {
+	if len(Bean.Servers.ServerModelsList[model.Namespace]) == 0 && model.Namespace != "default" {
 		delete(Bean.Servers.ServerModelsList, model.Namespace)
 		Bean.Leaders.LeaderModelsListRWLock.Lock()
 		delete(Bean.Leaders.LeaderModelsList, model.Namespace)
@@ -56,20 +56,20 @@ func DeleteServer(model *entity.ServerModel) (B bool, E error) {
 	if config.Cluster.ClusterEnable {
 		syncBean.SectionMessage.DeleteChan.Enqueue(model)
 	}
-	util.Loglevel(util.Debug, "DeleteServer", "删除服务-"+util.Strval(*model))
+	util.Loglevel(util.Debug, "BlackInstance", "删除服务-"+util.Strval(*model))
 	return true, nil
 }
 
-// DeleteColonyServer
-// @Description: 删除集群
+// BlackColony
+// @Description: 拉黑集群
 // @param        model 服务模型
 // @return       B     是否成功
 // @return       E     错误
-func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
+func BlackColony(model *entity.ServerModel) (B bool, E error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			E = exception.NewUserError("DeleteColonyServer-service", util.Strval(r))
+			E = exception.NewUserError("BlackColony-service", util.Strval(r))
 		}
 	}()
 	//如果服务模型为空，返回错误
@@ -107,16 +107,70 @@ func DeleteColonyServer(model *entity.ServerModel) (B bool, E error) {
 		delete(Bean.Servers.ServerModelsList[model.Namespace], name)
 	}
 	//删除命名空间
-	if len(Bean.Servers.ServerModelsList[model.Namespace]) == 0 && model.Name != "default" {
+	if len(Bean.Servers.ServerModelsList[model.Namespace]) == 0 && model.Namespace != "default" {
 		delete(Bean.Servers.ServerModelsList, model.Namespace)
 	}
 	Bean.Servers.ServerModelsListRWLock.Unlock()
 
 	//删除领导者
 	Bean.Leaders.LeaderModelsListRWLock.Lock()
+	delete(Bean.Leaders.LeaderModelsList[model.Namespace], model.Colony)
+	Bean.Leaders.LeaderModelsListRWLock.Unlock()
+	util.Loglevel(util.Debug, "BlackColony", "批量删除服务-"+util.Strval(model.Colony))
+	return true, nil
+}
+
+// BlackNamespace
+// @Description: 拉黑命名空间
+// @param        model 服务模型
+// @return       B     是否成功
+// @return       E     错误
+func BlackNamespace(model *entity.ServerModel) (B bool, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("BlackNamespace-service", util.Strval(r))
+		}
+	}()
+	//如果服务模型为空，返回错误
+	Bean.Servers.ServerModelsListRWLock.Lock()
+	if Bean.Servers.ServerModelsList[model.Namespace] == nil {
+		Bean.Servers.ServerModelsListRWLock.Unlock()
+		return false, nil
+	}
+
+	//迭代服务模型
+	list := make([]string, 0, 100)
+	for name, L := range Bean.Servers.ServerModelsList[model.Namespace] {
+		//将服务从服务列表中删除，加入黑名单
+		L.Iterator(func(index int, server entity.ServerModel) {
+			Bean.DeleteInstanceList.Append(server)
+			Bean.InstanceList.DeleteByValue(server)
+			Bean.Servers.ServerModelsList[server.Namespace][server.Colony+"::"+server.Name].DeleteByValue(server)
+			if Bean.Servers.ServerModelsList[server.Namespace][server.Colony+"::"+server.Name].IsEmpty() {
+				delete(Bean.Servers.ServerModelsList[server.Namespace], server.Colony+"::"+server.Name)
+			}
+
+			//集群同步
+			if config.Cluster.ClusterEnable {
+				syncBean.SectionMessage.DeleteChan.Enqueue(&server)
+			}
+		})
+		list = append(list, name)
+	}
+	//删除集群
+	for _, name := range list {
+		delete(Bean.Servers.ServerModelsList[model.Namespace], name)
+	}
+	//删除命名空间
+	delete(Bean.Servers.ServerModelsList, model.Namespace)
+	Bean.Servers.ServerModelsListRWLock.Unlock()
+
+	//删除领导者
+	Bean.Leaders.LeaderModelsListRWLock.Lock()
 	delete(Bean.Leaders.LeaderModelsList, model.Namespace)
 	Bean.Leaders.LeaderModelsListRWLock.Unlock()
-	util.Loglevel(util.Debug, "DeleteColonyServer", "批量删除服务-"+util.Strval(model.Colony))
+	util.Loglevel(util.Debug, "BlackColony", "批量删除服务-"+util.Strval(model.Colony))
 	return true, nil
 }
 
@@ -280,6 +334,43 @@ func GetInstances() (m map[string]map[string]map[string][]entity.ServerModel, E 
 			//迭代服务
 			L.Iterator(func(index int, server entity.ServerModel) {
 				ServerLists[namespace][colony][serverName] = append(ServerLists[namespace][colony][serverName], server)
+			})
+		}
+	}
+	Bean.Servers.ServerModelsListRWLock.RUnlock()
+	return ServerLists, nil
+}
+
+// GetInstance
+//
+//	@Description: 获取指定服务
+//	@param model	服务模型
+//	@return m	服务实例
+//	@return E	错误
+func GetInstance(model *entity.ServerModel) (L []entity.ServerModel, E error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			E = exception.NewUserError("GetInstance-service", util.Strval(r))
+		}
+	}()
+	//判断是否为空
+	if model.Namespace == "" || model.Colony == "" || model.Name == "" {
+		return nil, exception.NewUserError("GetInstance-service", "请求非法")
+	}
+
+	ServerLists := make([]entity.ServerModel, 0)
+	Bean.Servers.ServerModelsListRWLock.RLock()
+
+	//迭代集群
+	for name, L := range Bean.Servers.ServerModelsList[model.Namespace] {
+		str := strings.Split(name, "::")
+		colony := str[0]
+		serverName := str[1]
+		if colony == model.Colony && serverName == model.Name {
+			//迭代服务
+			L.Iterator(func(index int, server entity.ServerModel) {
+				ServerLists = append(ServerLists, server)
 			})
 		}
 	}
