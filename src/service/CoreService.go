@@ -143,12 +143,12 @@ func ServerBeat(model entity.ServerModel, namespace string, name string) (E erro
 
 			//服务心跳检测获取
 			Bean.ServersBeatQueue.Operate(func() {
-				if !Bean.ServersQueue.IsEmpty() {
+				if !Bean.ServersBeatQueue.IsEmpty() {
 					data := Bean.ServersBeatQueue.Head()
 					if model.Equal(&data) {
 						start = time.Now().Unix()
+						Bean.ServersBeatQueue.Dequeue()
 					}
-					Bean.ServersBeatQueue.Dequeue()
 				}
 			})
 		}

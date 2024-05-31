@@ -38,6 +38,9 @@ func (Q *ChanQueue[T]) Enqueue(data *T) {
 	Q.rwLock.Lock()
 	Q.len++
 	Q.queue <- *data
+	if Q.len == 1 {
+		Q.head = data
+	}
 	Q.rwLock.Unlock()
 }
 
