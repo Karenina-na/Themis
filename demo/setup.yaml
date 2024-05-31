@@ -1,0 +1,15 @@
+client:
+  ip: 127.0.0.1
+  port: 50001
+  name: xian-server1
+  colony: xian
+  namespace: dev
+  udp-listen: 55001
+  enable-blockchain: true
+
+Themis:
+  ip: 127.0.0.1
+  port: 50000
+  beat-enable: true
+  beat-timeout: 5
+  election-timeout: 5 # to create a new leader (s)
