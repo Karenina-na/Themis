@@ -165,7 +165,7 @@ func Election(model *entity.ServerModel) (B bool, E error) {
 	Bean.Leaders.LeaderModelsListRWLock.Lock()
 	Bean.Leaders.LeaderModelsList[model.Namespace][model.Colony] = leader
 	Bean.Leaders.LeaderModelsListRWLock.Unlock()
-	util.Loglevel(util.Debug, "Election", "选举完成，发起通信-leader:"+leader.IP)
+	util.Loglevel(util.Debug, "Election", "选举完成，发起广播通信:"+leader.IP+":"+leader.UDPPort)
 
 	//发起广播通信
 	ChoiceList.Iterator(func(index int, m entity.ServerModel) {
