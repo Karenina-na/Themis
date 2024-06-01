@@ -178,17 +178,19 @@ func SendDataGoroutine(SyncRoutineBool chan bool) (E error) {
 
 		//删除黑名单数据
 		{
-			model := syncBean.SectionMessage.CancelDeleteChan.Dequeue()
-			m := syncBean.NewMessageModel()
-			syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
-				m.SetMessageModeForSyncAppend(syncBean.Term, syncBean.Status,
-					*model, value.IP, value.Port)
-				syncBean.UdpSendMessage <- *m
-				if config.Cluster.TrackEnable {
-					util.Loglevel(util.Debug, "SendDataGoroutineSnapshot-leader",
-						"leader数据同步-CancelDeleteChan-发送数据"+util.Strval(m.UDPTargetAddress))
-				}
-			})
+			if !syncBean.SectionMessage.CancelDeleteChan.IsEmpty() {
+				model := syncBean.SectionMessage.CancelDeleteChan.Dequeue()
+				m := syncBean.NewMessageModel()
+				syncBean.SyncAddress.Iterator(func(index int, value syncBean.SyncAddressModel) {
+					m.SetMessageModeForSyncAppend(syncBean.Term, syncBean.Status,
+						*model, value.IP, value.Port)
+					syncBean.UdpSendMessage <- *m
+					if config.Cluster.TrackEnable {
+						util.Loglevel(util.Debug, "SendDataGoroutineSnapshot-leader",
+							"leader数据同步-CancelDeleteChan-发送数据"+util.Strval(m.UDPTargetAddress))
+					}
+				})
+			}
 		}
 
 		//领导者数据

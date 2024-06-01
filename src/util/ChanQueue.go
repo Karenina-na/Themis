@@ -59,6 +59,7 @@ func (Q *ChanQueue[T]) Dequeue() *T {
 	Q.len--
 	if Q.head != nil {
 		data = Q.head
+		Q.head = nil
 	} else {
 		t := <-Q.queue
 		data = &t
