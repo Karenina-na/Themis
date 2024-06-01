@@ -58,5 +58,5 @@ func CheckToken(c *gin.Context) (B bool, E error) {
 	if account != config.Root.RootAccount || password != config.Root.RootPassword {
 		return false, exception.NewUserError("CheckToken-util", "账号验证失败")
 	}
-	return false, nil
+	return true, nil
 }

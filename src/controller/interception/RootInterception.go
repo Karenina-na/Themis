@@ -11,7 +11,8 @@ import (
 //	@return gin.HandlerFunc	返回拦截器
 func RootInterception() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if b, err := util.CheckToken(c); err != nil || !b {
+		b, err := util.CheckToken(c)
+		if err != nil || !b {
 			util.TokenError(err, c)
 			c.Abort()
 			return
