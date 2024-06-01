@@ -44,6 +44,7 @@ class Config:
                 self.namespace = config['client']['namespace']
                 self.udp_port = config['client']['udp-listen']
                 self.enable_blockchain = config['client']['enable-blockchain']
+                self.log_level = config['client']['log-level']
 
                 # themis config
                 self.server_ip = config['Themis']['ip']
@@ -57,7 +58,13 @@ class Config:
             exit(1)
 
         self.log = logging.getLogger('client')
-        self.log.setLevel(logging.DEBUG)
+        # self.log.setLevel(logging.DEBUG)
+        if self.log_level == 'INFO':
+            self.log.setLevel(logging.INFO)
+        elif self.log_level == 'DEBUG':
+            self.log.setLevel(logging.DEBUG)
+        else:
+            self.log.setLevel(logging.ERROR)
         self.log.addHandler(logging.StreamHandler())
         # set format for log
         formatter = logging.Formatter('%(asctime)s | [%(name)s] | [%(levelname)s] => %(message)s')
@@ -205,7 +212,7 @@ class Config:
             if response.status_code == 200:
                 self.log.debug('Send Success! -> %s', response.json())
                 if response.json()['code'] == SUCCESS_CODE:
-                    self.log.info('Beat success! -> %s', response.json())
+                    self.log.debug('Beat success! -> %s', response.json())
                 else:
                     self.log.error('Beat failed! -> %s', response.json())
                 return True
@@ -298,14 +305,17 @@ class Config:
                 if response.json()['code'] == SUCCESS_CODE:
                     self.log.info('Get servers success! -> %s', response.json())
                     servers = response.json()['data']
-                    return [{
-                        'ip': server['IP'],
-                        'port': server['port'],
-                        'name': server['name'],
-                        'colony': server['colony'],
-                        'namespace': server['namespace'],
-                        'udp_port': server['udp_port']
-                    } for server in servers]
+                    l = []
+                    for server in servers:
+                        l.append({
+                            'ip': server['IP'],
+                            'port': server['port'],
+                            'name': server['name'],
+                            'colony': server['colony'],
+                            'namespace': server['namespace'],
+                            'udp_port': server['udp_port']
+                        })
+                    return l
                 else:
                     self.log.error('Get servers failed! -> %s', response.json())
                     return []
@@ -387,7 +397,7 @@ class Config:
             if response.status_code == 200:
                 self.log.debug('Send Success! -> %s', response.json())
                 if response.json()['code'] == SUCCESS_CODE:
-                    self.log.info('Election success! -> %s', response.json())
+                    self.log.info('Send Election success! -> %s', response.json())
                 else:
                     self.log.error('Election failed! -> %s', response.json())
                 return True
@@ -397,6 +407,16 @@ class Config:
         except Exception as e:
             self.log.error('Election failed! Error: %s', e)
             return False
+        
+    
+
+def beat_thread(config: Config):
+    last_beat_time = time.time()
+    while True:
+        if time.time() - last_beat_time > config.beat_timeout:
+            config.beat()
+            last_beat_time = time.time()
+        time.sleep(1)
 
 
 if __name__ == '__main__':
@@ -410,27 +430,26 @@ if __name__ == '__main__':
 
     # get now leader
     now_leader = config.getLeader()
-
-    last_beat_time = time.time()
     last_update_leader_time = time.time()
 
     # flag
     flag = Role.Follower
+
+    if config.beat_enable:
+        beat_thread = threading.Thread(target=beat_thread, args=(config,))
+        beat_thread.start()
+
     
     while True:
-        if config.beat_enable:
-            # heartbeat
-            if time.time() - last_beat_time > config.beat_timeout:
-                config.beat()
-                last_beat_time = time.time()
-        
+        f = False
         if config.channel.qsize() > 0:
+            f = True
             # get new leader
             now_leader = config.channel.get()
             last_update_leader_time = time.time()
             config.log.info('Receive new leader! -> %s', now_leader)
 
-            if now_leader['ip'] == config.ip and now_leader['port'] == config.port:
+            if now_leader['ip'] == config.ip and int(now_leader['port']) == config.port:
                 flag = Role.Leader
                 servers = config.getServers()
                 config.log.info('Get followers! -> %s', servers)
@@ -440,18 +459,20 @@ if __name__ == '__main__':
             # get all servers
             config.log.info('-    Number of Servers: {}'.format(config.getServersNum()))
         
-        if flag == Role.Follower and time.time() - last_update_leader_time > config.election_timeout:
+        if time.time() - last_update_leader_time > config.election_timeout:
+            f = True
             # follower election
             if not config.election():
                 exit(1)
             last_update_leader_time = time.time()
 
         time.sleep(1)
-        config.log.debug('Next loop... | Role as %s | %s', 'Leader' if flag == Role.Leader else 'Follower', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
-        if flag == Role.Leader: # show all followers
-            output = "     Followers -> "
-            for server in servers:
-                output += format('%s:%s [%s] | ', server['ip'], server['port'], server['name'], end='')
-            config.log.debug(output)
-        else: # show leader
-            config.log.debug('     Leader -> %s:%s [%s]', now_leader['ip'], now_leader['port'], now_leader['name'])
+        if f:
+            config.log.info('Role as %s | %s', 'Leader' if flag == Role.Leader else 'Follower', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
+            if flag == Role.Leader: # show all followers
+                output = "     Followers -> "
+                for server in servers:
+                    output += format('| %s:%s [%s] ' % (server['ip'], server['port'], server['name']))
+                config.log.info(output)
+            else: # show leader
+                config.log.info('     Leader -> %s:%s [%s]', now_leader['ip'], now_leader['port'], now_leader['name'])

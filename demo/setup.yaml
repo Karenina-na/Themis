@@ -6,10 +6,11 @@ client:
   namespace: dev
   udp-listen: 55001
   enable-blockchain: true
+  log-level: DEBUG # DEBUG/INFO/ERROR
 
 Themis:
   ip: 127.0.0.1
   port: 50000
-  beat-enable: true
+  beat-enable: false
   beat-timeout: 5
-  election-timeout: 5 # to create a new leader (s)
+  election-timeout: 10 # to create a new leader (s)
