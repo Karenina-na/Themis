@@ -2,8 +2,7 @@
 
 <img src="icon/png/logo-white.png" alt="Themis分布式记账调度中心" width="500" />
 
-### [Author](https://www.wzxaugenstern.online/#/)
-#### [Themis](https://www.wzxaugenstern.online/#/Article?ArticleId=818427233)
+### [Author](https://www.weizixiang.top)
 
 ---
 
