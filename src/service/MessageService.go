@@ -223,7 +223,7 @@ func GetServers(serverModel *entity.ServerModel) (m []entity.ServerModel, E erro
 		if colony == serverModel.Colony {
 			//迭代获取与领导者在相同集群的服务器
 			L.Iterator(func(index int, model entity.ServerModel) {
-				if serverModel.IP != model.IP {
+				if serverModel.IP != model.IP || serverModel.Port != model.Port {
 					list = append(list, model)
 				}
 			})
